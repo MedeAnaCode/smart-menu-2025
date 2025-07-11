@@ -1,0 +1,10 @@
+.recipes-container {
+  padding: 30px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+}
+
+.recipes-container__card {
+  height: 350px;
+}

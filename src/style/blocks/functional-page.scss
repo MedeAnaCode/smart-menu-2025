@@ -1,0 +1,29 @@
+.functional-page {
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns: 1fr 365px;
+  margin-bottom: 127px;
+
+  @media (min-width: $desktop-width) {
+    overflow: hidden;
+    height: calc(100vh - 191px);
+    position: fixed;
+    margin-top: 109px;
+    margin-bottom: 82px;
+    width: 100%;
+  }
+}
+
+.functional-page__content {
+  position: static;
+  grid-column: 1/2;
+  overflow: scroll;
+  height: 100%;
+}
+
+.functional-page__sidebar {
+  position: static;
+  grid-column: 2/3;
+  overflow: scroll;
+  height: 100%;
+}

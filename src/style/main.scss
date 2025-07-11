@@ -1,0 +1,33 @@
+//fonts
+@import "fonts";
+
+//colors
+@import "colors";
+
+//viewports
+@import "viewports";
+
+//mixins
+@import "mixins";
+
+//global
+@import "global";
+
+//index
+@import "blocks/page-header";
+@import "blocks/main-container";
+@import "blocks/banner";
+@import "blocks/help";
+@import "blocks/registration";
+@import "blocks/about-content";
+@import "blocks/social-list";
+@import "blocks/page-footer";
+@import "blocks/button-dark";
+
+//functional page
+@import "blocks/functional-page";
+@import "blocks/sidebar";
+
+//recipes
+@import "blocks/recipes-container";
+@import "blocks/recipe-card";

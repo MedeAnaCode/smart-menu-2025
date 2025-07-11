@@ -1,0 +1,11 @@
+.main-container {
+  flex-grow: 1;
+}
+
+.main-container__information {
+  @media (min-width: $tablet-width) {
+      @include index-grid-tablet;
+
+      grid-template-rows: auto auto;
+      }
+}

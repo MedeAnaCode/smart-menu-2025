@@ -1,0 +1,130 @@
+.banner {
+  margin: 0 auto;
+  margin-bottom: 40px;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  @media (min-width: $tablet-width) {
+    padding: 0 40px;
+  }
+
+  @media (min-width: $desktop-width) {
+    @include index-grid-tablet;
+    padding: 0 106px;
+    position: static;
+    border-bottom: 1px solid $dark-accent;
+    max-width: $desktop-max-width;
+  }
+
+  @media (min-width: $desktop-max-width) {
+    border: none;
+  }
+
+  &::before {
+    z-index: 0;
+    content: "";
+    background-color: $footer-gray;
+    background-image: url("../img/banner-mobile-1x.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 194px;
+
+    @media (min-resolution: 2dppx) {
+      background-image: url("../img/banner-mobile-2x.jpg");
+    }
+
+    @media (min-width: $tablet-width) {
+      height: 460px;
+      background-image: url("../img/banner-tablet-1x.jpg");
+
+      @media (min-resolution: 2dppx) {
+        background-image: url("../img/banner-tablet-2x.jpg");
+      }
+    }
+
+    @media (min-width: $desktop-width) {
+      right: auto;
+      width: 65%;
+      height: 780px;
+    }
+
+    @media (min-width: $desktop-max-width) {
+      width: 55%;
+    }
+  }
+}
+
+.banner__logo-wrapper {
+  padding: 48px 24px 56px;
+  margin: 0 auto 32px;
+
+  @media (min-width: $tablet-width) {
+    padding: 93px 24px 118px;
+    margin-bottom: 0;
+  }
+
+  @media (min-width: $desktop-width) {
+    grid-column: 1 / 3;
+    padding: 46px 240px 176px 124px;
+  }
+}
+
+.banner__logo-image {
+  position: relative;
+  z-index: 1;
+
+  @media (min-width: $tablet-width) {
+    width: 334px;
+    height: 249px;
+  }
+
+  @media (min-width: $desktop-width) {
+    width: 461px;
+    height: 364px;
+  }
+}
+
+.banner__description {
+  margin: 0 auto;
+  padding: 32px 24px;
+  font-weight: 200;
+  width: 100%;
+  border: 2px solid $dark-accent;
+  text-align: center;
+
+  @media (min-width: $tablet-width) {
+    border: none;
+    border-bottom: 2px solid $dark-accent;
+    font-size: 32px;
+    line-height: 40px;
+    padding: 40px 100px;
+  }
+
+  @media (min-width: $desktop-width) {
+    grid-column: 3 / -1;
+    padding: 106px 56px;
+    border: none;
+    font-size: 36px;
+    line-height: 44px;
+  }
+
+  @media (min-width: $desktop-max-width) {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+.banner__description-accent {
+  font-weight: 200;
+
+  @media (min-width: $tablet-width) {
+    font-weight: 400;
+  }
+}
