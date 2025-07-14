@@ -1,6 +1,5 @@
 import React from 'react';
 import Nav from './Nav.jsx';
-import logoMobile from './../img/icons/text-logo-mobile.svg';
 import {useLocation} from 'react-router-dom';
 
 function Header () {
@@ -17,8 +16,7 @@ function Header () {
         <header className={getHeaderClassName()}>
             <div className="page-header__container">
                 <a className="page-header__logo-link" href="#">
-                    <img className="page-header__logo-image" width="167" height="19" src={logoMobile}>
-                    </img>
+                    <img className="page-header__logo-image" width="167" height="19" src='/img/icons/text-logo-mobile.svg'/>
                 </a>
                 <button className="page-header__toggle-button" type="button">
                     <span className="visually-hidden">

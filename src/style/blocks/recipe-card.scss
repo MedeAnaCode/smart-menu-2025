@@ -38,6 +38,24 @@
  font-weight: bold;
 }
 
+.recipe-card__ingredients {
+ width: 100%;
+ display: grid;
+ grid-template-columns: auto auto;
+ column-gap: 10px;
+ row-gap: 2px;
+ font-size: 14px;
+ line-height: 16px;
+}
+
+.recipe-card__ingredients-name {
+ font-weight: bold;
+}
+
+.recipe-card__ingredients-amount {
+ margin-left: auto;
+}
+
 .recipe-card__preparing {
  font-size: 14px;
  line-height: 16px;

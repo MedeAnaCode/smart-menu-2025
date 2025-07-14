@@ -26,7 +26,7 @@
     z-index: 0;
     content: "";
     background-color: $footer-gray;
-    background-image: url("../img/banner-mobile-1x.jpg");
+    background-image: url('/img/banner-mobile-1x.jpg');
     background-repeat: no-repeat;
     background-size: cover;
     position: absolute;
@@ -37,15 +37,15 @@
     height: 194px;
 
     @media (min-resolution: 2dppx) {
-      background-image: url("../img/banner-mobile-2x.jpg");
+      background-image: url('/img/banner-mobile-2x.jpg');
     }
 
     @media (min-width: $tablet-width) {
       height: 460px;
-      background-image: url("../img/banner-tablet-1x.jpg");
+      background-image: url('/img/banner-tablet-1x.jpg');
 
       @media (min-resolution: 2dppx) {
-        background-image: url("../img/banner-tablet-2x.jpg");
+        background-image: url('/img/banner-tablet-2x.jpg');
       }
     }
 

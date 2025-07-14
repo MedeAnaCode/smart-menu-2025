@@ -1,5 +1,4 @@
 import React from 'react';
-import logoImage from './../img/logo-image-tablet.svg';
 
 function MainContainer () {
     return (
@@ -12,7 +11,7 @@ function MainContainer () {
                     Описание приложения
                 </h2>
                 <div className="banner__logo-wrapper">
-                    <img className="banner__logo-image" src={logoImage} width="120" height="90"
+                    <img className="banner__logo-image" src='/img/logo-image-tablet.svg' width="120" height="90"
                                  alt="Логотип Smart-menu"/>
                 </div>
                 <p className="banner__description">

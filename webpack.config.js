@@ -26,18 +26,16 @@ module.exports = {
                     // Creates `style` nodes from JS strings
                     "style-loader",
                     // Translates CSS into CommonJS
-                    "css-loader",
+                    {
+                        loader: "css-loader",
+                        options: {
+                            url: false //чтобы css не интерпретировал url изображений как модули
+                        },
+                    },
                     // Compiles Sass to CSS
                     "sass-loader",
                 ]
             },
-            {
-                test: /\.(png|jpg|jpeg|gif|svg)$/i,
-                type: 'asset/resource',
-                generator: {
-                    filename: 'assets/images/[name][ext][query]' // Конфигурация пути и имени файлов
-                }
-            }
         ]
     },
     plugins: [
@@ -49,9 +47,15 @@ module.exports = {
         extensions: ['.js', '.jsx']
     },
     devServer: {
-        static: {
-            directory: path.join(__dirname, 'dist'),
-        },
+        static: [
+            {
+                directory: path.join(__dirname, 'public'),
+                publicPath: '/',
+            },
+            {
+                directory: path.join(__dirname, 'dist'),
+            }
+        ],
         compress: true,
         port: 9000,
     }

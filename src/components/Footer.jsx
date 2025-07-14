@@ -1,8 +1,4 @@
 import React from 'react';
-import telegram from './../img/icons/telegram.svg'
-import vk from './../img/icons/vk.svg'
-import youtube from './../img/icons/youtube.svg'
-import logoMobile from './../img/icons/text-logo-mobile.svg'
 import {useLocation} from 'react-router-dom';
 
 function Footer () {
@@ -29,7 +25,7 @@ function Footer () {
     <span className="visually-hidden">
         Логотип Smart menu.
     </span>
-                    <img className="page-footer__logo-image" width="167" height="19" src={logoMobile}/>
+                    <img className="page-footer__logo-image" width="167" height="19" src='/img/icons/text-logo-mobile.svg'/>
                 </a>
                 <ul className="page-footer__social-list social-list">
                     <li className="social-list__item">
@@ -37,7 +33,7 @@ function Footer () {
             <span className="visually-hidden">
                 Телеграм.
             </span>
-                            <img className="social-list__icon" width="36" height="36" src={telegram}/>
+                            <img className="social-list__icon" width="36" height="36" src='/img/icons/telegram.svg'/>
                         </a>
                     </li>
                     <li className="social-list__item">
@@ -45,7 +41,7 @@ function Footer () {
             <span className="visually-hidden">
                 Youtube.
             </span>
-                            <img className="social-list__icon" width="36" height="36" src={youtube}/>
+                            <img className="social-list__icon" width="36" height="36" src='/img/icons/youtube.svg'/>
                         </a>
                     </li>
                     <li className="social-list__item">
@@ -53,7 +49,7 @@ function Footer () {
             <span className="visually-hidden">
                 В контакте.
             </span>
-                            <img className="social-list__icon" width="36" height="36" src={vk}/>
+                            <img className="social-list__icon" width="36" height="36" src='/img/icons/vk.svg'/>
                         </a>
                     </li>
                 </ul>
