@@ -4,13 +4,12 @@ import {Outlet} from 'react-router-dom';
 
 function ProfileLayout () {
 
-    return <main className="functional-page">
-        <h1 className="visually-hidden">
-            Рецепты "Smart menu".
-        </h1>
-        <Outlet/>
-        <Sidebar/>
-    </main>
+    return <div className="functional-page">
+        <section className="functional-page__content">
+            <Outlet/>
+        </section>
+            <Sidebar/>
+    </div>
 }
 
 export default ProfileLayout;

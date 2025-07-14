@@ -5,11 +5,13 @@ import {Outlet} from 'react-router-dom';
 
 function Layout () {
 
-    return <div>
+    return <>
         <Header/>
-        <Outlet/>
+        <main>
+            <Outlet/>
+        </main>
         <Footer/>
-    </div>
+    </>
 }
 
 export default Layout;

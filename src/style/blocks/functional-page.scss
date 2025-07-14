@@ -3,6 +3,7 @@
   display: grid;
   grid-template-columns: 1fr 365px;
   margin-bottom: 127px;
+  height: calc(100vh - 127px);
 
   @media (min-width: $desktop-width) {
     overflow: hidden;
