@@ -7,7 +7,9 @@ function Recipes () {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch("http://localhost:3001/recipes")
+        // берем рецепты с API. В докере backend доступен по проксированию
+        // через nginx, поэтому обращаемся к относительному пути
+        fetch("/api/recipes")
             .then((res) => res.json())
             .then((data) => {
                 setRecipes(data);

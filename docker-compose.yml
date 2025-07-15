@@ -1,39 +1,44 @@
-version: '3.8'
-services:
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: Nastya
-      POSTGRES_PASSWORD: run
+version: '3.8' # версия файла docker-compose
+services:       # блок с описанием контейнеров
+  db:                             # сервис базы данных
+    image: postgres:15           # используем официальный образ Postgres
+    environment:                 # переменные окружения для инициализации БД
+      POSTGRES_DB: postgres      # имя БД
+      POSTGRES_USER: Nastya      # пользователь БД
+      POSTGRES_PASSWORD: run     # пароль пользователя
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data # сохраняем данные в постоянный volume
     ports:
-      - "5432:5432"
+      - "5432:5432"             # пробрасываем порт наружу
 
-  backend:
+  backend:                       # сервис с API на Node.js
     build:
-      context: .
-      dockerfile: Dockerfile.backend
+      context: .                 # собирать образ из корня проекта
+      dockerfile: Dockerfile.backend # используемый Dockerfile
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: Nastya
-      POSTGRES_PASSWORD: run
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
+      POSTGRES_DB: postgres      # имя БД
+      POSTGRES_USER: Nastya      # пользователь БД
+      POSTGRES_PASSWORD: run     # пароль к БД
+      POSTGRES_HOST: db          # хост БД (имя сервиса db)
+      POSTGRES_PORT: 5432        # порт БД
     depends_on:
-      - db
+      - db                       # запускать после базы
     ports:
-      - "3001:3001"
+      - "3001:3001"             # доступ к API с хоста
+    volumes:
+      - ./server:/app/server     # монтируем код сервера для быстрой перезагрузки
 
-  frontend:
+  frontend:                      # сервис с фронтендом на Nginx
     build:
-      context: .
-      dockerfile: Dockerfile.frontend
+      context: .                 # собирать образ из корня проекта
+      dockerfile: Dockerfile.frontend # используемый Dockerfile
     depends_on:
-      - backend
+      - backend                  # ожидать запуска backend
     ports:
-      - "3000:80"
+      - "3000:80"               # публикуем веб-приложение на 3000
+    volumes:
+      - ./dist:/usr/share/nginx/html   # подключаем статические файлы
+      - ./public:/usr/share/nginx/html # подключаем публичные ресурсы
 
-volumes:
-  db_data:
+volumes:                         # объявление именованных томов
+  db_data:                       # том для данных postgres
