@@ -19,9 +19,7 @@
   "scripts": {
     "start": "webpack serve --open --mode development",
     "build": "webpack --mode production",
-    "dev": "webpack --mode development",
-    "server": "node server/server.js",
-    "start:all": "concurrently \"npm run server\" \"npm run start\""
+    "dev": "webpack --mode development"
   },
   "dependencies": {
     "classnames": "^2.5.1",
