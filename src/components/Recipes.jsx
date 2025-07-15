@@ -12,7 +12,7 @@ const mockRecipes = [
             { name: 'Сыр Фета', amount: '100 г' },
             { name: 'Маслины' },
             { name: 'Лимонный сок', amount: '1 ст. ложка' },
-            { name: 'Оливковое масло'}
+            { name: 'Оливковое масло' },
         ],
     },
     {
@@ -21,12 +21,108 @@ const mockRecipes = [
         image: '/img/salad.png',
         ingredients: [
             { name: 'Спагетти', amount: '200 г' },
-            { name: 'Бекон'},
+            { name: 'Бекон' },
             { name: 'Яйца', amount: 2 },
             { name: 'Пармезан', amount: '50 г' },
-            { name: 'Чеснок'}
+            { name: 'Чеснок' },
         ],
-    }
+    },
+    {
+        title: 'Гречка по-домашнему',
+        description: 'Сытное блюдо из гречки с мясом и овощами.',
+        image: '/img/porridge.png',
+        ingredients: [
+            { name: 'Гречка', amount: '150 г' },
+            { name: 'Говядина', amount: '200 г' },
+            { name: 'Морковь', amount: 1 },
+            { name: 'Лук' },
+            { name: 'Чеснок' },
+        ],
+    },
+    {
+        title: 'Греческий салат',
+        description: 'Лёгкий салат с овощами и фетой.',
+        image: '/img/salad.png',
+        ingredients: [
+            { name: 'Помидоры', amount: 2 },
+            { name: 'Огурцы', amount: 1 },
+            { name: 'Сыр Фета', amount: '100 г' },
+            { name: 'Оливки' },
+            { name: 'Красный лук', amount: '0.5 шт' },
+        ],
+    },
+    {
+        title: 'Овсянка с фруктами',
+        description: 'Нежная овсянка с яблоками и корицей.',
+        image: '/img/porridge.png',
+        ingredients: [
+            { name: 'Овсянка', amount: '100 г' },
+            { name: 'Молоко', amount: '200 мл' },
+            { name: 'Яблоко', amount: 1 },
+            { name: 'Корица', amount: 'по вкусу' },
+            { name: 'Мёд' },
+        ],
+    },
+    {
+        title: 'Салат с тунцом',
+        description: 'Питательный салат с консервированным тунцом.',
+        image: '/img/salad.png',
+        ingredients: [
+            { name: 'Тунец консервированный', amount: '1 банка' },
+            { name: 'Кукуруза', amount: '100 г' },
+            { name: 'Огурцы' },
+            { name: 'Яйца', amount: 2 },
+            { name: 'Майонез' },
+        ],
+    },
+    {
+        title: 'Пшённая каша с тыквой',
+        description: 'Ароматная сладкая каша с тыквой.',
+        image: '/img/porridge.png',
+        ingredients: [
+            { name: 'Пшено', amount: '100 г' },
+            { name: 'Тыква', amount: '150 г' },
+            { name: 'Молоко', amount: '300 мл' },
+            { name: 'Сахар', amount: 'по вкусу' },
+            { name: 'Сливочное масло' },
+        ],
+    },
+    {
+        title: 'Салат с киноа и овощами',
+        description: 'Полезный салат с киноа, овощами и зеленью.',
+        image: '/img/salad.png',
+        ingredients: [
+            { name: 'Киноа', amount: '80 г' },
+            { name: 'Огурцы' },
+            { name: 'Помидоры черри', amount: '100 г' },
+            { name: 'Петрушка' },
+            { name: 'Оливковое масло', amount: '2 ст. ложки' },
+        ],
+    },
+    {
+        title: 'Рис с овощами',
+        description: 'Жареный рис с морковью и перцем.',
+        image: '/img/porridge.png',
+        ingredients: [
+            { name: 'Рис', amount: '150 г' },
+            { name: 'Морковь' },
+            { name: 'Перец сладкий', amount: 1 },
+            { name: 'Соевый соус', amount: 'по вкусу' },
+            { name: 'Растительное масло' },
+        ],
+    },
+    {
+        title: 'Салат с курицей и ананасом',
+        description: 'Необычный салат с копчёной курицей и ананасом.',
+        image: '/img/salad.png',
+        ingredients: [
+            { name: 'Курица копчёная', amount: '150 г' },
+            { name: 'Ананас консервированный', amount: '100 г' },
+            { name: 'Сыр', amount: '50 г' },
+            { name: 'Майонез' },
+            { name: 'Орехи грецкие' },
+        ],
+    },
 ];
 
 
