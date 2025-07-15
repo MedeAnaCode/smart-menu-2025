@@ -63,6 +63,11 @@ services:
     ports:
       # публикуем веб-приложение на 3000
       - "3000:80"
+    volumes:
+      # монтируем собранную папку dist, чтобы не пересобирать образ
+      - ./dist:/usr/share/nginx/html
+      # даём возможность менять конфиг nginx без пересборки
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
 
 # объявление именованных томов
 volumes:
