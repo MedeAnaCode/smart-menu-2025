@@ -3,7 +3,7 @@ const sequelize = require("./db/sequelize");
 
 (async () => {
     try {
-        await seedRecipes();
+        await seedRecipes({ force: true });
         await sequelize.close();
         console.log('Рецепты добавлены');
     } catch (e) {

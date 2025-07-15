@@ -1,11 +1,16 @@
 const Recipe = require("../models/recipe");
 const sequelize = require("../db/sequelize");
 
-async function seedRecipes() {
+async function seedRecipes({ force = false } = {}) {
 
-    await (async () => {
-        await sequelize.sync({force: true})
-    })();
+    // создаём таблицы, если их ещё нет
+    await sequelize.sync({ force });
+
+    // если записи уже есть и не запрошено принудительное обновление, выходим
+    const count = await Recipe.count();
+    if (count > 0 && !force) {
+        return;
+    }
 
     await Recipe.bulkCreate([
         {
