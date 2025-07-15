@@ -37,8 +37,9 @@ services:       # блок с описанием контейнеров
     ports:
       - "3000:80"               # публикуем веб-приложение на 3000
     volumes:
-      - ./dist:/usr/share/nginx/html   # подключаем статические файлы
-      - ./public:/usr/share/nginx/html # подключаем публичные ресурсы
+      - ./dist:/usr/share/nginx/html        # подключаем собранные файлы
+      - ./public/img:/usr/share/nginx/html/img # монтируем папку с изображениями
+      - ./src/fonts:/usr/share/nginx/html/fonts # монтируем шрифты
 
 volumes:                         # объявление именованных томов
   db_data:                       # том для данных postgres
