@@ -1,45 +1,77 @@
-version: '3.8' # версия файла docker-compose
-services:       # блок с описанием контейнеров
-  db:                             # сервис базы данных
-    image: postgres:15           # используем официальный образ Postgres
-    environment:                 # переменные окружения для инициализации БД
-      POSTGRES_DB: postgres      # имя БД
-      POSTGRES_USER: Nastya      # пользователь БД
-      POSTGRES_PASSWORD: run     # пароль пользователя
-    volumes:
-      - db_data:/var/lib/postgresql/data # сохраняем данные в постоянный volume
-    ports:
-      - "5432:5432"             # пробрасываем порт наружу
+# версия файла docker-compose
+version: '3.8'
 
-  backend:                       # сервис с API на Node.js
-    build:
-      context: .                 # собирать образ из корня проекта
-      dockerfile: Dockerfile.backend # используемый Dockerfile
+# блок с описанием контейнеров
+services:
+  # сервис базы данных
+  db:
+    # используем официальный образ Postgres
+    image: postgres:15
+    # переменные окружения для инициализации БД
     environment:
-      POSTGRES_DB: postgres      # имя БД
-      POSTGRES_USER: Nastya      # пользователь БД
-      POSTGRES_PASSWORD: run     # пароль к БД
-      POSTGRES_HOST: db          # хост БД (имя сервиса db)
-      POSTGRES_PORT: 5432        # порт БД
-    depends_on:
-      - db                       # запускать после базы
-    ports:
-      - "3001:3001"             # доступ к API с хоста
+      # имя БД
+      POSTGRES_DB: postgres
+      # пользователь БД
+      POSTGRES_USER: Nastya
+      # пароль пользователя
+      POSTGRES_PASSWORD: run
     volumes:
-      - ./server:/app/server     # монтируем код сервера для быстрой перезагрузки
+      # сохраняем данные в постоянный volume
+      - db_data:/var/lib/postgresql/data
+    ports:
+      # пробрасываем порт наружу
+      - "5432:5432"
 
-  frontend:                      # сервис с фронтендом на Nginx
+  # сервис с API на Node.js
+  backend:
     build:
-      context: .                 # собирать образ из корня проекта
-      dockerfile: Dockerfile.frontend # используемый Dockerfile
+      # собирать образ из корня проекта
+      context: .
+      # используемый Dockerfile
+      dockerfile: Dockerfile.backend
+    environment:
+      # имя БД
+      POSTGRES_DB: postgres
+      # пользователь БД
+      POSTGRES_USER: Nastya
+      # пароль к БД
+      POSTGRES_PASSWORD: run
+      # хост БД (имя сервиса db)
+      POSTGRES_HOST: db
+      # порт БД
+      POSTGRES_PORT: 5432
     depends_on:
-      - backend                  # ожидать запуска backend
+      # запускать после базы
+      - db
     ports:
-      - "3000:80"               # публикуем веб-приложение на 3000
+      # доступ к API с хоста
+      - "3001:3001"
     volumes:
-      - ./dist:/usr/share/nginx/html        # подключаем собранные файлы
-      - ./public/img:/usr/share/nginx/html/img # монтируем папку с изображениями
-      - ./src/fonts:/usr/share/nginx/html/fonts # монтируем шрифты
+      # монтируем код сервера для быстрой перезагрузки
+      - ./server:/app/server
 
-volumes:                         # объявление именованных томов
-  db_data:                       # том для данных postgres
+  # сервис с фронтендом на Nginx
+  frontend:
+    build:
+      # собирать образ из корня проекта
+      context: .
+      # используемый Dockerfile
+      dockerfile: Dockerfile.frontend
+    depends_on:
+      # ожидать запуска backend
+      - backend
+    ports:
+      # публикуем веб-приложение на 3000
+      - "3000:80"
+    volumes:
+      # подключаем собранные файлы
+      - ./dist:/usr/share/nginx/html
+      # монтируем папку с изображениями
+      - ./public/img:/usr/share/nginx/html/img
+      # монтируем шрифты
+      - ./src/fonts:/usr/share/nginx/html/fonts
+
+# объявление именованных томов
+volumes:
+  # том для данных postgres
+  db_data:

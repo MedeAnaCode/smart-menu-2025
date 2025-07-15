@@ -1,7 +1,20 @@
-FROM node:20-alpine                       # лёгкий образ Node.js
-WORKDIR /app                              # рабочая директория внутри контейнера
-COPY package.json package-lock.json ./    # сначала копируем манифесты
-RUN npm install --only=production         # ставим только prod-зависимости
-COPY server ./server                      # копируем код сервера
-EXPOSE 3001                               # контейнер слушает этот порт
-CMD ["node", "server/server.js"]           # команда запуска приложения
+# лёгкий образ Node.js
+FROM node:20-alpine
+
+# рабочая директория внутри контейнера
+WORKDIR /app
+
+# сначала копируем манифесты
+COPY package.json package-lock.json ./
+
+# ставим только prod-зависимости
+RUN npm install --only=production
+
+# копируем код сервера
+COPY server ./server
+
+# контейнер слушает этот порт
+EXPOSE 3001
+
+# команда запуска приложения
+CMD ["node", "server/server.js"]
