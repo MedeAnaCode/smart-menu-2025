@@ -63,13 +63,6 @@ services:
     ports:
       # публикуем веб-приложение на 3000
       - "3000:80"
-    volumes:
-      # подключаем собранные файлы
-      - ./dist:/usr/share/nginx/html
-      # монтируем папку с изображениями
-      - ./public/img:/usr/share/nginx/html/img
-      # монтируем шрифты
-      - ./src/fonts:/usr/share/nginx/html/fonts
 
 # объявление именованных томов
 volumes:
