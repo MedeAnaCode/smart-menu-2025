@@ -1,0 +1,72 @@
+# версия файла docker-compose
+version: '3.8'
+
+# блок с описанием контейнеров
+services:
+  # сервис базы данных
+  db:
+    # используем официальный образ Postgres
+    image: postgres:15
+    # переменные окружения для инициализации БД
+    environment:
+      # имя БД
+      POSTGRES_DB: postgres
+      # пользователь БД
+      POSTGRES_USER: Nastya
+      # пароль пользователя
+      POSTGRES_PASSWORD: run
+    volumes:
+      # сохраняем данные в постоянный volume
+      - db_data:/var/lib/postgresql/data
+    ports:
+      # пробрасываем порт наружу
+      - "5432:5432"
+
+  # сервис с API на Node.js
+  backend:
+    build:
+      # собирать образ из корня проекта
+      context: .
+      # используемый Dockerfile
+      dockerfile: Dockerfile.backend
+    environment:
+      # имя БД
+      POSTGRES_DB: postgres
+      # пользователь БД
+      POSTGRES_USER: Nastya
+      # пароль к БД
+      POSTGRES_PASSWORD: run
+      # хост БД (имя сервиса db)
+      POSTGRES_HOST: db
+      # порт БД
+      POSTGRES_PORT: 5432
+    depends_on:
+      # запускать после базы
+      - db
+    ports:
+      # доступ к API с хоста
+      - "3001:3001"
+
+  # сервис с фронтендом на Nginx
+  frontend:
+    build:
+      # собирать образ из корня проекта
+      context: .
+      # используемый Dockerfile
+      dockerfile: Dockerfile.frontend
+    depends_on:
+      # ожидать запуска backend
+      - backend
+    ports:
+      # публикуем веб-приложение на 3000
+      - "3000:80"
+    volumes:
+      # монтируем собранную папку dist, чтобы не пересобирать образ
+      - ./dist:/usr/share/nginx/html
+      # даём возможность менять конфиг nginx без пересборки
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+# объявление именованных томов
+volumes:
+  # том для данных postgres
+  db_data:
