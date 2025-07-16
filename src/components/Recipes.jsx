@@ -1,5 +1,6 @@
 import React from 'react';
 import RecipesList from './Recipes-list';
+import AddRecipeForm from "./Add-recipe-form";
 import { useEffect, useState } from "react";
 
 function Recipes () {
@@ -28,6 +29,8 @@ function Recipes () {
             </h1>
             <RecipesList recipes={recipes}>
             </RecipesList>
+            <AddRecipeForm>
+            </AddRecipeForm>
         </>
     );
 }
