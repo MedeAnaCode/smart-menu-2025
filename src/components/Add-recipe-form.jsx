@@ -5,7 +5,7 @@ import IngredientFieldset from "./Ingredient-fieldset";
 
 function AddRecipeForm ({onSuccess}) {
     const [title, setTitle] = useState('');
-    const [ingredients, setIngredients] = useState(['']);
+    const [ingredients, setIngredients] = useState([]);
     const [description, setDescription] = useState('');
     const [servings, setServings] = useState(1);
     const [error, setError] = useState(null);
@@ -17,7 +17,7 @@ function AddRecipeForm ({onSuccess}) {
         try {
             const recipeData = JSON.stringify({
                 title,
-                ingredients: ingredients.filter(i => i.trim() !== ''),
+                ingredients: ingredients.filter(i => i["name"].trim() !== ''),
                 description,
                 servings,
             });
@@ -27,7 +27,7 @@ function AddRecipeForm ({onSuccess}) {
 
             // Очистка формы
             setTitle('');
-            setIngredients(['']);
+            setIngredients([]);
             setDescription('');
             setServings(1);
         } catch (err) {
@@ -35,12 +35,6 @@ function AddRecipeForm ({onSuccess}) {
             setError(err.message);
         }
     };
-
-    // const updateIngredient = (index, value) => {
-    //     const newList = [...ingredients];
-    //     newList[index] = value;
-    //     setIngredients(newList);
-    // };
 
     return (
         <form className="add-recipe-form" onSubmit={handleSubmit}>
@@ -53,14 +47,26 @@ function AddRecipeForm ({onSuccess}) {
                 type="text"
                 placeholder="Название"
                 id="name"
+                value={title}
                 onChange={e => setTitle(e.target.value)}
             />
-            {/*<section className="add-recipe-form__section">*/}
-            {/*    <h4 className="add-recipe-form__subtitle">Ингредиенты:</h4>*/}
-            {/*    <IngredientFieldset index={1} onChange={e => updateIngredient(index, e.target.value)}></IngredientFieldset>*/}
-            {/*    <IngredientFieldset index={2} onChange={e => updateIngredient(index, e.target.value)}></IngredientFieldset>*/}
-            {/*    <IngredientFieldset index={3} onChange={e => updateIngredient(index, e.target.value)}></IngredientFieldset>*/}
-            {/*</section>*/}
+            <section className="add-recipe-form__section">
+                <h4 className="add-recipe-form__subtitle">Ингредиенты:</h4>
+                {ingredients.map((ingredient, index) => (
+                    <IngredientFieldset
+                        key={index}
+                        arr={ingredients}
+                        index={index}
+                        onSuccess={(newArr) => setIngredients(newArr)}
+                    />
+                ))}
+                <button
+                    type="button"
+                    onClick={() => setIngredients([...ingredients, {}])}
+                >
+                    Добавить ингредиент
+                </button>
+            </section>
             <section className="add-recipe-form__section">
                 <h4 className="add-recipe-form__subtitle">Приготовление:</h4>
                 <label className="visually-hidden" htmlFor="preparing"></label>
@@ -98,6 +104,9 @@ function AddRecipeForm ({onSuccess}) {
 
 export default AddRecipeForm;
 
+//Баг: когда редактируешь какой-то ингредиент, удаляются последующие
+//На каком-то этапе обрезается конец строки у названия ингредиента, не всегда отображается нужное количество
+
 //Нужно добавить обработчик для ингредиентов и убрать ингредиенты по умолчанию
 //Когда будет кнопка  "добавить новый ингредиент"   const addIngredient = () => setIngredients([...ingredients, '']);
-//Нужно сделать поле для загрузки изображения (по ссылке или с компьютера)
+//Нужно сделать поле для загрузки изображения (по ссылке (строка адреса) или с компьютера)

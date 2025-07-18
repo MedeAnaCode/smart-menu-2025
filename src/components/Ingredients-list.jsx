@@ -1,12 +1,12 @@
 import React from 'react';
 
 function IngredientCouple (ingred) {
-    const {name, amount='по вкусу'} = ingred;
+    const {name, amount='', um = 'по вкусу'} = ingred;
 
     return (
         <>
             <dt className="recipe-card__ingredients-name">{name}</dt>
-            <dd className="recipe-card__ingredients-amount">{amount}</dd>
+            <dd className="recipe-card__ingredients-amount">{amount + ' ' + um}</dd>
         </>
     );
 }
