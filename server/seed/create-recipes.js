@@ -19,7 +19,7 @@ async function seedRecipes() {
                 { name: 'Оливковое масло', amount: '2 ст.л.' }
             ],
             description: 'Освежающий салат с огурцами, помидорами, сыром Фета, маслинами, заправленный лимонным соком и оливковым маслом.',
-            image: '/img/salad.png'
+            image: '/img/recipes/salad.png'
         },
         {
             title: 'Паста Карбонара',
@@ -31,7 +31,7 @@ async function seedRecipes() {
                 { name: 'Чеснок', amount: '1 зубчик' }
             ],
             description: 'Итальянская паста с беконом, смешанная с яйцами, сыром Пармезан и чесноком.',
-            image: '/img/porridge.png'
+            image: '/img/recipes/porridge.png'
         },
         {
             title: 'Курица Терияки',
@@ -44,7 +44,7 @@ async function seedRecipes() {
                 { name: 'Имбирь', amount: 'щепотка' }
             ],
             description: 'Нежное куриное мясо, маринованное в соусе Терияки, подается с рисом и овощами.',
-            image: '/img/salad.png'
+            image: '/img/recipes/salad.png'
         },
         {
             title: 'Суп Минестроне',
@@ -57,7 +57,7 @@ async function seedRecipes() {
                 { name: 'Макароны', amount: '100 г' }
             ],
             description: 'Итальянский суп с томатами, морковью, луком, сельдереем и макаронами.',
-            image: '/img/porridge.png'
+            image: '/img/recipes/porridge.png'
         },
         {
             title: 'Тайский суп Том Ям',
@@ -69,7 +69,7 @@ async function seedRecipes() {
                 { name: 'Грибы', amount: '50 г' }
             ],
             description: 'Острый тайский суп на основе кокосового молока с креветками, лимонграссом, листьями лайма и грибами.',
-            image: '/img/salad.png'
+            image: '/img/recipes/salad.png'
         },
         {
             title: 'Пельмени с говядиной',
@@ -81,7 +81,7 @@ async function seedRecipes() {
                 { name: 'Соль', amount: 'по вкусу' }
             ],
             description: 'Пельмени с начинкой из говядины, лука и специй, подаются с сметаной или соусом.',
-            image: '/img/porridge.png'
+            image: '/img/recipes/porridge.png'
         },
         {
             title: 'Пицца Маргарита',
@@ -93,7 +93,7 @@ async function seedRecipes() {
                 { name: 'Базилик', amount: 'несколько листьев' }
             ],
             description: 'Классическая итальянская пицца с томатным соусом, моцареллой, помидорами и свежим базиликом.',
-            image: '/img/salad.png'
+            image: '/img/recipes/salad.png'
         },
         {
             title: 'Омлет с овощами',
@@ -106,7 +106,7 @@ async function seedRecipes() {
                 { name: 'Перец', amount: 'по вкусу' }
             ],
             description: 'Пышный омлет с помидорами, перцем и луком, приправленный солью и перцем.',
-            image: '/img/porridge.png'
+            image: '/img/recipes/porridge.png'
         }
     ]);
 

@@ -10,6 +10,25 @@ const getAllRecipes = async (req, res) => { //контроллер, асинхр
     }
 };
 
+const createRecipe = async (req, res) => {
+    try {
+        const { title, ingredients, description, image, servings } = req.body;
+        const recipe = await Recipe.create({
+            title,
+            ingredients,
+            description,
+            image,
+            servings
+        });
+        res.status(201).json(recipe); //201 - ресурс был успешно создан
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Ошибка при создании рецепта' });
+    }
+};
+
+
 module.exports = {
-    getAllRecipes
+    getAllRecipes,
+    createRecipe
 };

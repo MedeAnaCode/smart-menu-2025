@@ -1,6 +1,7 @@
 import React from 'react';
 import RecipesList from './Recipes-list';
 import AddRecipeForm from "./Add-recipe-form";
+import {getData} from "../api";
 import { useEffect, useState } from "react";
 
 function Recipes () {
@@ -8,16 +9,17 @@ function Recipes () {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch("http://localhost:3001/recipes")
-            .then((res) => res.json())
+        getData('/recipes')
             .then((data) => {
                 setRecipes(data);
-                setLoading(false);
             })
             .catch((error) => {
                 console.error("Ошибка при получении рецептов:", error);
+            })
+            .finally( () => {
                 setLoading(false);
-            });
+                }
+            );
     }, []); //запускается один раз при отрисовке RecipeList, используем его для запроса рецптов с сервера
 
     if (loading) return <div>Загрузка...</div>;
@@ -29,10 +31,12 @@ function Recipes () {
             </h1>
             <RecipesList recipes={recipes}>
             </RecipesList>
-            <AddRecipeForm>
+            <AddRecipeForm onSuccess={(newRecipe) => setRecipes((prev) => [...prev, newRecipe])}>
             </AddRecipeForm>
         </>
     );
 }
 
 export default Recipes;
+
+//Надо потестировать с разным размером изображений

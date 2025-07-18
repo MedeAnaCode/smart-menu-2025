@@ -8,7 +8,7 @@ const Recipe = sequelize.define('Recipe', {
         unique: true
     },
     ingredients: {
-        type: DataTypes.JSON,
+        type: DataTypes.ARRAY(DataTypes.JSON),
         allowNull: false
     },
     description: {
@@ -17,7 +17,16 @@ const Recipe = sequelize.define('Recipe', {
     },
     image: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        defaultValue: '/img/recipes/unknown.jpg'
+    },
+    servings: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
+        validate: {
+            min: 1,
+        }
     }
 });
 

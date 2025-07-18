@@ -1,9 +1,9 @@
 import React from "react";
 
-function IngredientFieldset ({id}) {
+function IngredientFieldset ({index}) {
     return (
         <fieldset>
-            <legend>Ингредиент {id}</legend>
+            <legend>Ингредиент {index}</legend>
             <input type="text" placeholder="Название"/>
             <input type="number" placeholder="Количество"/>
             <select>
