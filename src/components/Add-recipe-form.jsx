@@ -36,6 +36,20 @@ function AddRecipeForm ({onSuccess}) {
         }
     };
 
+    function updateIngredient(index, field, value) {
+        setIngredients(prev => {
+            const newIngredients = [...prev];
+            newIngredients[index] = {...newIngredients[index], [field]: value};
+            return newIngredients;
+        });
+    }
+
+    function deleteIngredient(indexToDelete) {
+        setIngredients(prev => {
+            return prev.filter((e, index) => index !== indexToDelete);
+        });
+    }
+
     return (
         <form className="add-recipe-form" onSubmit={handleSubmit}>
             <h3 className="add-recipe-form__title">
@@ -57,7 +71,8 @@ function AddRecipeForm ({onSuccess}) {
                         key={index}
                         arr={ingredients}
                         index={index}
-                        onSuccess={(newArr) => setIngredients(newArr)}
+                        onChange={updateIngredient}
+                        onClickDel={deleteIngredient}
                     />
                 ))}
                 <button
@@ -104,7 +119,6 @@ function AddRecipeForm ({onSuccess}) {
 
 export default AddRecipeForm;
 
-//Баг: когда редактируешь какой-то ингредиент, удаляются последующие
 //На каком-то этапе обрезается конец строки у названия ингредиента, не всегда отображается нужное количество
 
 //Нужно добавить обработчик для ингредиентов и убрать ингредиенты по умолчанию
