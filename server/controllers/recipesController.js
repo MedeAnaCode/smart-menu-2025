@@ -27,6 +27,7 @@ const createRecipe = async (req, res) => {
     }
 };
 
+//здесь я напишу функцию deleteRecipe, которая будет удалять рецепт из БД
 
 module.exports = {
     getAllRecipes,

@@ -7,6 +7,7 @@ function RecipesList({ recipes }) {
             {recipes.map((recipe, index) => (
                 <RecipeCard
                     key={index}
+                    index={index}
                     imageUrl={recipe.image}
                     title={recipe.title}
                     preparingText={recipe.description}

@@ -1,7 +1,7 @@
 import React from 'react';
 import IngredientsList from "./Ingredients-list";
 
-function RecipeCard ({ title, preparingText, imageUrl, ingredients }) {
+function RecipeCard ({ title, preparingText, imageUrl, ingredients, index }) {
     return (
         <div className="recipes-container__card recipe-card">
             <div className="recipe-card__content">
@@ -12,8 +12,15 @@ function RecipeCard ({ title, preparingText, imageUrl, ingredients }) {
                 <span className="recipe-card__option-title">Приготовление:</span>
                 <p className="recipe-card__preparing">{preparingText}</p>
             </div>
+
+            {/*Здесь событием onClick будет обработчик с запросом на удаление рецепта по индексу*/}
+            <button type="button">
+                Удалить
+            </button>
         </div>
     );
 }
 
 export default RecipeCard;
+
+//Стилизовать кнопку

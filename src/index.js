@@ -10,16 +10,3 @@ root.render(
         <App/>
     </React.StrictMode>
 );
-
-// import RecipeCard from './components/Recipes-card.jsx';
-// import saladImage from './img/salad.png';
-// import data from './api.js';
-// root.render(
-//     <React.StrictMode>
-//         <RecipeCard
-//             imageUrl={saladImage}
-//             title="Гречка"
-//             preparingText="Описание процесса приготовления гречки."
-//         />
-//     </React.StrictMode>
-// );

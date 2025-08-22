@@ -1,5 +1,4 @@
 import React from "react";
-import { useState } from 'react';
 
 function IngredientFieldset ({arr, index, onChange, onClickDel}) {
     const ingredient = arr[index];
@@ -28,7 +27,7 @@ function IngredientFieldset ({arr, index, onChange, onClickDel}) {
                 <option value="ст.л.">ст.л.</option>
                 <option value="по вкусу">по вкусу</option>
             </select>
-            <button type="button" onClick={(e) => onClickDel(index)}>
+            <button type="button" onClick={() => onClickDel(index)}>
                 Удалить
             </button>
         </fieldset>

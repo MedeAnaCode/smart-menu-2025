@@ -1,13 +1,18 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
+const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
+
+const isDev = process.env.NODE_ENV !== "production";
 
 module.exports = {
-    mode: 'development',
+    mode: isDev ? "development" : "production",
     entry: './src/index.js', // Путь к главному файлу React компонента
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js'
+        filename: isDev ? "bundle.js" : "bundle.[contenthash].js",
+        publicPath: "/"
     },
+    devtool: isDev ? "eval-cheap-module-source-map" : "source-map",
     module: {
         rules: [
             {
@@ -16,7 +21,11 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['@babel/preset-env', '@babel/preset-react']
+                        presets: [
+                            ["@babel/preset-env", { targets: "defaults" }],
+                            ["@babel/preset-react", { runtime: "automatic" }]
+                        ],
+                        plugins: isDev ? ["react-refresh/babel"] : []
                     }
                 }
             },
@@ -40,8 +49,10 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: './src/index.html' // Путь к вашему HTML шаблону
-        })
+            template: './src/index.html', // Путь к вашему HTML шаблону
+            minify: !isDev
+        }),
+        ...(isDev ? [new ReactRefreshWebpackPlugin()] : [])
     ],
     resolve: {
         extensions: ['.js', '.jsx']
@@ -51,12 +62,21 @@ module.exports = {
             {
                 directory: path.join(__dirname, 'public'),
                 publicPath: '/',
-            },
-            {
-                directory: path.join(__dirname, 'dist'),
             }
         ],
         compress: true,
         port: 9000,
+        hot: true, //ключ для HMR
+        historyApiFallback: true, //для ReactRouter
+        client: {
+            overlay: true
+        },
+        proxy: [
+            {
+                context: ["/api"],
+                target: "http://localhost:3001",
+                changeOrigin: true
+            }
+        ]
     }
 };
