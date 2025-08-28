@@ -1,0 +1,20 @@
+# лёгкий образ Node.js
+FROM node:20-alpine
+
+# создаём рабочую директорию внутри контейнера
+WORKDIR /app
+
+# сначала копируем манифесты
+COPY package.json package-lock.json ./
+
+# устанавливаем зависимости
+RUN npm ci
+
+# копируем код сервера
+COPY server ./server
+
+# контейнер слушает этот порт
+EXPOSE 3000
+
+# команда запуска бэкенда
+CMD ["npm","run","dev:api"]

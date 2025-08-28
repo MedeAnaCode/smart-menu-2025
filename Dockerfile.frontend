@@ -1,0 +1,21 @@
+# лёгкий образ Node.js
+FROM node:20-alpine
+
+# создаём рабочую директорию внутри контейнера
+WORKDIR /app
+
+# копируем только package.json и package-lock.json,
+# чтобы кэшировать установку зависимостей
+COPY package.json package-lock.json ./
+
+# устанавливаем зависимости (и dev, и prod),
+RUN npm ci
+
+# переменные окружения: включаем polling, чтобы hot-reload работал даже при монтировании volume (Docker/Windows/Mac)
+ENV CHOKIDAR_USEPOLLING=1 WATCHPACK_POLLING=true
+
+# открываем порт 9000 (webpack-dev-server слушает его)
+EXPOSE 9000
+
+# команда запуска фронтенда
+CMD ["npm", "run", "dev"]

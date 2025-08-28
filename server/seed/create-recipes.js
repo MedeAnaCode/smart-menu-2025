@@ -2,10 +2,7 @@ const Recipe = require("../models/recipe");
 const sequelize = require("../db/sequelize");
 
 async function seedRecipes() {
-
-    await (async () => {
-        await sequelize.sync({force: true})
-    })();
+    await sequelize.sync();
 
     await Recipe.bulkCreate([
         {
@@ -117,4 +114,3 @@ async function seedRecipes() {
 }
 
 module.exports = seedRecipes;
-

@@ -1,0 +1,68 @@
+# версия файла docker-compose
+version: '3.8'
+
+# блок с описанием контейнеров
+services:
+  # сервис базы данных
+  db:
+    # используем официальный образ Postgres
+    image: postgres:15
+    # переменные окружения для инициализации БД
+    environment:
+      # имя БД
+      POSTGRES_DB: postgres
+      # пользователь БД
+      POSTGRES_USER: Nastya
+      # пароль пользователя
+      POSTGRES_PASSWORD: run
+    volumes:
+      # сохраняем данные в постоянный volume
+      - db_data:/var/lib/postgresql/data
+    ports:
+      # пробрасываем порт наружу
+      - "5432:5432"
+
+  # сервис с API на Node.js
+  backend:
+    build:
+      # собирать образ из корня проекта
+      context: .
+      # используемый Dockerfile
+      dockerfile: Dockerfile.backend
+    environment:
+      # имя БД
+      POSTGRES_DB: postgres
+      # пользователь БД
+      POSTGRES_USER: Nastya
+      # пароль к БД
+      POSTGRES_PASSWORD: run
+      # хост БД (имя сервиса db)
+      POSTGRES_HOST: db
+      # порт БД
+      POSTGRES_PORT: 5432
+    depends_on:
+      # запускать после базы
+      - db
+    ports:
+      # доступ к API с хоста
+      - "3001:3001"
+    command: sh -lc "npm run seed:ifempty && npm run dev:api"
+
+  # сервис с фронтендом
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    depends_on:
+      - backend
+    ports:
+      - "9000:9000"        # dev-сервер, не 3000:80
+    volumes:
+      - .:/app             # монтируем корень проекта (здесь лежит src/)
+      - /app/node_modules  # чтобы не перетирать node_modules
+    # (command можно не задавать, если в Dockerfile уже CMD "npm run dev")
+
+# объявление именованных томов
+volumes:
+  # том для данных postgres
+  db_data:

@@ -5,7 +5,6 @@
     "@babel/preset-react": "^7.27.1",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.6.1",
     "babel-loader": "^9.2.1",
-    "concurrently": "^9.2.0",
     "css-loader": "^6.8.1",
     "html-webpack-plugin": "^5.6.4",
     "less": "^4.2.0",
@@ -21,7 +20,9 @@
   "scripts": {
     "dev": "webpack serve --mode development --hot --open --port 9000",
     "dev:api": "node server/server.js",
-    "dev:all": "concurrently \"npm:dev\" \"npm:dev:api\"",
+
+    "seed": "node server/seed/seed-run.js",
+    "seed:ifempty": "node server/seed/seed-if-empty.js",
 
     "build": "webpack --mode production",
     "preview": "npx http-server dist -p 4173",
