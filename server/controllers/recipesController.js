@@ -27,9 +27,29 @@ const createRecipe = async (req, res) => {
     }
 };
 
-//здесь я напишу функцию deleteRecipe, которая будет удалять рецепт из БД
+const deleteRecipe = async (req, res) => {
+    const currentId = Number(req.params.id);
+
+    if (isNaN(currentId) || !Number.isInteger(currentId) || currentId <= 0) {
+        return res.status(400).json({ error: "Некорректный id" });
+    }
+
+    try {
+        await Recipe.destroy({
+            where: {
+                id: currentId,
+            },
+        });
+
+        res.sendStatus(204);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Ошибка сервера" });
+    }
+};
 
 module.exports = {
     getAllRecipes,
-    createRecipe
+    createRecipe,
+    deleteRecipe
 };

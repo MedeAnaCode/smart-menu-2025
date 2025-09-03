@@ -15,12 +15,12 @@ function AddRecipeForm ({onSuccess}) {
         setError(null);
 
         try {
-            const recipeData = JSON.stringify({
+            const recipeData = {
                 title,
                 ingredients: ingredients.filter(i => i["name"].trim() !== ''),
                 description,
                 servings,
-            });
+            };
             const response = await sendData('/recipes', recipeData);
 
             onSuccess?.(response); //чтобы передать data наверх, родительскому компоненту

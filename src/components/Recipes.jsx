@@ -1,12 +1,25 @@
 import React from 'react';
 import RecipesList from './Recipes-list';
 import AddRecipeForm from "./Add-recipe-form";
-import {getData} from "../api";
+import {deleteData, getData} from "../api";
 import { useEffect, useState } from "react";
 
 function Recipes () {
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const refetchRecipes = () => getData('/recipes').then(setRecipes).catch(console.error);
+    const deleteRecipe = async (id) => await deleteData(`/recipes/${id}`);
+
+    const onDelete = async (id) => {
+        try {
+            await deleteRecipe(id);
+            console.log("Удалено:" + id);
+            await refetchRecipes();
+        } catch (err) {
+            console.error("Ошибка удаления " + err);
+        }
+    };
 
     useEffect(() => {
         getData('/recipes')
@@ -29,9 +42,12 @@ function Recipes () {
             <h1 className="visually-hidden">
                 Рецепты "Smart menu".
             </h1>
-            <RecipesList recipes={recipes}>
+            <RecipesList recipes={recipes} onDelete={onDelete}>
             </RecipesList>
-            <AddRecipeForm onSuccess={(newRecipe) => setRecipes((prev) => [...prev, newRecipe])}>
+            <AddRecipeForm onSuccess={(newRecipe) => {
+                setRecipes((prev) => [...prev, newRecipe]);
+                refetchRecipes();
+            }}>
             </AddRecipeForm>
         </>
     );

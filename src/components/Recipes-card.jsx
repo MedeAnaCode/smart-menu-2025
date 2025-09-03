@@ -1,7 +1,12 @@
 import React from 'react';
 import IngredientsList from "./Ingredients-list";
 
-function RecipeCard ({ title, preparingText, imageUrl, ingredients, index }) {
+function RecipeCard ({ title, preparingText, imageUrl, ingredients, id, onDelete }) {
+
+    const handleDelete = () => {
+        onDelete(id);
+    }
+
     return (
         <div className="recipes-container__card recipe-card">
             <div className="recipe-card__content">
@@ -14,7 +19,11 @@ function RecipeCard ({ title, preparingText, imageUrl, ingredients, index }) {
             </div>
 
             {/*Здесь событием onClick будет обработчик с запросом на удаление рецепта по индексу*/}
-            <button type="button">
+            <button
+                type="button"
+                className="button-dark"
+                onClick={handleDelete}
+            >
                 Удалить
             </button>
         </div>
