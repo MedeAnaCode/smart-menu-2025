@@ -48,8 +48,32 @@ const deleteRecipe = async (req, res) => {
     }
 };
 
+const updateRecipe = async (req, res) => {
+    const ALLOWED = ['title','ingredients','description','image','servings'];
+
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'Некорректный id' });
+
+    const updates = {};
+    for (const k of ALLOWED) if (k in req.body) updates[k] = req.body[k];
+    if ('servings' in updates) updates.servings = Number(updates.servings);
+    if (Object.keys(updates).length === 0) return res.status(400).json({ error: 'Пустое обновление' });
+
+    try {
+        const recipe = await Recipe.findByPk(id);
+        if (!recipe) return res.status(404).json({ error: 'Не найдено' });
+
+        await recipe.update(updates);
+        return res.status(200).json(recipe);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Ошибка при обновлении рецепта' });
+    }
+};
+
 module.exports = {
     getAllRecipes,
     createRecipe,
-    deleteRecipe
+    deleteRecipe,
+    updateRecipe
 };

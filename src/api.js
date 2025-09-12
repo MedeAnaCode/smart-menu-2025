@@ -13,6 +13,13 @@ const Options = {
         }
     },
 
+    PATCH: {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    },
+
     DELETE: {
         method: 'DELETE',
     },
@@ -21,6 +28,7 @@ const Options = {
 const ErrorText = {
     GET_DATA: 'Не удалось загрузить данные. Попробуйте обновить страницу',
     SEND_DATA: 'Не удалось отправить данные. Попробуйте ещё раз',
+    UPDATE_DATA: 'Не удалось обновить данные. Попробуйте ещё раз',
     DELETE_DATA: 'Не удалось удалить данные. Попробуйте ещё раз',
 };
 
@@ -33,26 +41,23 @@ const makeRequest = (props, errText, url, body) => {
     }
 
     return fetch(`${BASE_URL}${url}`, init).then((response) => {
-        if (!response.ok) {
-            throw new Error();
-        }
-        if (response.status === 204) {
-            return true;
-        }
+        if (!response.ok) throw new Error(`${errText} (HTTP ${response.status})`);
+        return response.status === 204 ? true : response.json();
 
-        return response.json();
     })
-        .catch(() => {
-            throw new Error(errText);
+        .catch((err) => {
+            throw err;
         });
 }
 
 const getData = async (path) => await makeRequest (Options.GET, ErrorText.GET_DATA, path);
 const sendData = async (path, data) => await makeRequest (Options.POST, ErrorText.SEND_DATA, path, data);
+const updateData = async (path, data) => await makeRequest (Options.PATCH, ErrorText.UPDATE_DATA, path, data);
 const deleteData = async (path) => await makeRequest (Options.DELETE, ErrorText.DELETE_DATA, path);
 
 export {
     getData,
     sendData,
+    updateData,
     deleteData
 };

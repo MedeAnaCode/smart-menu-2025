@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllRecipes, createRecipe, deleteRecipe } = require("../controllers/recipesController");
+const { getAllRecipes, createRecipe, deleteRecipe, updateRecipe } = require("../controllers/recipesController");
 
 const router = express.Router(); //создаётся миниприложение router, куда мы добавляем маршруты (роуты)
 
@@ -12,5 +12,8 @@ router.post('/', createRecipe);
 
 //Логика удаления рецепта
 router.delete('/:id', deleteRecipe);
+
+//Логика обновления рецепта
+router.patch('/:id', updateRecipe);
 
 module.exports = router;

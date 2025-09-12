@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import RecipeCard from "./Recipes-card";
 
-function RecipesList({ recipes, onDelete }) {
+function RecipesList({ recipes, onEdit, onDelete }) {
 
     return (
         <div className="recipes-container">
@@ -14,6 +14,8 @@ function RecipesList({ recipes, onDelete }) {
                     title={recipe.title}
                     preparingText={recipe.description}
                     ingredients={recipe.ingredients}
+                    servings={recipe.servings}
+                    onEdit={onEdit}
                     onDelete={onDelete}
                 />
             ))}

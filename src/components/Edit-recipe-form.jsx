@@ -1,40 +1,13 @@
 import React from 'react';
-import { useState } from 'react';
-import { sendData } from '../api';
+import { useState, useEffect } from 'react';
 import IngredientFieldset from "./Ingredient-fieldset";
 
-function AddRecipeForm ({onSuccess}) {
+function EditRecipeForm ({initialValues, onSaved, onCancel}) {
     const [title, setTitle] = useState('');
     const [ingredients, setIngredients] = useState([]);
     const [description, setDescription] = useState('');
     const [servings, setServings] = useState(1);
     const [error, setError] = useState(null);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError(null);
-
-        try {
-            const recipeData = {
-                title,
-                ingredients: ingredients.filter(i => i["name"].trim() !== ''),
-                description,
-                servings,
-            };
-            const response = await sendData('/recipes', recipeData);
-
-            onSuccess?.(response); //чтобы передать data наверх, родительскому компоненту
-
-            // Очистка формы
-            setTitle('');
-            setIngredients([]);
-            setDescription('');
-            setServings(1);
-        } catch (err) {
-            console.error('Ошибка при создании рецепта:', err);
-            setError(err.message);
-        }
-    };
 
     function updateIngredient(index, field, value) {
         setIngredients(prev => {
@@ -50,22 +23,39 @@ function AddRecipeForm ({onSuccess}) {
         });
     }
 
+    useEffect(() => {
+        setTitle(initialValues.title ?? '');
+        setIngredients(initialValues.ingredients ?? []);
+        setDescription(initialValues.description ?? '');
+        setServings(initialValues.servings ?? 1);
+    }, [initialValues]);
+
+    function handleSubmit(e) {
+        e.preventDefault();
+        onSaved?.({
+            title,
+            ingredients,
+            description,
+            servings
+        });
+    }
+
     return (
-        <form className="add-recipe-form" onSubmit={handleSubmit}>
-            <h3 className="add-recipe-form__title">
-                Новый рецепт
+        <form className="edit-recipe-form" onSubmit={handleSubmit}>
+            <h3 className="edit-recipe-form__title">
+                Редактируем рецепт
             </h3>
             <label className="visually-hidden" htmlFor="name">Название.</label>
             <input
-                className="add-recipe-form__input"
+                className="edit-recipe-form__input"
                 type="text"
                 placeholder="Название"
                 id="name"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
             />
-            <section className="add-recipe-form__section">
-                <h4 className="add-recipe-form__subtitle">Ингредиенты:</h4>
+            <section className="edit-recipe-form__section">
+                <h4 className="edit-recipe-form__subtitle">Ингредиенты:</h4>
                 {ingredients.map((ingredient, index) => (
                     <IngredientFieldset
                         key={index}
@@ -82,8 +72,8 @@ function AddRecipeForm ({onSuccess}) {
                     Добавить ингредиент
                 </button>
             </section>
-            <section className="add-recipe-form__section">
-                <h4 className="add-recipe-form__subtitle">Приготовление:</h4>
+            <section className="edit-recipe-form__section">
+                <h4 className="edit-recipe-form__subtitle">Приготовление:</h4>
                 <label className="visually-hidden" htmlFor="preparing"></label>
                 <textarea
                     placeholder="Здесь приготовление блюда"
@@ -92,11 +82,11 @@ function AddRecipeForm ({onSuccess}) {
                     onChange={e => setDescription(e.target.value)}>
             </textarea>
             </section>
-            <div className="add-recipe-form__footer">
-                <label className="add-recipe-form__label">
+            <div className="edit-recipe-form__footer">
+                <label className="edit-recipe-form__label">
                     Количество порций:
                     <input
-                        className="add-recipe-form__input"
+                        className="edit-recipe-form__input"
                         type="number"
                         min="1"
                         max="10"
@@ -106,17 +96,24 @@ function AddRecipeForm ({onSuccess}) {
                     />
                 </label>
                 <button
-                    className="add-recipe-form__button button-dark"
-                    type="submit">
-                    Создать
+                    className="edit-recipe-form__button button-dark"
+                    type="submit"
+                    >
+                    Сохранить изменения
+                </button>
+                <button
+                    className="edit-recipe-form__button button-dark"
+                    type="button"
+                    onClick={onCancel}>
+                    Отменить редактирование
                 </button>
             </div>
 
-            {error && <p style={{ color: 'red' }}>Ошибка: {error}</p>}
+            {error && <p style={{color: 'red'}}>Ошибка: {error}</p>}
         </form>
     );
 }
 
-export default AddRecipeForm;
+export default EditRecipeForm;
 
-//Нужно сделать поле для загрузки изображения (по ссылке (строка адреса) или с компьютера)
+//Нужно сделать поле для изменения изображения (по ссылке (строка адреса) или с компьютера)

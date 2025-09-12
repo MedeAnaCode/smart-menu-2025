@@ -14,7 +14,7 @@ RUN npm ci
 COPY server ./server
 
 # контейнер слушает этот порт
-EXPOSE 3000
+EXPOSE 3001
 
 # команда запуска бэкенда
 CMD ["npm","run","dev:api"]
