@@ -18,7 +18,7 @@ function RecipeCard ({ title, preparingText, imageUrl, ingredients, id, servings
                 <h2 className="recipe-card__title">{title}</h2>
                 <span className="recipe-card__option-title">Ингредиенты:</span>
                 <IngredientsList ingreds={ingredients}/>
-                <span className="recipe-card__option-title">Количество порций: {servings}</span>
+                <span className="recipe-card__servings">Количество порций: {servings}</span>
                 <span className="recipe-card__option-title">Приготовление:</span>
                 <p className="recipe-card__preparing">{preparingText}</p>
             </div>
