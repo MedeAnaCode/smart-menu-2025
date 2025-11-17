@@ -14,7 +14,9 @@ function RecipeCard ({ title, preparingText, imageUrl, ingredients, id, servings
     return (
         <article className="recipes-container__card recipe-card">
             <div className="recipe-card__content">
-                <img src={imageUrl} alt={title} className="recipe-card__img"/>
+                <div className="recipe-card__img-wrapper">
+                    <img src={imageUrl} alt={title} className="recipe-card__img"/>
+                </div>
                 <h2 className="recipe-card__title">{title}</h2>
                 <span className="recipe-card__option-title">Ингредиенты:</span>
                 <IngredientsList ingreds={ingredients}/>

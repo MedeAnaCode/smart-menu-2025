@@ -96,7 +96,7 @@ async function seedRecipes() {
                 { name: 'Базилик', amount: '', um: 'несколько листьев' }
             ],
             description: 'Классическая итальянская пицца с томатным соусом, моцареллой, помидорами и свежим базиликом.',
-            image: '/img/recipes/salad.png',
+            image: '/img/recipes/porridge-1.jpg',
             servings: 2,
         },
         {
@@ -110,7 +110,7 @@ async function seedRecipes() {
                 { name: 'Перец', amount: '', um: 'по вкусу' }
             ],
             description: 'Пышный омлет с помидорами, перцем и луком, приправленный солью и перцем.',
-            image: '/img/recipes/porridge.png',
+            image: '/img/recipes/pumpkin.jpg',
             servings: 2,
         }
     ]);

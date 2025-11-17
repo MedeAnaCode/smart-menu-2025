@@ -25,9 +25,18 @@
  padding-bottom: 20px;
 }
 
-.recipe-card__img {
+.recipe-card__img-wrapper {
  flex-shrink: 0;
+ position: relative;
+ width: 100%;
+ height: auto;
+}
+
+.recipe-card__img {
  object-fit: cover;
+ display: block;
+ width: 100%;
+ height: 160px;
 }
 
 .recipe-card__title {
@@ -96,9 +105,16 @@
  position: relative;
 
  &:hover,
- &:focus,
- &:active {
+ &:focus {
+  border: none;
+  outline: none;
   background-color: $light-accent;
+ }
+
+ &:active {
+  border: none;
+  outline: none;
+  background-color: $white;
  }
 }
 
