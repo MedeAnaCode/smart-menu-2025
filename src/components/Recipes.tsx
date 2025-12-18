@@ -4,21 +4,23 @@ import AddRecipeForm from "./Add-recipe-form";
 import EditRecipeForm from "./Edit-recipe-form";
 import {deleteData, getData, updateData} from "../api";
 import { useEffect, useState } from "react";
+import type { Recipe } from './../types/index';
 
 function Recipes () {
-    const [recipes, setRecipes] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [editingId, setEditingId] = useState(null);
+    const [recipes, setRecipes] = useState<Recipe[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [editingId, setEditingId] = useState<number|null>(null);
 
-    const startEdit = (id) => setEditingId(id);
+    const startEdit = (id: number) => setEditingId(id);
     const cancelEdit = () => setEditingId(null);
-    const refetchRecipes = () => getData('/recipes').then(setRecipes).catch(console.error);
-    const deleteRecipe = async (id) => await deleteData(`/recipes/${id}`);
-    const updateRecipe = async (id, params) => await updateData(`/recipes/${id}`, params);
+    const refetchRecipes = () => getData<Recipe[]>('/recipes').then(setRecipes).catch(console.error);
+    const deleteRecipe = async (id: number) => await deleteData(`/recipes/${id}`);
+    //пока написала Partial<Recipe>, но вообще стоит вернуться и уточнить, что там у меня отправляется на сервер
+    const updateRecipe = async (id: number, params: Partial<Recipe>): Promise<void> => await updateData(`/recipes/${id}`, params);
 
-    const recipeToEdit = recipes.find(r => r.id === editingId) || null;
+    const recipeToEdit: Recipe | null = recipes.find(r => r.id === editingId) || null;
 
-    const onDelete = async (id) => {
+    const onDelete = async (id: number) => {
         try {
             await deleteRecipe(id);
             console.log("Удалено:" + id);
@@ -29,7 +31,7 @@ function Recipes () {
     };
 
     useEffect(() => {
-        getData('/recipes')
+        getData<Recipe[]>('/recipes')
             .then((data) => {
                 setRecipes(data);
             })
@@ -55,7 +57,7 @@ function Recipes () {
                 editingId?
                     <EditRecipeForm
                     initialValues={recipeToEdit}
-                    onSaved={async (patch) => {
+                    onSaved={async (patch: Partial<Recipe>) => {
                         await updateRecipe(editingId, patch);
                         await refetchRecipes();
                         cancelEdit();
@@ -64,9 +66,7 @@ function Recipes () {
                     >
                     </EditRecipeForm>
                     :
-                    <AddRecipeForm onSuccess={(newRecipe) => {
-                        refetchRecipes();
-                    }}>
+                    <AddRecipeForm onSuccess={refetchRecipes}>
                     </AddRecipeForm>
             }
 
@@ -75,5 +75,3 @@ function Recipes () {
 }
 
 export default Recipes;
-
-//Надо потестировать с разным размером изображений

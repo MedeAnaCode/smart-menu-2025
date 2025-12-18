@@ -1,16 +1,16 @@
 import React from 'react';
-import Nav from './Nav.jsx';
+import Nav from './Nav';
 import {useLocation} from 'react-router-dom';
+import classNames from "classnames";
 
 function Header () {
     const location = useLocation();
 
-    const getHeaderClassName = () => {
-        if (location.pathname.startsWith('/profile')) {
-            return "page-header";
-        }
-        return "page-header page-header--index";
-    }
+    const getHeaderClassName = (): string => {
+        return classNames("page-header", {
+            "page-header--index": !location.pathname.startsWith('/profile')
+        });
+    };
 
     return (
         <header className={getHeaderClassName()}>

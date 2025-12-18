@@ -1,16 +1,16 @@
 import React from 'react';
 import {NavLink} from 'react-router-dom';
 import {useLocation} from 'react-router-dom';
+import classNames from 'classnames';
 
 function Nav () {
     const location = useLocation();
 
-    const getNavClassName = () => {
-        if (location.pathname.startsWith('/profile')) {
-            return "page-header__navigation";
-        }
-        return "page-header__navigation page-header__navigation--index";
-    }
+    const getNavClassName = (): string => {
+        return classNames("page-header__navigation", {
+            "page-header__navigation--index": !location.pathname.startsWith('/profile')
+        });
+    };
 
     return (
         <nav className={getNavClassName()}>

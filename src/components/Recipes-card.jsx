@@ -51,4 +51,3 @@ function RecipeCard ({ title, preparingText, imageUrl, ingredients, id, servings
 }
 
 export default RecipeCard;
-//Стилизовать кнопку

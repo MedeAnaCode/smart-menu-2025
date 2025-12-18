@@ -6,7 +6,7 @@ const isDev = process.env.NODE_ENV !== "production";
 
 module.exports = {
     mode: isDev ? "development" : "production",
-    entry: './src/index.js', // Путь к главному файлу React компонента
+    entry: './src/index.tsx', // Путь к главному файлу React компонента
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: isDev ? "bundle.js" : "bundle.[contenthash].js",
@@ -45,6 +45,11 @@ module.exports = {
                     "sass-loader",
                 ]
             },
+            {
+                test: /\.tsx?$/,
+                exclude: /node_modules/,
+                use: 'ts-loader',
+            },
         ]
     },
     plugins: [
@@ -55,7 +60,7 @@ module.exports = {
         ...(isDev ? [new ReactRefreshWebpackPlugin()] : [])
     ],
     resolve: {
-        extensions: ['.js', '.jsx']
+        extensions: ['.ts', '.tsx', '.js', '.jsx'],
     },
     devServer: {
         static: [

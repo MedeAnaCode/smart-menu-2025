@@ -1,13 +1,13 @@
 import React from 'react';
 import './../style/main.scss';
-import MainContainer from './Main-container.jsx';
-import Layout from './Layout.jsx';
-import ProfileLayout from './Profile-layout.jsx';
+import MainContainer from './Main-container';
+import Layout from './Layout';
+import ProfileLayout from './Profile-layout';
 import {BrowserRouter, Routes, Route} from "react-router-dom";
-import Recipes from "./Recipes.jsx";
-import Menu from "./Menu.jsx";
+import Recipes from "./Recipes";
+import Menu from "./Menu";
 
-function App () {
+function App()  {
     return (
         <BrowserRouter>
             <Routes>

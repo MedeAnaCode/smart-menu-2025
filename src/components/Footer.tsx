@@ -1,15 +1,15 @@
 import React from 'react';
 import {useLocation} from 'react-router-dom';
+import classNames from "classnames";
 
 function Footer () {
     const location = useLocation();
 
-    const getFooterClassName = () => {
-        if (location.pathname.startsWith('/profile')) {
-            return "page-footer page-footer--profile";
-        }
-        return "page-footer";
-    }
+    const getFooterClassName = (): string => {
+        return classNames("page-footer", {
+            "page-footer--profile": location.pathname.startsWith('/profile')
+        });
+    };
 
     const getFooterContainerClassName = () => {
         if (location.pathname.startsWith('/profile')) {
