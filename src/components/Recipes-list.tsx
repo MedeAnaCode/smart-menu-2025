@@ -1,11 +1,12 @@
-import React, {useState} from 'react';
-import RecipeCard from "./Recipes-card";
+import React from 'react';
+import RecipeCard from "./Recipe-card";
+import type { Recipe, RecipesListProps } from './../types/index';
 
-function RecipesList({ recipes, onEdit, onDelete }) {
+function RecipesList({ recipes, onEdit, onDelete }: RecipesListProps) {
 
     return (
         <div className="recipes-container">
-            {recipes.map((recipe, index) => (
+            {recipes.map((recipe: Recipe, index: number) => (
                 <RecipeCard
                     key={recipe.id}
                     index={index}

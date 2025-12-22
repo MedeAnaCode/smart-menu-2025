@@ -1,15 +1,14 @@
 import React from 'react';
 import IngredientsList from "./Ingredients-list";
+import type { RecipeCardProps } from './../types/index';
 
-function RecipeCard ({ title, preparingText, imageUrl, ingredients, id, servings, onEdit, onDelete }) {
+function RecipeCard ({ title, preparingText, imageUrl, ingredients, id, servings, onEdit, onDelete }: RecipeCardProps) {
 
     const handleEdit = () => {
         onEdit(id);
     }
 
-    const handleDelete = () => {
-        onDelete(id);
-    }
+    const handleDelete = () => void onDelete(id);
 
     return (
         <article className="recipes-container__card recipe-card">

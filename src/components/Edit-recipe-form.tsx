@@ -1,8 +1,15 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import IngredientFieldset from "./Ingredient-fieldset";
+import type { Recipe, Ingredient, IngredientKey } from './../types/index';
 
-function EditRecipeForm ({initialValues, onSaved, onCancel}) {
+type EditRecipeFormProps = {
+    initialValues,
+    onSaved,
+    onCancel
+}
+
+function EditRecipeForm ({initialValues, onSaved, onCancel}: EditRecipeFormProps) {
     const [title, setTitle] = useState('');
     const [ingredients, setIngredients] = useState([]);
     const [description, setDescription] = useState('');

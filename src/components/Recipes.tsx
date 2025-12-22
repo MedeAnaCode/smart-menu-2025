@@ -13,14 +13,14 @@ function Recipes () {
 
     const startEdit = (id: number) => setEditingId(id);
     const cancelEdit = () => setEditingId(null);
-    const refetchRecipes = () => getData<Recipe[]>('/recipes').then(setRecipes).catch(console.error);
+    const refetchRecipes = (): Promise<void> => getData<Recipe[]>('/recipes').then(setRecipes).catch(console.error);
     const deleteRecipe = async (id: number) => await deleteData(`/recipes/${id}`);
     //пока написала Partial<Recipe>, но вообще стоит вернуться и уточнить, что там у меня отправляется на сервер
     const updateRecipe = async (id: number, params: Partial<Recipe>): Promise<void> => await updateData(`/recipes/${id}`, params);
 
     const recipeToEdit: Recipe | null = recipes.find(r => r.id === editingId) || null;
 
-    const onDelete = async (id: number) => {
+    const onDelete = async (id: number): Promise<void> => {
         try {
             await deleteRecipe(id);
             console.log("Удалено:" + id);

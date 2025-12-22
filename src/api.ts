@@ -26,7 +26,7 @@ const makeRequest = (
     props: ApiOptions,
     errText: string,
     url: string,
-    body?: object | string): Promise<unknown> => {
+    body?: object | string): Promise<true | unknown> => {
     const init: RequestInit = { ...props };
     const method = props.method;
 
@@ -38,18 +38,15 @@ const makeRequest = (
         if (!response.ok) throw new Error(`${errText} (HTTP ${response.status})`);
         return response.status === 204 ? true : response.json();
 
-    })
-        .catch((err) => {
-            throw err;
-        });
+    });
 }
 
 const getData = <T>(path: string): Promise<T> => {
     return makeRequest(Options.GET, ErrorText.GET_DATA, path) as Promise<T>;
 };
-const sendData = async (path: string, data: object | string) => await makeRequest (Options.POST, ErrorText.SEND_DATA, path, data);
-const updateData = async (path: string, data: object | string) => await makeRequest (Options.PATCH, ErrorText.UPDATE_DATA, path, data);
-const deleteData = async (path: string) => await makeRequest (Options.DELETE, ErrorText.DELETE_DATA, path);
+const sendData = (path: string, data: object | string): Promise<true | unknown> => makeRequest (Options.POST, ErrorText.SEND_DATA, path, data);
+const updateData = (path: string, data: object | string): Promise<true | unknown> => makeRequest (Options.PATCH, ErrorText.UPDATE_DATA, path, data);
+const deleteData = (path: string): Promise<true | unknown> => makeRequest (Options.DELETE, ErrorText.DELETE_DATA, path);
 
 export {
     getData,

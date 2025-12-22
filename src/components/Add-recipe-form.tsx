@@ -1,42 +1,54 @@
-import React from 'react';
+import React, {FormEvent} from 'react';
 import { useState } from 'react';
 import { sendData } from '../api';
 import IngredientFieldset from "./Ingredient-fieldset";
+import type { Recipe, Ingredient, IngredientKey, AddRecipeFormProps } from './../types/index';
 
-function AddRecipeForm ({onSuccess}) {
-    const [title, setTitle] = useState('');
-    const [ingredients, setIngredients] = useState([]);
-    const [description, setDescription] = useState('');
-    const [servings, setServings] = useState(1);
-    const [error, setError] = useState(null);
+function AddRecipeForm ({onSuccess}: AddRecipeFormProps) {
+    const [title, setTitle] = useState<string>('');
+    const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+    const [description, setDescription] = useState<string>('');
+    const [servings, setServings] = useState<number>(1);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleSubmit = async (e) => {
+    const emptyIngredient = (): Ingredient => ({
+        name: '',
+        amount: '',
+        um: 'г',
+    });
+
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setError(null);
 
         try {
-            const recipeData = {
+            const recipeData: Partial<Recipe> = {
                 title,
                 ingredients: ingredients.filter(i => i["name"].trim() !== ''),
                 description,
                 servings,
             };
-            const response = await sendData('/recipes', recipeData);
+            const response: true | unknown = await sendData('/recipes', recipeData);
+            if (response === true) {
+                onSuccess();
 
-            onSuccess?.(response); //чтобы передать data наверх, родительскому компоненту
-
-            // Очистка формы
-            setTitle('');
-            setIngredients([]);
-            setDescription('');
-            setServings(1);
+                // Очистка формы
+                setTitle('');
+                setIngredients([]);
+                setDescription('');
+                setServings(1);
+            }
         } catch (err) {
             console.error('Ошибка при создании рецепта:', err);
-            setError(err.message);
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError('Неизвестная ошибка');
+            }
         }
     };
 
-    function updateIngredient(index, field, value) {
+    function updateIngredient(index: number, field: IngredientKey, value: string): void {
         setIngredients(prev => {
             const newIngredients = [...prev];
             newIngredients[index] = {...newIngredients[index], [field]: value};
@@ -44,7 +56,7 @@ function AddRecipeForm ({onSuccess}) {
         });
     }
 
-    function deleteIngredient(indexToDelete) {
+    function deleteIngredient(indexToDelete: number): void {
         setIngredients(prev => {
             return prev.filter((e, index) => index !== indexToDelete);
         });
@@ -77,7 +89,7 @@ function AddRecipeForm ({onSuccess}) {
                 ))}
                 <button
                     type="button"
-                    onClick={() => setIngredients([...ingredients, {}])}
+                    onClick={() => setIngredients([...ingredients, emptyIngredient()])}
                 >
                     Добавить ингредиент
                 </button>
@@ -102,7 +114,7 @@ function AddRecipeForm ({onSuccess}) {
                         max="10"
                         step="1"
                         value={servings}
-                        onChange={e => setServings(e.target.value)}
+                        onChange={e => setServings(Number(e.target.value) || 1)}
                     />
                 </label>
                 <button
@@ -120,3 +132,4 @@ function AddRecipeForm ({onSuccess}) {
 export default AddRecipeForm;
 
 //Нужно сделать поле для загрузки изображения (по ссылке (строка адреса) или с компьютера)
+//Использовать uuid для ингредиентов

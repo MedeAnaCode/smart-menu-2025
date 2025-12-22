@@ -1,25 +1,42 @@
 import React from "react";
+import type { Ingredient, IngredientFieldsetProps } from './../types/index';
 
-function IngredientFieldset ({arr, index, onChange, onClickDel}) {
-    const ingredient = arr[index];
+function IngredientFieldset ({arr, index, onChange, onClickDel}: IngredientFieldsetProps) {
+    const ingredient: Ingredient = arr[index];
 
     return (
         <fieldset>
             <legend>Ингредиент {index + 1}</legend>
+            <label
+                className="visually-hidden"
+                htmlFor={`name-${index}`}
+            >Название.</label>
             <input
+                id={`name-${index}`}
                 type="text"
                 placeholder="Название"
                 value={ingredient["name"]}
                 onChange={(e) => onChange(index, "name", e.target.value)}
             />
+            <label
+                className="visually-hidden"
+                htmlFor={`amount-${index}`}
+            >Количество.</label>
             <input
+                id={`amount-${index}`}
                 type="number"
                 placeholder="Количество"
-                value={parseInt(ingredient["amount"])}
+                value={ingredient["amount"]}
                 onChange={(e) => onChange(index, "amount", e.target.value)}
             />
-            <select value={ingredient["um"]}
-                    onChange={(e) => onChange(index, "um", e.target.value)}>
+            <label
+                className="visually-hidden"
+                htmlFor={`um-${index}`}
+            >Единицы измерения.</label>
+            <select
+                id={`um-${index}`}
+                value={ingredient["um"]}
+                onChange={(e) => onChange(index, "um", e.target.value)}>
                 <option value="г">г</option>
                 <option value="мл">мл</option>
                 <option value="шт">шт</option>
@@ -36,9 +53,6 @@ function IngredientFieldset ({arr, index, onChange, onClickDel}) {
 
 export default IngredientFieldset;
 
-//Сделать удаление ингредиента
-
-// - Добавить id и связанный <label htmlFor="..."> для улучшения доступности
 // - Настроить минимальные и максимальные значения для input[type="number"]
 // - Продумать поддержку дробных значений через step (например, step="0.1")
 

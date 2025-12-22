@@ -1,5 +1,5 @@
 .recipe-card {
- background-color: $recipes-card;
+ background-color: $recipe-card;
  padding: 40px 30px 30px;
  color: $recipes-text;
  position: relative;
@@ -12,7 +12,7 @@
   right: 0;
   width: 100%;
   height: 40px;
-  background: linear-gradient(transparent, $recipes-card);
+  background: linear-gradient(transparent, $recipe-card);
  }
 }
 
