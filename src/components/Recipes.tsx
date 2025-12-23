@@ -16,7 +16,7 @@ function Recipes () {
     const refetchRecipes = (): Promise<void> => getData<Recipe[]>('/recipes').then(setRecipes).catch(console.error);
     const deleteRecipe = async (id: number) => await deleteData(`/recipes/${id}`);
     //пока написала Partial<Recipe>, но вообще стоит вернуться и уточнить, что там у меня отправляется на сервер
-    const updateRecipe = async (id: number, params: Partial<Recipe>): Promise<void> => await updateData(`/recipes/${id}`, params);
+    const updateRecipe = async (id: number, params: Partial<Recipe>): Promise<true | unknown> => await updateData(`/recipes/${id}`, params);
 
     const recipeToEdit: Recipe | null = recipes.find(r => r.id === editingId) || null;
 

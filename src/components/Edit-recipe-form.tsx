@@ -1,22 +1,28 @@
-import React from 'react';
+import React, {FormEvent} from 'react';
 import { useState, useEffect } from 'react';
 import IngredientFieldset from "./Ingredient-fieldset";
 import type { Recipe, Ingredient, IngredientKey } from './../types/index';
 
 type EditRecipeFormProps = {
-    initialValues,
-    onSaved,
-    onCancel
+    initialValues: Recipe | null,
+    onSaved: (patch: Partial<Recipe>) => Promise<void>,
+    onCancel: () => void
 }
 
 function EditRecipeForm ({initialValues, onSaved, onCancel}: EditRecipeFormProps) {
-    const [title, setTitle] = useState('');
-    const [ingredients, setIngredients] = useState([]);
-    const [description, setDescription] = useState('');
-    const [servings, setServings] = useState(1);
-    const [error, setError] = useState(null);
+    const [title, setTitle] = useState<string>('');
+    const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+    const [description, setDescription] = useState<string>('');
+    const [servings, setServings] = useState<number>(1);
+    const [error, setError] = useState<string | null>(null);
 
-    function updateIngredient(index, field, value) {
+    const emptyIngredient = (): Ingredient => ({
+        name: '',
+        amount: '',
+        um: 'г',
+    });
+
+    function updateIngredient(index: number, field: IngredientKey, value: string): void {
         setIngredients(prev => {
             const newIngredients = [...prev];
             newIngredients[index] = {...newIngredients[index], [field]: value};
@@ -24,20 +30,20 @@ function EditRecipeForm ({initialValues, onSaved, onCancel}: EditRecipeFormProps
         });
     }
 
-    function deleteIngredient(indexToDelete) {
+    function deleteIngredient(indexToDelete: number): void {
         setIngredients(prev => {
             return prev.filter((e, index) => index !== indexToDelete);
         });
     }
 
     useEffect(() => {
-        setTitle(initialValues.title ?? '');
-        setIngredients(initialValues.ingredients ?? []);
-        setDescription(initialValues.description ?? '');
-        setServings(initialValues.servings ?? 1);
+        setTitle(initialValues?.title || '');
+        setIngredients(initialValues?.ingredients || []);
+        setDescription(initialValues?.description || '');
+        setServings(initialValues?.servings || 1);
     }, [initialValues]);
 
-    function handleSubmit(e) {
+    function handleSubmit(e: FormEvent) {
         e.preventDefault();
         onSaved?.({
             title,
@@ -74,7 +80,7 @@ function EditRecipeForm ({initialValues, onSaved, onCancel}: EditRecipeFormProps
                 ))}
                 <button
                     type="button"
-                    onClick={() => setIngredients([...ingredients, {}])}
+                    onClick={() => setIngredients([...ingredients, emptyIngredient()])}
                 >
                     Добавить ингредиент
                 </button>
@@ -99,7 +105,7 @@ function EditRecipeForm ({initialValues, onSaved, onCancel}: EditRecipeFormProps
                         max="10"
                         step="1"
                         value={servings}
-                        onChange={e => setServings(e.target.value)}
+                        onChange={e => setServings(Number(e.target.value) || 1)}
                     />
                 </label>
                 <button
@@ -124,3 +130,4 @@ function EditRecipeForm ({initialValues, onSaved, onCancel}: EditRecipeFormProps
 export default EditRecipeForm;
 
 //Нужно сделать поле для изменения изображения (по ссылке (строка адреса) или с компьютера)
+//По принципу DRY лучше форму добавления и форму редактирование описать через общий шаблон

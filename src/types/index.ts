@@ -11,7 +11,7 @@ type Recipe = {
     description: string,
     image: string,
     servings: number,
-    id?: number,
+    id: number,
 }
 
 //Recipes-list
@@ -28,6 +28,7 @@ type RecipeCardProps = {
     imageUrl: string,
     ingredients: Ingredient[],
     id: number,
+    index: number,
     servings: number,
     onEdit: (id: number) => void,
     onDelete: (id: number) => Promise<void>
