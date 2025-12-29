@@ -12,7 +12,7 @@ type EditRecipeFormProps = {
 function EditRecipeForm ({initialValues, onSaved, onCancel}: EditRecipeFormProps) {
     const [title, setTitle] = useState<string>('');
     const [ingredients, setIngredients] = useState<Ingredient[]>([]);
-    const [description, setDescription] = useState<string>('');
+    const [preparing, setPreparing] = useState<string>('');
     const [servings, setServings] = useState<number>(1);
     const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +39,7 @@ function EditRecipeForm ({initialValues, onSaved, onCancel}: EditRecipeFormProps
     useEffect(() => {
         setTitle(initialValues?.title || '');
         setIngredients(initialValues?.ingredients || []);
-        setDescription(initialValues?.description || '');
+        setPreparing(initialValues?.preparing || '');
         setServings(initialValues?.servings || 1);
     }, [initialValues]);
 
@@ -48,7 +48,7 @@ function EditRecipeForm ({initialValues, onSaved, onCancel}: EditRecipeFormProps
         onSaved?.({
             title,
             ingredients,
-            description,
+            preparing,
             servings
         });
     }
@@ -91,8 +91,8 @@ function EditRecipeForm ({initialValues, onSaved, onCancel}: EditRecipeFormProps
                 <textarea
                     placeholder="Здесь приготовление блюда"
                     id="preparing"
-                    value={description}
-                    onChange={e => setDescription(e.target.value)}>
+                    value={preparing}
+                    onChange={e => setPreparing(e.target.value)}>
             </textarea>
             </section>
             <div className="edit-recipe-form__footer">

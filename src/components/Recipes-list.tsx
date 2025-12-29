@@ -13,7 +13,7 @@ function RecipesList({ recipes, onEdit, onDelete }: RecipesListProps) {
                     id={recipe.id}
                     imageUrl={recipe.image}
                     title={recipe.title}
-                    preparingText={recipe.description}
+                    preparingText={recipe.preparing}
                     ingredients={recipe.ingredients}
                     servings={recipe.servings}
                     onEdit={onEdit}

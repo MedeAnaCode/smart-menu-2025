@@ -7,7 +7,7 @@ import type { Recipe, Ingredient, IngredientKey, AddRecipeFormProps } from './..
 function AddRecipeForm ({onSuccess}: AddRecipeFormProps) {
     const [title, setTitle] = useState<string>('');
     const [ingredients, setIngredients] = useState<Ingredient[]>([]);
-    const [description, setDescription] = useState<string>('');
+    const [preparing, setPreparing] = useState<string>('');
     const [servings, setServings] = useState<number>(1);
     const [error, setError] = useState<string | null>(null);
 
@@ -25,7 +25,7 @@ function AddRecipeForm ({onSuccess}: AddRecipeFormProps) {
             const recipeData: Partial<Recipe> = {
                 title,
                 ingredients: ingredients.filter(i => i["name"].trim() !== ''),
-                description,
+                preparing,
                 servings,
             };
             const response: true | unknown = await sendData('/recipes', recipeData);
@@ -35,7 +35,7 @@ function AddRecipeForm ({onSuccess}: AddRecipeFormProps) {
                 // Очистка формы
                 setTitle('');
                 setIngredients([]);
-                setDescription('');
+                setPreparing('');
                 setServings(1);
             }
         } catch (err) {
@@ -100,8 +100,8 @@ function AddRecipeForm ({onSuccess}: AddRecipeFormProps) {
                 <textarea
                     placeholder="Здесь приготовление блюда"
                     id="preparing"
-                    value={description}
-                    onChange={e => setDescription(e.target.value)}>
+                    value={preparing}
+                    onChange={e => setPreparing(e.target.value)}>
             </textarea>
             </section>
             <div className="add-recipe-form__footer">

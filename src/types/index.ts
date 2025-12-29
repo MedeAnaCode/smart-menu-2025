@@ -1,3 +1,4 @@
+//FRONTEND
 //Recipes
 type Ingredient = {
     name: string,
@@ -8,7 +9,7 @@ type Ingredient = {
 type Recipe = {
     title: string,
     ingredients: Ingredient[],
-    description: string,
+    preparing: string,
     image: string,
     servings: number,
     id: number,
@@ -57,6 +58,20 @@ type AddRecipeFormProps = {
     onSuccess: () => void
 }
 
+//BACKEND
+//recipesController
+type RecipeCreation = Omit<Recipe, 'id'>;
+type EditableFields = 'title' | 'ingredients' | 'preparing' | 'image' | 'servings';
+
+//recipe
+type RecipeAttributes = Recipe & {
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+type RecipeCreationAttributes = Omit<Recipe, 'image' | 'id'> & { image?: string };
+
+
 export type {
     Ingredient,
     IngredientKey,
@@ -66,5 +81,9 @@ export type {
     RecipesListProps,
     RecipeCardProps,
     IngredientFieldsetProps,
-    AddRecipeFormProps
+    AddRecipeFormProps,
+    RecipeCreation,
+    EditableFields,
+    RecipeAttributes,
+    RecipeCreationAttributes
 };
