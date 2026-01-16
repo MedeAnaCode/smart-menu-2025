@@ -2,7 +2,7 @@ import {Request, Response} from "express";
 import RecipeModel from "../models/recipe";
 import type { Recipe as RecipeType, RecipeCreation, EditableFields } from './../../src/types/index';
 
-const getAllRecipes = async (req: Request, res: Response) => { //контроллер, асинхронная функция, которая обрабатывает входящий http-запрос req, res - объект для ответа клиенту
+export const getAllRecipes = async (req: Request, res: Response) => { //контроллер, асинхронная функция, которая обрабатывает входящий http-запрос req, res - объект для ответа клиенту
     try {
         const recipes = await RecipeModel.findAll(); // обращаемся к БД за рецептами
         res.json(recipes); //добавляем в объект ответа json из массива с рецептами
@@ -12,7 +12,7 @@ const getAllRecipes = async (req: Request, res: Response) => { //контрол�
     }
 };
 
-const createRecipe = async (req: Request, res: Response) => {
+export const createRecipe = async (req: Request, res: Response) => {
     try {
         const { title, ingredients, preparing, image, servings }: RecipeCreation = req.body;
         const recipe = await RecipeModel.create({
@@ -29,7 +29,7 @@ const createRecipe = async (req: Request, res: Response) => {
     }
 };
 
-const deleteRecipe = async (req: Request, res: Response) => {
+export const deleteRecipe = async (req: Request, res: Response) => {
     const currentId: number = Number(req.params.id);
 
     if (isNaN(currentId) || !Number.isInteger(currentId) || currentId <= 0) {
@@ -50,7 +50,7 @@ const deleteRecipe = async (req: Request, res: Response) => {
     }
 };
 
-const updateRecipe = async (req: Request, res: Response) => {
+export const updateRecipe = async (req: Request, res: Response) => {
     const ALLOWED: EditableFields[] = ['title','ingredients','preparing','image','servings'];
 
     const id: number = Number(req.params.id);
@@ -71,11 +71,4 @@ const updateRecipe = async (req: Request, res: Response) => {
         console.error(err);
         return res.status(500).json({ error: 'Ошибка при обновлении рецепта' });
     }
-};
-
-export default {
-    getAllRecipes,
-    createRecipe,
-    deleteRecipe,
-    updateRecipe
 };

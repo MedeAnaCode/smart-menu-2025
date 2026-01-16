@@ -1,5 +1,5 @@
 import express from "express";
-const { getAllRecipes, createRecipe, deleteRecipe, updateRecipe } = require("../controllers/recipesController");
+import { getAllRecipes, createRecipe, deleteRecipe, updateRecipe } from "../controllers/recipesController";
 
 const router = express.Router(); //создаётся миниприложение router, куда мы добавляем маршруты (роуты)
 
