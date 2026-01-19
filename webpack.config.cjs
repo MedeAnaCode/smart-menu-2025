@@ -80,7 +80,8 @@ module.exports = {
             {
                 context: ["/api"],
                 target: "http://backend:3001",
-                changeOrigin: true
+                changeOrigin: true,
+                pathRewrite: { "^/api": "" },
             }
         ]
     }

@@ -1,7 +1,7 @@
 import type { HttpMethod, ApiOptions } from './types/index';
 
 const SERVER_PORT = '3001';
-const BASE_URL = 'http://localhost:' + SERVER_PORT;
+const BASE_URL = "/api";
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' } as const;
 

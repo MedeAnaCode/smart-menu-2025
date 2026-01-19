@@ -1,13 +1,16 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './components/App';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { Provider } from "react-redux";
 
+import App from "./components/App";
+import { store } from "./store";
 
-const root = ReactDOM.createRoot(document.querySelector('#root')!); //Восклицательный знак тут,
-// чтобы дать понять typescript, что root точно не null (не хочу забыть, новая для меня конструкция)
+const root = ReactDOM.createRoot(document.querySelector("#root")!);
 
 root.render(
     <React.StrictMode>
-        <App/>
+        <Provider store={store}>
+            <App />
+        </Provider>
     </React.StrictMode>
 );
