@@ -65,6 +65,12 @@ type EditRecipeFormProps = {
     onCancel: () => void
 }
 
+//apiRtk
+type UpdateRecipeArg = {
+    id: number;
+    patch: Partial<Recipe>;
+};
+
 //BACKEND
 //recipesController
 type RecipeCreation = Omit<Recipe, 'id'>;
@@ -82,5 +88,6 @@ export type {
     AddRecipeFormProps,
     RecipeCreation,
     EditableFields,
-    EditRecipeFormProps
+    EditRecipeFormProps,
+    UpdateRecipeArg
 };

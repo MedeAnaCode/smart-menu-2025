@@ -1,10 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type {Recipe} from './types/index';
-
-type UpdateRecipeArg = {
-    id: number;
-    patch: Partial<Recipe>;
-};
+import type {Recipe, UpdateRecipeArg} from './types/index';
 
 export const apiRtk = createApi({
     reducerPath: "apiRtk",
