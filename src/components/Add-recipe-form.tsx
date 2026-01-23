@@ -1,7 +1,7 @@
-import React, {FormEvent} from 'react';
+import {FormEvent} from 'react';
 import { useState } from 'react';
-import { sendData } from '../api';
 import IngredientFieldset from "./Ingredient-fieldset";
+import {useSendRecipeMutation} from "../apiRtk";
 import type { Recipe, Ingredient, IngredientKey, AddRecipeFormProps } from './../types/index';
 
 function AddRecipeForm ({onSuccess}: AddRecipeFormProps) {
@@ -10,6 +10,7 @@ function AddRecipeForm ({onSuccess}: AddRecipeFormProps) {
     const [preparing, setPreparing] = useState<string>('');
     const [servings, setServings] = useState<number>(1);
     const [error, setError] = useState<string | null>(null);
+    const [sendRecipe] = useSendRecipeMutation();
 
     const emptyIngredient = (): Ingredient => ({
         name: '',
@@ -21,30 +22,26 @@ function AddRecipeForm ({onSuccess}: AddRecipeFormProps) {
         e.preventDefault();
         setError(null);
 
-        try {
-            const recipeData: Partial<Recipe> = {
-                title,
-                ingredients: ingredients.filter(i => i["name"].trim() !== ''),
-                preparing,
-                servings,
-            };
-            const response: true | unknown = await sendData('/recipes', recipeData);
-            if (response === true) {
-                onSuccess();
+        const recipeData: Partial<Recipe> = {
+            title,
+            ingredients: ingredients.filter((i) => i.name.trim() !== ''),
+            preparing,
+            servings,
+        };
 
-                // Очистка формы
-                setTitle('');
-                setIngredients([]);
-                setPreparing('');
-                setServings(1);
-            }
+        try {
+            await sendRecipe(recipeData).unwrap();
+
+            onSuccess?.();
+
+            // Очистка формы
+            setTitle('');
+            setIngredients([]);
+            setPreparing('');
+            setServings(1);
         } catch (err) {
             console.error('Ошибка при создании рецепта:', err);
-            if (err instanceof Error) {
-                setError(err.message);
-            } else {
-                setError('Неизвестная ошибка');
-            }
+            setError('Не удалось создать рецепт');
         }
     };
 

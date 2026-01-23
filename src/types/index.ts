@@ -58,6 +58,13 @@ type AddRecipeFormProps = {
     onSuccess: () => void
 }
 
+//Edit-recipe-form
+type EditRecipeFormProps = {
+    initialValues: Recipe | null,
+    onSaved: (patch: Partial<Recipe>) => Promise<void>,
+    onCancel: () => void
+}
+
 //BACKEND
 //recipesController
 type RecipeCreation = Omit<Recipe, 'id'>;
@@ -75,4 +82,5 @@ export type {
     AddRecipeFormProps,
     RecipeCreation,
     EditableFields,
+    EditRecipeFormProps
 };

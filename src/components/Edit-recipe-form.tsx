@@ -1,13 +1,7 @@
 import React, {FormEvent} from 'react';
 import { useState, useEffect } from 'react';
 import IngredientFieldset from "./Ingredient-fieldset";
-import type { Recipe, Ingredient, IngredientKey } from './../types/index';
-
-type EditRecipeFormProps = {
-    initialValues: Recipe | null,
-    onSaved: (patch: Partial<Recipe>) => Promise<void>,
-    onCancel: () => void
-}
+import type { Recipe, Ingredient, IngredientKey, EditRecipeFormProps } from './../types/index';
 
 function EditRecipeForm ({initialValues, onSaved, onCancel}: EditRecipeFormProps) {
     const [title, setTitle] = useState<string>('');
