@@ -39,6 +39,8 @@ function Recipes () {
         }
     };
 
+    const modalTitle = editingId !== null ? "Редактирование рецепта" : "Новый рецепт";
+
     return (
         <>
             <h1 className="visually-hidden">
@@ -53,7 +55,7 @@ function Recipes () {
                 Новый рецепт
             </button>
 
-            <Modal open={open} onOpenChange={setOpen} title="Создание рецепта">
+            <Modal open={open} onOpenChange={setOpen} title={modalTitle}>
                 {
                     editingId !== null ?
                         <EditRecipeForm

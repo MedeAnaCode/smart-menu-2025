@@ -61,9 +61,6 @@ function AddRecipeForm ({onSuccess}: AddRecipeFormProps) {
 
     return (
         <form className="add-recipe-form" onSubmit={handleSubmit}>
-            <h3 className="add-recipe-form__title">
-                Новый рецепт
-            </h3>
             <label className="visually-hidden" htmlFor="name">Название.</label>
             <input
                 className="add-recipe-form__input"

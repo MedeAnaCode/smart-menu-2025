@@ -49,9 +49,6 @@ function EditRecipeForm ({initialValues, onSaved, onCancel}: EditRecipeFormProps
 
     return (
         <form className="edit-recipe-form" onSubmit={handleSubmit}>
-            <h3 className="edit-recipe-form__title">
-                Редактируем рецепт
-            </h3>
             <label className="visually-hidden" htmlFor="name">Название.</label>
             <input
                 className="edit-recipe-form__input"
