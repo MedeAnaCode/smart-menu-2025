@@ -22,10 +22,19 @@
 }
 
 .modal__title {
-  color: $dark-accent;
-
+  color: $gray;
+  font-size: 28px;
+  font-weight: 600px;
+  margin: 0;
+  margin-bottom: 20px;
 }
 
 .modal__button-close {
-
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: $gray;
+  border: none;
+  background: none;
+  cursor: pointer;
 }

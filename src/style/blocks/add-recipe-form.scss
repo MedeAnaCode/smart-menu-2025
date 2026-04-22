@@ -1,18 +1,27 @@
 .add-recipe-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-}
-
-.add-recipe-form__title {
-
+  grid-auto-columns: 1fr;
 }
 
 .add-recipe-form__subtitle {
 
 }
 
-.add-recipe-form__input {
+.add-recipe-form__name {
+  color: $gray;
+  grid-column: 1 / -1;
+  margin: 0;
+  margin-bottom: 20px;
+  border: 1px solid $light-accent;
+  border-radius: 0;
+  padding: 10px;
+}
 
+.add-recipe-form__name::placeholder {
+  color: inherit;
+  font-size: 20px;
+  opacity: 1;
 }
 
 .add-recipe-form__fieldset {
@@ -20,17 +29,83 @@
 }
 
 .add-recipe-form__section {
+  margin: 0;
+  margin-bottom: 20px;
+}
 
+.add-recipe-form__subtitle {
+  color: $dark-accent;
+  font-family: "Lato", "Arial", sans-serif;
+  font-size: 14px;
+  line-height: 16px;
+  margin: 0;
+  margin-bottom: 20px
+}
+
+.add-recipe-form__textarea {
+  color: $gray;
+  width: 100%;
+  margin: 0;
+  margin-bottom: 20px;
+  border: 1px solid $light-accent;
+  border-radius: 0;
+  padding: 10px;
+  resize: none;
 }
 
 .add-recipe-form__label {
-
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: $gray;
+  font-family: "Lato", "Arial", sans-serif;
+  font-size: 14px;
+  line-height: 16px;
 }
 
 .add-recipe-form__button {
+  font-size: 18px;
+  padding: 5px 10px;
+}
 
+.add-recipe-form__add-ingredient-button {
+  background: none;
+  border: 1px solid $dark-accent;
+  color: $dark-accent;
+  border-radius: 50%;
+}
+
+.add-recipe-form__add-ingredient-button {
+  background: none;
+  border: 1px solid $dark-accent;
+  color: $dark-accent;
+  border-radius: 50%;
+  position: relative;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.add-recipe-form__add-ingredient-button::before,
+.add-recipe-form__add-ingredient-button::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 2px;
+  background-color: $dark-accent;
+  transform: translate(-50%, -50%);
+}
+
+.add-recipe-form__add-ingredient-button::after {
+  transform: translate(-50%, -50%) rotate(90deg);
 }
 
 .add-recipe-form__footer {
-
+  grid-column: -1 / 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
 }

@@ -63,7 +63,7 @@ function AddRecipeForm ({onSuccess}: AddRecipeFormProps) {
         <form className="add-recipe-form" onSubmit={handleSubmit}>
             <label className="visually-hidden" htmlFor="name">Название.</label>
             <input
-                className="add-recipe-form__input"
+                className="add-recipe-form__name"
                 type="text"
                 placeholder="Название"
                 id="name"
@@ -82,17 +82,20 @@ function AddRecipeForm ({onSuccess}: AddRecipeFormProps) {
                     />
                 ))}
                 <button
+                    className="add-recipe-form__add-ingredient-button"
                     type="button"
                     onClick={() => setIngredients([...ingredients, emptyIngredient()])}
                 >
-                    Добавить ингредиент
+                    <span className="visually-hidden">
+                        Добавить ингредиент
+                    </span>
                 </button>
             </section>
             <section className="add-recipe-form__section">
                 <h4 className="add-recipe-form__subtitle">Приготовление:</h4>
                 <label className="visually-hidden" htmlFor="preparing"></label>
                 <textarea
-                    placeholder="Здесь приготовление блюда"
+                    className="add-recipe-form__textarea"
                     id="preparing"
                     value={preparing}
                     onChange={e => setPreparing(e.target.value)}>
@@ -100,9 +103,11 @@ function AddRecipeForm ({onSuccess}: AddRecipeFormProps) {
             </section>
             <div className="add-recipe-form__footer">
                 <label className="add-recipe-form__label">
-                    Количество порций:
+                    <span className="add-recipe-form__label">
+                        Количество порций:
+                    </span>
                     <input
-                        className="add-recipe-form__input"
+                        className="add-recipe-form__number-input"
                         type="number"
                         min="1"
                         max="10"
@@ -127,3 +132,4 @@ export default AddRecipeForm;
 
 //Нужно сделать поле для загрузки изображения (по ссылке (строка адреса) или с компьютера)
 //Использовать uuid для ингредиентов
+//Объединить стили add-recipe-form и edit-recipe-form
