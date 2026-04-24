@@ -51,6 +51,7 @@
   border-radius: 0;
   padding: 10px;
   resize: none;
+  min-height: 50px;
 }
 
 .add-recipe-form__label {
@@ -66,13 +67,6 @@
 .add-recipe-form__button {
   font-size: 18px;
   padding: 5px 10px;
-}
-
-.add-recipe-form__add-ingredient-button {
-  background: none;
-  border: 1px solid $dark-accent;
-  color: $dark-accent;
-  border-radius: 50%;
 }
 
 .add-recipe-form__add-ingredient-button {
@@ -108,4 +102,16 @@
   display: flex;
   justify-content: space-between;
   align-items: end;
+}
+
+.add-recipe-form__number-input {
+  border: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 }

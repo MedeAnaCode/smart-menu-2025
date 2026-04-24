@@ -14,7 +14,6 @@ import type { Recipe } from './../types/index';
 //    чтобы режим всегда был предсказуемым.
 // 3) onCancel/onSaved должны закрывать модалку (setOpen(false)) + reset editingId,
 //    сейчас они только сбрасывают editingId.
-// 4) Заголовок модалки стоит делать динамическим: edit/create.
 
 function Recipes () {
     const {data: recipes, error, isLoading} = useGetRecipesQuery();

@@ -12,14 +12,22 @@ export function Modal({ open, onOpenChange, title, children }: ModalProps) {
     return (
         <Dialog.Root open={open} onOpenChange={onOpenChange}>
             <Dialog.Portal>
-                <Dialog.Overlay className="modal__overlay"/>
-                <Dialog.Content className="modal__content">
-                    {title ? <Dialog.Title className="modal__title">{title}</Dialog.Title> : null}
+                <Dialog.Overlay
+                    className="modal__overlay"/>
+                <Dialog.Content
+                    className="modal__content">
+                    {title ? <Dialog.Title
+                        className="modal__title">
+                        {title}
+                    </Dialog.Title> : null}
 
                     {children}
 
                     <Dialog.Close asChild>
-                        <button type="button" aria-label="Закрыть" className="modal__button-close">
+                        <button
+                            type="button"
+                            aria-label="Закрыть"
+                            className="modal__button-close">
                             ✕
                         </button>
                     </Dialog.Close>
