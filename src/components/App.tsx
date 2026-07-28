@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import './../style/main.scss';
 import MainContainer from './Main-container';
 import Layout from './Layout';
@@ -24,3 +24,4 @@ function App()  {
 }
 
 export default App;
+

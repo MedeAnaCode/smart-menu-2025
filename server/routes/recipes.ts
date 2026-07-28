@@ -1,5 +1,4 @@
-import express from "express";
-import { getAllRecipes, createRecipe, deleteRecipe, updateRecipe } from "../controllers/recipesController";
+import express from "express";import { getAllRecipes, createRecipe, deleteRecipe, updateRecipe } from "../controllers/recipesController";
 
 const router = express.Router(); //создаётся миниприложение router, куда мы добавляем маршруты (роуты)
 
