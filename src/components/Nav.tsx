@@ -1,6 +1,5 @@
 import React from 'react';
-import {NavLink} from 'react-router-dom';
-import {useLocation} from 'react-router-dom';
+import {NavLink, useLocation} from 'react-router-dom';
 import classNames from 'classnames';
 
 function Nav () {

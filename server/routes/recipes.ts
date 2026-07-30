@@ -1,18 +1,35 @@
-import express from "express";import { getAllRecipes, createRecipe, deleteRecipe, updateRecipe } from "../controllers/recipesController";
+import express from "express";
+import {
+    createRecipe,
+    cloneSavedRecipe,
+    deleteRecipe,
+    getAllRecipes,
+    getRecipe,
+    getMyRecipes,
+    publishRecipe,
+    savePublishedRecipe,
+    unpublishRecipe,
+    unsaveRecipe,
+    updateRecipe,
+    uploadImage
+} from "../controllers/recipesController";
+import {requireAuth} from "../middleware/auth";
+import {asyncHandler} from "../middleware/asyncHandler";
+import {uploadRecipeImage} from "../middleware/upload";
 
-const router = express.Router(); //создаётся миниприложение router, куда мы добавляем маршруты (роуты)
+const router = express.Router();
 
-//Логика загрузки списка рецептов из БД:
-router.get("/", getAllRecipes); // создаём маршрут GET внутри этого роута
-// полный путь будет "/recipes" - это "/", но маршрутизатор подключён внутри app.use("/recipes", ...)
-
-//Логика получения данных для создания нового рецепта:
-router.post('/', createRecipe);
-
-//Логика удаления рецепта
-router.delete('/:id', deleteRecipe);
-
-//Логика обновления рецепта
-router.patch('/:id', updateRecipe);
+router.get("/", asyncHandler(getAllRecipes));
+router.get("/mine", asyncHandler(requireAuth), asyncHandler(getMyRecipes));
+router.post("/image", asyncHandler(requireAuth), uploadRecipeImage.single("image"), asyncHandler(uploadImage));
+router.post("/", asyncHandler(requireAuth), asyncHandler(createRecipe));
+router.get("/:id", asyncHandler(getRecipe));
+router.patch("/:id", asyncHandler(requireAuth), asyncHandler(updateRecipe));
+router.delete("/:id", asyncHandler(requireAuth), asyncHandler(deleteRecipe));
+router.post("/:id/publish", asyncHandler(requireAuth), asyncHandler(publishRecipe));
+router.post("/:id/unpublish", asyncHandler(requireAuth), asyncHandler(unpublishRecipe));
+router.post("/:id/save", asyncHandler(requireAuth), asyncHandler(savePublishedRecipe));
+router.delete("/:id/save", asyncHandler(requireAuth), asyncHandler(unsaveRecipe));
+router.post("/:id/clone", asyncHandler(requireAuth), asyncHandler(cloneSavedRecipe));
 
 export default router;

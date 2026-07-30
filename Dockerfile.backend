@@ -12,6 +12,8 @@ RUN npm ci
 
 # копируем код сервера
 COPY server ./server
+COPY src/types ./src/types
+COPY docs/migrations ./docs/migrations
 
 # контейнер слушает этот порт
 EXPOSE 3001

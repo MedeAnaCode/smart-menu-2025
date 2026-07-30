@@ -1,10 +1,20 @@
-import Recipe from "../models/recipe";
+import {Recipe, User} from "../models";
 import sequelize from "../db/sequelize";
+import {replaceRecipeIngredients} from "../services/recipes";
 
 async function seedRecipes() {
     await sequelize.sync();
 
-    await Recipe.bulkCreate([
+    const [catalogOwner] = await User.findOrCreate({
+        where: {keycloakId: "smartmenu-catalog"},
+        defaults: {
+            keycloakId: "smartmenu-catalog",
+            email: "catalog@smartmenu.local",
+            name: "SmartMenu",
+        },
+    });
+
+    const recipes = await Recipe.bulkCreate([
         {
             title: 'Салат Греческий',
             ingredients: [
@@ -109,9 +119,23 @@ async function seedRecipes() {
             image: '/img/recipes/pumpkin.jpg',
             servings: 4,
         }
-    ]);
+    ].map((recipe) => ({
+        ...recipe,
+        ownerId: catalogOwner.id,
+        isPublished: true,
+        publishedAt: new Date(),
+    })), {returning: true});
 
-    const recipes = await Recipe.findAll();
+    await sequelize.transaction(async (transaction) => {
+        for (const recipe of recipes) {
+            await replaceRecipeIngredients(
+                recipe.id,
+                recipe.ingredients.map((ingredient) => ({...ingredient, custom: false})),
+                transaction,
+            );
+        }
+    });
+
     recipes.forEach(recipe => {
         console.log(`${recipe.getDataValue("title")}: ${recipe.getDataValue("preparing")}`);
     });

@@ -1,135 +1,17 @@
-import {FormEvent} from 'react';
-import { useState } from 'react';
-import IngredientFieldset from "./Ingredient-fieldset";
 import {useSendRecipeMutation} from "../apiRtk";
-import type { Recipe, Ingredient, IngredientKey, AddRecipeFormProps } from './../types/index';
+import type {AddRecipeFormProps} from "../types";
+import type {RecipeFormValues} from "../validation/recipe";
+import RecipeForm from "./RecipeForm";
 
-function AddRecipeForm ({onSuccess}: AddRecipeFormProps) {
-    const [title, setTitle] = useState<string>('');
-    const [ingredients, setIngredients] = useState<Ingredient[]>([]);
-    const [preparing, setPreparing] = useState<string>('');
-    const [servings, setServings] = useState<number>(1);
-    const [error, setError] = useState<string | null>(null);
+function AddRecipeForm({onSuccess}: AddRecipeFormProps) {
     const [sendRecipe] = useSendRecipeMutation();
 
-    const emptyIngredient = (): Ingredient => ({
-        name: '',
-        amount: '',
-        um: 'г',
-    });
-
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-        setError(null);
-
-        const recipeData: Partial<Recipe> = {
-            title,
-            ingredients: ingredients.filter((i) => i.name.trim() !== ''),
-            preparing,
-            servings,
-        };
-
-        try {
-            await sendRecipe(recipeData).unwrap();
-
-            onSuccess?.();
-
-            // Очистка формы
-            setTitle('');
-            setIngredients([]);
-            setPreparing('');
-            setServings(1);
-        } catch (err) {
-            console.error('Ошибка при создании рецепта:', err);
-            setError('Не удалось создать рецепт');
-        }
+    const createRecipe = async (values: RecipeFormValues) => {
+        await sendRecipe(values).unwrap();
+        onSuccess();
     };
 
-    function updateIngredient(index: number, field: IngredientKey, value: string): void {
-        setIngredients(prev => {
-            const newIngredients = [...prev];
-            newIngredients[index] = {...newIngredients[index], [field]: value};
-            return newIngredients;
-        });
-    }
-
-    function deleteIngredient(indexToDelete: number): void {
-        setIngredients(prev => {
-            return prev.filter((e, index) => index !== indexToDelete);
-        });
-    }
-
-    return (
-        <form className="add-recipe-form" onSubmit={handleSubmit}>
-            <label className="visually-hidden" htmlFor="name">Название.</label>
-            <input
-                className="add-recipe-form__name"
-                type="text"
-                placeholder="Название"
-                id="name"
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-            />
-            <section className="add-recipe-form__section">
-                <h4 className="add-recipe-form__subtitle">Ингредиенты:</h4>
-                {ingredients.map((ingredient, index) => (
-                    <IngredientFieldset
-                        key={index}
-                        arr={ingredients}
-                        index={index}
-                        onChange={updateIngredient}
-                        onClickDel={deleteIngredient}
-                    />
-                ))}
-                <button
-                    className="add-recipe-form__add-ingredient-button"
-                    type="button"
-                    onClick={() => setIngredients([...ingredients, emptyIngredient()])}
-                >
-                    <span className="visually-hidden">
-                        Добавить ингредиент
-                    </span>
-                </button>
-            </section>
-            <section className="add-recipe-form__section">
-                <h4 className="add-recipe-form__subtitle">Приготовление:</h4>
-                <label className="visually-hidden" htmlFor="preparing"></label>
-                <textarea
-                    className="add-recipe-form__textarea"
-                    id="preparing"
-                    value={preparing}
-                    onChange={e => setPreparing(e.target.value)}>
-            </textarea>
-            </section>
-            <div className="add-recipe-form__footer">
-                <label className="add-recipe-form__label">
-                    <span className="add-recipe-form__label">
-                        Количество порций:
-                    </span>
-                    <input
-                        className="add-recipe-form__number-input"
-                        type="number"
-                        min="1"
-                        max="10"
-                        step="1"
-                        value={servings}
-                        onChange={e => setServings(Number(e.target.value) || 1)}
-                    />
-                </label>
-                <button
-                    className="add-recipe-form__button button-dark"
-                    type="submit">
-                    Создать
-                </button>
-            </div>
-
-            {error && <p style={{ color: 'red' }}>Ошибка: {error}</p>}
-        </form>
-    );
+    return <RecipeForm submitLabel="Создать рецепт" onSubmit={createRecipe} />;
 }
 
 export default AddRecipeForm;
-
-//Нужно сделать поле для загрузки изображения (по ссылке (строка адреса) или с компьютера)
-//Использовать uuid для ингредиентов
-//Объединить стили add-recipe-form и edit-recipe-form

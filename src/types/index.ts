@@ -1,93 +1,186 @@
-//FRONTEND
-//Recipes
+type CommonIngredient = {
+    id: number;
+    name: string;
+};
+
 type Ingredient = {
-    name: string,
-    amount?: string,
-    um?: string,
-}
+    id?: number;
+    name: string;
+    amount: string;
+    um: string;
+    commonIngredientId?: number | null;
+    custom?: boolean;
+};
 
 type Recipe = {
-    title: string,
-    ingredients: Ingredient[],
-    preparing: string,
-    image: string,
-    servings: number,
-    id: number,
-}
+    title: string;
+    description: string;
+    category: string;
+    ingredients: Ingredient[];
+    preparing: string;
+    image: string;
+    servings: number;
+    id: number;
+    ownerId?: number | null;
+    isPublished?: boolean;
+    publishedAt?: string | null;
+    author?: {
+        id: number;
+        name: string;
+    } | null;
+};
 
-//Recipes-list
+type RecipeSnapshot = Omit<Recipe, "id" | "ownerId" | "isPublished" | "publishedAt" | "author"> & {
+    originalRecipeId: number;
+    authorId: number | null;
+    capturedAt: string;
+};
+
+type MenuRecipe = {
+    id: string;
+    recipeId: number;
+    servings: number;
+    includeInShopping: boolean;
+    recipeSnapshot: RecipeSnapshot;
+};
+
+type ExtraProduct = {
+    id: string;
+    name: string;
+    amount: string;
+    um: string;
+    includeInShopping: boolean;
+};
+
+type Meal = {
+    id: string;
+    title: string;
+    includeInShopping: boolean;
+    recipes: MenuRecipe[];
+    extraProducts: ExtraProduct[];
+};
+
+type MenuDay = {
+    id: string;
+    date: string;
+    title: string;
+    includeInShopping: boolean;
+    meals: Meal[];
+};
+
+type WeeklyMenu = {
+    id: number;
+    userId: number;
+    title: string;
+    days: MenuDay[];
+};
+
+type ShoppingListItem = {
+    id: string;
+    name: string;
+    amount: string;
+    um: string;
+    source: string;
+    sourceType: "common" | "custom" | "extra" | "manual";
+    commonIngredientId?: number | null;
+    checked: boolean;
+    manual: boolean;
+};
+
+type ShoppingList = {
+    id?: number;
+    menuId: number;
+    items: ShoppingListItem[];
+    manualDirty: boolean;
+};
+
+type User = {
+    id: number;
+    email: string;
+    name: string;
+    keycloakId: string;
+};
+
+type MyRecipesResponse = {
+    owned: Recipe[];
+    saved: Array<{savedId: number; recipeId: number; recipe: Recipe}>;
+};
+
 type RecipesListProps = {
-    recipes: Recipe[],
-    onEdit: (id: number) => void,
-    onDelete: (id: number) => Promise<void>
-}
+    recipes: Recipe[];
+    onEdit: (id: number) => void;
+    onDelete: (id: number) => Promise<void>;
+};
 
-//Recipe-card
 type RecipeCardProps = {
-    title: string,
-    preparingText: string,
-    imageUrl: string,
-    ingredients: Ingredient[],
-    id: number,
-    index: number,
-    servings: number,
-    onEdit: (id: number) => void,
-    onDelete: (id: number) => Promise<void>
-}
+    title: string;
+    preparingText: string;
+    imageUrl: string;
+    ingredients: Ingredient[];
+    id: number;
+    index: number;
+    servings: number;
+    onEdit: (id: number) => void;
+    onDelete: (id: number) => Promise<void>;
+};
 
-//api
-type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
+type HttpMethod = "GET" | "POST" | "PATCH" | "DELETE";
 
 type ApiOptions = Readonly<{
     method: HttpMethod;
     headers?: Record<string, string>;
 }>;
 
-//Ingredient-fieldset
 type IngredientKey = keyof Ingredient;
 
 type IngredientFieldsetProps = {
-    arr: Ingredient[],
-    index: number,
-    onChange: (index: number, field: IngredientKey, value: string) => void,
-    onClickDel: (indexToDelete: number) => void
-}
+    arr: Ingredient[];
+    index: number;
+    onChange: (index: number, field: IngredientKey, value: string) => void;
+    onClickDel: (indexToDelete: number) => void;
+};
 
-//Add-recipe-form
 type AddRecipeFormProps = {
-    onSuccess: () => void
-}
+    onSuccess: () => void;
+};
 
-//Edit-recipe-form
 type EditRecipeFormProps = {
-    initialValues: Recipe | null,
-    onSaved: (patch: Partial<Recipe>) => Promise<void>,
-    onCancel: () => void
-}
+    initialValues: Recipe | null;
+    onSaved: (patch: Partial<Recipe>) => Promise<void>;
+    onCancel: () => void;
+};
 
-//apiRtk
 type UpdateRecipeArg = {
     id: number;
     patch: Partial<Recipe>;
 };
 
-//BACKEND
-//recipesController
-type RecipeCreation = Omit<Recipe, 'id'>;
-type EditableFields = 'title' | 'ingredients' | 'preparing' | 'image' | 'servings';
+type RecipeCreation = Omit<Recipe, "id" | "ownerId" | "isPublished" | "publishedAt" | "author">;
+type EditableFields = "title" | "description" | "category" | "ingredients" | "preparing" | "image" | "servings";
 
 export type {
-    Ingredient,
-    IngredientKey,
-    Recipe,
-    HttpMethod,
-    ApiOptions,
-    RecipesListProps,
-    RecipeCardProps,
-    IngredientFieldsetProps,
     AddRecipeFormProps,
-    RecipeCreation,
+    ApiOptions,
+    CommonIngredient,
     EditableFields,
     EditRecipeFormProps,
-    UpdateRecipeArg
+    ExtraProduct,
+    HttpMethod,
+    Ingredient,
+    IngredientFieldsetProps,
+    IngredientKey,
+    Meal,
+    MenuDay,
+    MenuRecipe,
+    MyRecipesResponse,
+    Recipe,
+    RecipeCardProps,
+    RecipeCreation,
+    RecipeSnapshot,
+    RecipesListProps,
+    ShoppingList,
+    ShoppingListItem,
+    UpdateRecipeArg,
+    User,
+    WeeklyMenu,
 };

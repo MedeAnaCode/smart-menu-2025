@@ -1,74 +1,181 @@
-import {Request, Response} from "express";
-import RecipeModel from "../models/recipe";
-import type { Recipe as RecipeType, RecipeCreation, EditableFields } from './../../src/types/index';
+import {Op} from "sequelize";
+import type {Response} from "express";
+import sequelize from "../db/sequelize";
+import {Recipe, SavedRecipe} from "../models";
+import type {AuthenticatedRequest} from "../middleware/auth";
+import {findRecipeWithDetails, recipeIncludes, replaceRecipeIngredients, serializeRecipe} from "../services/recipes";
+import {recipePatchSchema, recipeSchema} from "../validation/schemas";
 
-export const getAllRecipes = async (req: Request, res: Response) => { //контроллер, асинхронная функция, которая обрабатывает входящий http-запрос req, res - объект для ответа клиенту
-    try {
-        const recipes = await RecipeModel.findAll(); // обращаемся к БД за рецептами
-        res.json(recipes); //добавляем в объект ответа json из массива с рецептами
-    } catch (err: unknown) {
-        console.error("Ошибка при получении рецептов:", err);
-        res.status(500).json({ error: "Ошибка сервера" });
-    }
+const parseId = (value: string) => {
+    const id = Number(value);
+    return Number.isInteger(id) && id > 0 ? id : null;
 };
 
-export const createRecipe = async (req: Request, res: Response) => {
-    try {
-        const { title, ingredients, preparing, image, servings }: RecipeCreation = req.body;
-        const recipe = await RecipeModel.create({
-            title,
-            ingredients,
-            preparing,
-            image,
-            servings
+export const getAllRecipes = async (req: AuthenticatedRequest, res: Response) => {
+    const query = String(req.query.q ?? "").trim();
+    const recipes = await Recipe.findAll({
+        where: {
+            isPublished: true,
+            ...(query ? {title: {[Op.iLike]: `%${query}%`}} : {}),
+        },
+        include: recipeIncludes,
+        order: [["publishedAt", "DESC"]],
+    });
+    return res.json(recipes.map(serializeRecipe));
+};
+
+export const getRecipe = async (req: AuthenticatedRequest, res: Response) => {
+    const id = parseId(req.params.id);
+    if (!id) return res.status(400).json({error: "Некорректный id"});
+    const recipe = await findRecipeWithDetails(id);
+    if (!recipe) return res.sendStatus(404);
+    if (!recipe.isPublished && recipe.ownerId !== req.user?.id) return res.sendStatus(404);
+    return res.json(serializeRecipe(recipe));
+};
+
+export const getMyRecipes = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) return res.sendStatus(401);
+    const owned = await Recipe.findAll({
+        where: {ownerId: userId},
+        include: recipeIncludes,
+        order: [["updatedAt", "DESC"]],
+    });
+    const saved = await SavedRecipe.findAll({
+        where: {userId},
+        include: [{model: Recipe, as: "recipe", include: recipeIncludes}],
+        order: [["createdAt", "DESC"]],
+    });
+    return res.json({
+        owned: owned.map(serializeRecipe),
+        saved: saved.flatMap((row) => {
+            const recipe = row.recipe;
+            return recipe ? [{savedId: row.id, recipeId: row.recipeId, recipe: serializeRecipe(recipe)}] : [];
+        }),
+    });
+};
+
+export const createRecipe = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) return res.sendStatus(401);
+    const parsed = recipeSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({error: "Проверьте поля рецепта", details: parsed.error.flatten()});
+
+    const recipeId = await sequelize.transaction(async (transaction) => {
+        const recipe = await Recipe.create({
+            ...parsed.data,
+            ownerId: userId,
+            isPublished: false,
+        }, {transaction});
+        await replaceRecipeIngredients(recipe.id, parsed.data.ingredients, transaction);
+        return recipe.id;
+    });
+    const recipe = await findRecipeWithDetails(recipeId);
+    return res.status(201).json(serializeRecipe(recipe!));
+};
+
+export const updateRecipe = async (req: AuthenticatedRequest, res: Response) => {
+    const id = parseId(req.params.id);
+    if (!id) return res.status(400).json({error: "Некорректный id"});
+    const parsed = recipePatchSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({error: "Проверьте поля рецепта", details: parsed.error.flatten()});
+    const existing = await Recipe.findByPk(id);
+    if (!existing) return res.sendStatus(404);
+    if (existing.ownerId !== req.user?.id) return res.status(403).json({error: "Можно редактировать только свой рецепт"});
+
+    await sequelize.transaction(async (transaction) => {
+        await existing.update(parsed.data, {transaction});
+        if (parsed.data.ingredients) {
+            await replaceRecipeIngredients(existing.id, parsed.data.ingredients, transaction);
+        }
+    });
+    const recipe = await findRecipeWithDetails(id);
+    return res.json(serializeRecipe(recipe!));
+};
+
+export const deleteRecipe = async (req: AuthenticatedRequest, res: Response) => {
+    const id = parseId(req.params.id);
+    if (!id) return res.status(400).json({error: "Некорректный id"});
+    const recipe = await Recipe.findByPk(id);
+    if (!recipe) return res.sendStatus(404);
+    if (recipe.ownerId !== req.user?.id) return res.status(403).json({error: "Можно удалить только свой рецепт"});
+    await recipe.destroy();
+    return res.sendStatus(204);
+};
+
+export const publishRecipe = async (req: AuthenticatedRequest, res: Response) => {
+    const recipe = await Recipe.findByPk(Number(req.params.id));
+    if (!recipe) return res.sendStatus(404);
+    if (recipe.ownerId !== req.user?.id) return res.sendStatus(403);
+    await recipe.update({isPublished: true, publishedAt: new Date()});
+    return res.json(serializeRecipe((await findRecipeWithDetails(recipe.id))!));
+};
+
+export const unpublishRecipe = async (req: AuthenticatedRequest, res: Response) => {
+    const recipe = await Recipe.findByPk(Number(req.params.id));
+    if (!recipe) return res.sendStatus(404);
+    if (recipe.ownerId !== req.user?.id) return res.sendStatus(403);
+    await sequelize.transaction(async (transaction) => {
+        await recipe.update({isPublished: false, publishedAt: null}, {transaction});
+        await SavedRecipe.destroy({
+            where: {recipeId: recipe.id, userId: {[Op.ne]: req.user!.id}},
+            transaction,
         });
-        res.status(201).json(recipe); //201 - ресурс был успешно создан
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Ошибка при создании рецепта' });
-    }
+    });
+    return res.json(serializeRecipe((await findRecipeWithDetails(recipe.id))!));
 };
 
-export const deleteRecipe = async (req: Request, res: Response) => {
-    const currentId: number = Number(req.params.id);
-
-    if (isNaN(currentId) || !Number.isInteger(currentId) || currentId <= 0) {
-        return res.status(400).json({ error: "Некорректный id" });
-    }
-
-    try {
-        await RecipeModel.destroy({
-            where: {
-                id: currentId,
-            },
-        });
-
-        res.sendStatus(204);
-    } catch (err: unknown) {
-        console.error(err);
-        res.status(500).json({ error: "Ошибка сервера" });
-    }
+export const savePublishedRecipe = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user?.id;
+    const recipeId = parseId(req.params.id);
+    if (!userId) return res.sendStatus(401);
+    if (!recipeId) return res.status(400).json({error: "Некорректный id"});
+    const recipe = await Recipe.findOne({where: {id: recipeId, isPublished: true}});
+    if (!recipe) return res.status(404).json({error: "Опубликованный рецепт не найден"});
+    if (recipe.ownerId === userId) return res.status(400).json({error: "Собственный рецепт уже находится в коллекции"});
+    const [saved, created] = await SavedRecipe.findOrCreate({where: {userId, recipeId}, defaults: {userId, recipeId}});
+    return res.status(created ? 201 : 200).json(saved);
 };
 
-export const updateRecipe = async (req: Request, res: Response) => {
-    const ALLOWED: EditableFields[] = ['title','ingredients','preparing','image','servings'];
+export const unsaveRecipe = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user?.id;
+    const recipeId = parseId(req.params.id);
+    if (!userId) return res.sendStatus(401);
+    if (!recipeId) return res.status(400).json({error: "Некорректный id"});
+    const removed = await SavedRecipe.destroy({where: {userId, recipeId}});
+    return removed ? res.sendStatus(204) : res.sendStatus(404);
+};
 
-    const id: number = Number(req.params.id);
-    if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'Некорректный id' });
+export const cloneSavedRecipe = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user?.id;
+    const sourceId = parseId(req.params.id);
+    if (!userId) return res.sendStatus(401);
+    if (!sourceId) return res.status(400).json({error: "Некорректный id"});
+    const saved = await SavedRecipe.findOne({where: {userId, recipeId: sourceId}});
+    if (!saved) return res.status(403).json({error: "Сначала сохраните рецепт в свою коллекцию"});
+    const source = await findRecipeWithDetails(sourceId);
+    if (!source?.isPublished) return res.status(404).json({error: "Рецепт больше не опубликован"});
+    const sourceData = serializeRecipe(source);
 
-    const updates: Partial<Pick<RecipeType, EditableFields>> = {};
-    for (const k of ALLOWED) if (k in req.body) updates[k] = req.body[k];
-    if ('servings' in updates) updates.servings = Number(updates.servings);
-    if (Object.keys(updates).length === 0) return res.status(400).json({ error: 'Пустое обновление' });
+    const recipeId = await sequelize.transaction(async (transaction) => {
+        const recipe = await Recipe.create({
+            title: `${sourceData.title} (копия)`,
+            description: sourceData.description,
+            category: sourceData.category,
+            ingredients: sourceData.ingredients,
+            preparing: sourceData.preparing,
+            image: sourceData.image,
+            servings: sourceData.servings,
+            ownerId: userId,
+            isPublished: false,
+        }, {transaction});
+        await replaceRecipeIngredients(recipe.id, sourceData.ingredients, transaction);
+        return recipe.id;
+    });
+    return res.status(201).json(serializeRecipe((await findRecipeWithDetails(recipeId))!));
+};
 
-    try {
-        const recipe = await RecipeModel.findByPk(id);
-        if (!recipe) return res.status(404).json({ error: 'Не найдено' });
-
-        await recipe.update(updates as Partial<RecipeType>);
-        return res.status(200).json(recipe);
-    } catch (err: unknown) {
-        console.error(err);
-        return res.status(500).json({ error: 'Ошибка при обновлении рецепта' });
-    }
+export const uploadImage = async (req: AuthenticatedRequest, res: Response) => {
+    if (!req.file) return res.status(400).json({error: "Выберите изображение JPG, PNG, WebP или GIF до 5 МБ"});
+    return res.status(201).json({url: `/uploads/${req.file.filename}`});
 };

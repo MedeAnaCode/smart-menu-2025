@@ -1,0 +1,462 @@
+.smartmenu-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin: 0 0 24px;
+  padding: 20px;
+  border-top: 3px solid $light-menu-accent;
+  border-bottom: 1px solid $light-gray;
+  background-color: $white;
+}
+
+.smartmenu-panel--column {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.smartmenu-panel h1,
+.smartmenu-panel h2,
+.smartmenu-panel h3 {
+  margin: 0;
+  color: $footer-gray;
+}
+
+.smartmenu-panel h2 {
+  font-size: 24px;
+  line-height: 30px;
+}
+
+.smartmenu-panel__heading,
+.smartmenu-day__heading,
+.smartmenu-meal__heading {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.smartmenu-form,
+.smartmenu-toolbar,
+.smartmenu-inline-form,
+.smartmenu-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.smartmenu-panel input,
+.smartmenu-panel select,
+.smartmenu-panel textarea,
+.smartmenu-board input,
+.smartmenu-board select,
+.recipe-form input,
+.recipe-form select,
+.recipe-form textarea {
+  min-height: 40px;
+  max-width: 100%;
+  padding: 8px 10px;
+  border: 1px solid $light-accent;
+  border-radius: 4px;
+  background: $white;
+  color: $footer-gray;
+  font: inherit;
+  font-size: 16px;
+}
+
+.smartmenu-panel input[type="checkbox"],
+.smartmenu-board input[type="checkbox"] {
+  min-height: auto;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  accent-color: $dark-accent;
+}
+
+.smartmenu-panel button,
+.smartmenu-board button,
+.recipe-form button {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid $dark-accent;
+  border-radius: 4px;
+  background: $white;
+  color: $dark-accent;
+  font: inherit;
+  font-size: 15px;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.smartmenu-panel button:hover,
+.smartmenu-panel button:focus-visible,
+.smartmenu-board button:hover,
+.smartmenu-board button:focus-visible,
+.recipe-form button:hover,
+.recipe-form button:focus-visible {
+  background: $light-menu-accent;
+}
+
+.smartmenu-panel button:disabled,
+.smartmenu-board button:disabled,
+.recipe-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.smartmenu-status,
+.smartmenu-error,
+.smartmenu-notice,
+.smartmenu-empty {
+  margin: 8px 0;
+}
+
+.smartmenu-status {
+  padding: 24px;
+  text-align: center;
+}
+
+.smartmenu-error {
+  color: #a52222;
+}
+
+.smartmenu-notice {
+  padding: 10px 12px;
+  border-left: 4px solid #d29b24;
+  background: #fff7d6;
+}
+
+.smartmenu-empty {
+  color: $recipes-text-light;
+  font-size: 15px;
+}
+
+.smartmenu-search input {
+  width: min(320px, 100%);
+}
+
+.smartmenu-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  gap: 16px;
+  padding: 0 20px 24px;
+}
+
+.smartmenu-day {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid $gray-2;
+  border-top: 4px solid $dark-accent;
+  border-radius: 6px;
+  background-color: $white;
+}
+
+.smartmenu-day__heading {
+  align-items: flex-start;
+}
+
+.smartmenu-day__heading > div {
+  display: grid;
+  gap: 4px;
+}
+
+.smartmenu-day__heading time {
+  color: $recipes-text-light;
+  font-size: 14px;
+}
+
+.smartmenu-meal {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid $light-gray;
+}
+
+.smartmenu-meal__items {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.smartmenu-menu-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px dashed $gray-2;
+  font-size: 15px;
+}
+
+.smartmenu-menu-item--extra {
+  grid-template-columns: minmax(0, 1fr) auto;
+  color: $recipes-text;
+}
+
+.smartmenu-menu-item label {
+  min-width: 0;
+}
+
+.smartmenu-stepper {
+  display: grid;
+  grid-template-columns: 32px minmax(70px, auto) 32px;
+  align-items: center;
+  text-align: center;
+}
+
+.smartmenu-stepper button {
+  min-height: 32px;
+  padding: 2px;
+}
+
+.smartmenu-inline-form {
+  display: grid;
+  grid-template-columns: minmax(130px, 2fr) minmax(90px, 1fr) minmax(76px, 0.7fr) auto;
+  margin-top: 12px;
+}
+
+.smartmenu-inline-form--meal {
+  grid-template-columns: minmax(140px, 1fr) auto;
+}
+
+.smartmenu-shopping-list {
+  display: grid;
+  gap: 6px;
+}
+
+.smartmenu-shopping-item {
+  display: grid;
+  grid-template-columns: 24px minmax(150px, 2fr) minmax(80px, 0.7fr) minmax(72px, 0.6fr) minmax(120px, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid $light-gray;
+}
+
+.smartmenu-shopping-item > span {
+  color: $recipes-text-light;
+  font-size: 14px;
+}
+
+.recipe-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.recipe-form__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.recipe-form__field {
+  display: grid;
+  gap: 6px;
+  color: $recipes-text;
+  font-size: 16px;
+}
+
+.recipe-form__field textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.recipe-form__preview {
+  width: min(100%, 360px);
+  max-height: 220px;
+  object-fit: cover;
+}
+
+.recipe-form__ingredients {
+  display: grid;
+  gap: 12px;
+}
+
+.recipe-form__section-title,
+.recipe-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.recipe-form__ingredient {
+  display: grid;
+  grid-template-columns: minmax(160px, 2fr) minmax(90px, 0.8fr) minmax(86px, 0.7fr) auto;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid $gray-2;
+  border-radius: 4px;
+}
+
+.recipe-form__ingredient legend {
+  padding: 0 6px;
+  color: $recipes-text-light;
+  font-size: 14px;
+}
+
+.recipe-form__custom-toggle {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.recipe-form__custom-mark {
+  grid-column: 1 / -1;
+  width: fit-content;
+  padding: 2px 6px;
+  border-left: 3px solid #d29b24;
+  background: #fff7d6;
+  color: $recipes-text;
+  font-size: 13px;
+}
+
+.recipe-form__hint {
+  margin: 0;
+  color: $recipes-text-light;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.recipe-form__error {
+  grid-column: 1 / -1;
+  color: #a52222;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.smartmenu-panel .recipes-container {
+  width: 100%;
+  padding: 8px 0;
+}
+
+.smartmenu-panel .recipe-card {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 480px;
+  padding: 16px;
+  border-radius: 6px;
+}
+
+.smartmenu-panel .recipe-card::after {
+  display: none;
+}
+
+.smartmenu-panel .recipe-card__content {
+  flex-grow: 1;
+  height: auto;
+  max-height: 540px;
+  padding: 0 4px 12px 0;
+  overflow: auto;
+}
+
+.smartmenu-panel .recipe-card__button-block {
+  position: static;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.smartmenu-panel .recipe-card__button {
+  position: static;
+  width: auto;
+  height: auto;
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid $dark-accent;
+  border-radius: 4px;
+  color: $dark-accent;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.recipe-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  color: $recipes-text-light;
+  font-size: 14px;
+}
+
+.smartmenu-panel .recipe-card__servings {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 6px 0;
+}
+
+.smartmenu-panel .recipe-card__servings input {
+  width: 76px;
+}
+
+.recipe-card__custom-ingredient small {
+  color: #8a5c00;
+}
+
+.recipe-card__saved-mark {
+  align-self: center;
+  color: $dark-accent;
+  font-size: 14px;
+}
+
+@media (max-width: $mobile-width-only) {
+  .smartmenu-panel {
+    padding: 16px;
+  }
+
+  .smartmenu-panel__heading,
+  .smartmenu-day__heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .smartmenu-toolbar,
+  .smartmenu-toolbar > input,
+  .smartmenu-toolbar > select,
+  .smartmenu-toolbar > label,
+  .smartmenu-toolbar > button {
+    width: 100%;
+  }
+
+  .smartmenu-board {
+    padding: 0 12px 20px;
+  }
+
+  .smartmenu-menu-item,
+  .smartmenu-menu-item--extra {
+    grid-template-columns: 1fr auto;
+  }
+
+  .smartmenu-stepper {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .smartmenu-inline-form,
+  .smartmenu-shopping-item,
+  .recipe-form__row,
+  .recipe-form__ingredient {
+    grid-template-columns: 1fr;
+  }
+
+  .smartmenu-shopping-item {
+    padding: 12px 0;
+  }
+
+  .smartmenu-shopping-item > input[type="checkbox"] {
+    justify-self: start;
+  }
+
+  .modal__content {
+    width: calc(100vw - 24px);
+    padding: 44px 18px 24px;
+  }
+}

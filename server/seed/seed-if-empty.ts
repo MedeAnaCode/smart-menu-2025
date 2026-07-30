@@ -1,11 +1,11 @@
-import Recipe from "../models/recipe";
+import {Recipe} from "../models";
 import sequelize from "../db/sequelize";
 import seedRecipes from "./create-recipes";
 
-(async () => {
+void (async () => {
         try {
             await sequelize.authenticate();
-            await Recipe.sync();
+            await sequelize.sync();
             const count = await Recipe.count();
             if (count > 0 ) {
                 console.log('БД уже заполнена');

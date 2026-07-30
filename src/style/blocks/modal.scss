@@ -5,6 +5,7 @@
   bottom: 0;
   left: 0;
   background: rgba(0, 0, 0, 0.45);
+  z-index: 20;
 }
 
 .modal__content {
@@ -19,12 +20,13 @@
   background: #fff;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
   outline: none;
+  z-index: 21;
 }
 
 .modal__title {
   color: $gray;
   font-size: 28px;
-  font-weight: 600px;
+  font-weight: 600;
   margin: 0;
   margin-bottom: 20px;
 }

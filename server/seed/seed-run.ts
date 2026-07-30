@@ -1,7 +1,7 @@
 import sequelize from "../db/sequelize";
 import seedRecipes from "./create-recipes";
 
-(async () => {
+void (async () => {
     try {
         await sequelize.authenticate();
         await seedRecipes();

@@ -1,39 +1,85 @@
-#Smart Menu
+# Smart Menu
 
-SmartMenu — pet-проект для планирования меню на неделю, хранения рецептов и дальнейшего формирования списка покупок.
+SmartMenu - fullstack-приложение для хранения и публикации рецептов, планирования недельных меню и формирования списков покупок.
 
-Проект развивается как fullstack-приложение: frontend на React + TypeScript, backend на Node.js / Express, база данных PostgreSQL. Основная цель проекта — отработать полный цикл разработки веб-приложения: интерфейс, работу с API, CRUD-операции, хранение данных, контейнеризацию и постепенное улучшение архитектуры.
+## Стек
 
-На данный момент сделано:
-1. Адаптивная (mobile-first) главная страница.  
-![Главная страница](/public/screens/main.png)
-2. Страница с рецептами на React, частично адаптивная.  
-![Страница с рецептами](/public/screens/recipes.png)
-3. Есть связь с сервером, работа с БД Postgres(sequelize). 
-4. Обмен данными между сервером и фронтендом (express, cors).
-5. БД, фронтенд и бэкенд запускаются внутри docker-контейнера. Налажен сидинг данных, hot-reload.
-6. CRUD:  
- - реализовано создание рецепта с добавлением ингредиентов через форму,  
- - отрисовка рецептов из БД на странице,
- - hard-delete пока без подтверждения,
- - редактирование рецепта и обновление через БД
-7. Весь проект переписан на TypeScript.
-8. Запросы на сервер осуществляются посредством RTK Query.
+- Frontend: React 18, TypeScript, React Router, Redux Toolkit Query, React Hook Form, Zod, Webpack, SCSS.
+- Backend: Node.js, Express, Sequelize, Zod.
+- Авторизация: Keycloak, Authorization Code Flow с PKCE.
+- База данных: PostgreSQL.
+- Инфраструктура: Docker Compose, постоянные volumes для БД, Keycloak и изображений.
+- Тестирование: Vitest и Playwright.
 
-Ближайшие основные цели:
-1. Модальное окно Radix UI.
-2. Подтверждения удаления и блокирование кнопки. Валидация форм.
-3. Расчёт списка покупок по выбранным рецептам. (сделать отдельным слайсом, чтобы внедрить Redux)
-4. Redux.
-5. Привести код в порядок (проверить на DRY, KISS, читаемость).
+## Запуск через Docker
 
-Микрозадачи:
-1. Настроить, чтобы pgAdmin запускался в docker.
-2. Разделить index.ts на разные файлы с типами?
+Создайте в корне проекта файл `.env`:
 
-На подумать:
-1. Нужно ли мягкое удаление?
-2. Написать что-нибудь с мемоизацией.
+```dotenv
+KEYCLOAK_ADMIN_USERNAME=admin
+KEYCLOAK_ADMIN_PASSWORD=<надежный-локальный-пароль>
+```
 
-Как запускать:  
-docker compose up
+Запустите сервисы:
+
+```bash
+docker compose up --build
+```
+
+После запуска доступны:
+
+- приложение: `http://localhost:9000`;
+- backend API: `http://localhost:3001`;
+- Keycloak: `http://localhost:8080`;
+- консоль администратора Keycloak: `http://localhost:8080/admin`.
+
+Realm `smartmenu` и публичный SPA-клиент `smartmenu-web` импортируются из `infra/keycloak/smartmenu-realm.json` при первом запуске на пустом Keycloak volume. Регистрация пользователей включена на странице входа.
+
+Keycloak запускается командой `start-dev` и предназначен только для локальной разработки.
+
+## Данные и миграции
+
+При старте backend:
+
+1. Sequelize создаёт отсутствующие таблицы без изменения существующих;
+2. migration runner последовательно применяет новые SQL-файлы из `docs/migrations`;
+3. применённые файлы фиксируются в таблице `schema_migrations`.
+
+Миграции SmartMenu v2:
+
+```text
+docs/migrations/2026-07-28-smartmenu-v2.sql
+docs/migrations/2026-07-29-normalized-ingredients-keycloak.sql
+```
+
+Старые применённые миграции не редактировались. Изображения рецептов сохраняются вне основной таблицы БД в Docker volume `uploads_data`, а в рецепте хранится URL файла.
+
+## Локальная разработка
+
+Установите зависимости:
+
+```bash
+npm ci
+```
+
+Основные команды:
+
+```bash
+npm run dev
+npm run dev:api
+npm run seed:ifempty
+```
+
+Для локального запуска backend без Docker необходимо задать параметры PostgreSQL, Keycloak и каталог миграций переменными окружения, перечисленными в `docker-compose.yml`.
+
+## Проверки
+
+```bash
+npm run typecheck
+npm run lint
+npm run build
+npm run test:unit
+npm run test:e2e
+```
+
+E2E-тесты ожидают запущенный Docker Compose stack на портах `9000`, `3001` и `8080`. Конфигурация Playwright использует установленный Google Chrome.

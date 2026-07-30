@@ -1,11 +1,18 @@
 .functional-page {
   flex-grow: 1;
-  display: grid;
-  grid-template-columns: 1fr 365px;
+  display: flex;
+  flex-direction: column;
   margin-bottom: 127px;
-  height: calc(100vh - 127px);
+  min-height: calc(100vh - 127px);
+
+  @media (min-width: $tablet-width) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    height: calc(100vh - 127px);
+  }
 
   @media (min-width: $desktop-width) {
+    grid-template-columns: minmax(0, 1fr) 365px;
     overflow: hidden;
     height: calc(100vh - 191px);
     position: fixed;
@@ -18,13 +25,13 @@
 .functional-page__content {
   position: static;
   grid-column: 1/2;
-  overflow: scroll;
+  overflow: auto;
   height: 100%;
 }
 
 .functional-page__sidebar {
   position: static;
   grid-column: 2/3;
-  overflow: scroll;
+  overflow: auto;
   height: 100%;
 }

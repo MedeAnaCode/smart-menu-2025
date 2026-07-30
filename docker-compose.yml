@@ -1,6 +1,3 @@
-# версия файла docker-compose
-version: '3.8'
-
 # блок с описанием контейнеров
 services:
   # сервис базы данных
@@ -22,6 +19,18 @@ services:
       # пробрасываем порт наружу
       - "5432:5432"
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.0
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Set KEYCLOAK_ADMIN_PASSWORD in .env}
+    volumes:
+      - ./infra/keycloak:/opt/keycloak/data/import:ro
+      - keycloak_data:/opt/keycloak/data
+    ports:
+      - "8080:8080"
+
   # сервис с API на Node.js
   backend:
     build:
@@ -40,9 +49,18 @@ services:
       POSTGRES_HOST: db
       # порт БД
       POSTGRES_PORT: 5432
+      KEYCLOAK_INTERNAL_URL: http://keycloak:8080
+      KEYCLOAK_PUBLIC_URL: http://localhost:8080
+      KEYCLOAK_REALM: smartmenu
+      KEYCLOAK_CLIENT_ID: smartmenu-web
+      MIGRATIONS_DIR: /app/docs/migrations
+      UPLOAD_DIR: /app/uploads
     depends_on:
       # запускать после базы
       - db
+      - keycloak
+    volumes:
+      - uploads_data:/app/uploads
     ports:
       # доступ к API с хоста
       - "3001:3001"
@@ -66,3 +84,5 @@ services:
 volumes:
   # том для данных postgres
   db_data:
+  keycloak_data:
+  uploads_data:
