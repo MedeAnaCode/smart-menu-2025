@@ -1,15 +1,17 @@
 import {randomUUID} from "node:crypto";
 import type {Response} from "express";
-import {ShoppingList, WeeklyMenu} from "../models";
+import {Op} from "sequelize";
+import {CommonIngredient, ShoppingList, WeeklyMenu} from "../models";
 import type {AuthenticatedRequest} from "../middleware/auth";
-import type {Meal, MenuDay, MenuRecipe, RecipeSnapshot} from "../../src/types";
+import type {ExtraProduct, Meal, MenuDay, MenuRecipe, RecipeSnapshot} from "../../src/types";
 import {calculateShoppingItems} from "../services/shoppingList";
 import {findRecipeWithDetails, serializeRecipe} from "../services/recipes";
-import {menuDaySchema, shoppingListItemSchema} from "../validation/schemas";
+import {extraProductSchema, menuDaySchema, shoppingListItemSchema} from "../validation/schemas";
 import {z} from "zod";
 
 const menuPatchSchema = z.object({
     title: z.string().trim().min(1).max(255).optional(),
+    description: z.string().trim().max(4000).optional(),
     days: z.array(menuDaySchema).length(7).optional(),
 }).refine((value) => Object.keys(value).length > 0, "Пустое обновление");
 
@@ -27,13 +29,8 @@ const defaultDays = (): MenuDay[] => {
             date: date.toISOString().slice(0, 10),
             title,
             includeInShopping: true,
-            meals: ["Завтрак", "Обед", "Ужин"].map((mealTitle) => ({
-                id: randomUUID(),
-                title: mealTitle,
-                includeInShopping: true,
-                recipes: [],
-                extraProducts: [],
-            })),
+            meals: [],
+            comment: "",
         };
     });
 };
@@ -94,6 +91,40 @@ function preserveSnapshots(currentDays: MenuDay[], requestedDays: MenuDay[]): Me
     });
 }
 
+async function normalizeExtraProducts(days: MenuDay[]): Promise<MenuDay[]> {
+    const products = days.flatMap((day) => day.meals.flatMap((meal) => meal.extraProducts));
+    const commonIds = [...new Set(products
+        .filter((product) => product.custom === false && product.commonIngredientId)
+        .map((product) => product.commonIngredientId!))];
+    const commonIngredients = commonIds.length > 0
+        ? await CommonIngredient.findAll({where: {id: {[Op.in]: commonIds}}})
+        : [];
+    const commonById = new Map(commonIngredients.map((ingredient) => [ingredient.id, ingredient]));
+
+    const normalize = (product: ExtraProduct): ExtraProduct => {
+        const custom = product.custom ?? !product.commonIngredientId;
+        if (custom) return {...product, commonIngredientId: null, custom: true};
+        const commonIngredient = product.commonIngredientId
+            ? commonById.get(product.commonIngredientId)
+            : undefined;
+        if (!commonIngredient) throw new Error("Выбранный дополнительный продукт не найден");
+        return {
+            ...product,
+            name: commonIngredient.name,
+            commonIngredientId: commonIngredient.id,
+            custom: false,
+        };
+    };
+
+    return days.map((day) => ({
+        ...day,
+        meals: day.meals.map((meal) => ({
+            ...meal,
+            extraProducts: meal.extraProducts.map(normalize),
+        })),
+    }));
+}
+
 export async function listMenus(req: AuthenticatedRequest, res: Response) {
     return res.json(await WeeklyMenu.findAll({
         where: {userId: req.user!.id},
@@ -102,9 +133,17 @@ export async function listMenus(req: AuthenticatedRequest, res: Response) {
 }
 
 export async function createMenu(req: AuthenticatedRequest, res: Response) {
-    const title = z.string().trim().min(1).max(255).safeParse(req.body.title ?? "Меню недели");
-    if (!title.success) return res.status(400).json({error: "Укажите название меню"});
-    const menu = await WeeklyMenu.create({userId: req.user!.id, title: title.data, days: defaultDays()});
+    const input = z.object({
+        title: z.string().trim().min(1).max(255),
+        description: z.string().trim().max(4000).optional().default(""),
+    }).safeParse({title: req.body.title ?? "Меню недели", description: req.body.description});
+    if (!input.success) return res.status(400).json({error: "Укажите название меню"});
+    const menu = await WeeklyMenu.create({
+        userId: req.user!.id,
+        title: input.data.title,
+        description: input.data.description,
+        days: defaultDays(),
+    });
     return res.status(201).json(menu);
 }
 
@@ -114,11 +153,14 @@ export async function updateMenu(req: AuthenticatedRequest, res: Response) {
     const parsed = menuPatchSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({error: "Некорректные данные меню", details: parsed.error.flatten()});
     try {
-        if (parsed.data.days) menu.days = preserveSnapshots(menu.days, parsed.data.days);
+        if (parsed.data.days) {
+            menu.days = await normalizeExtraProducts(preserveSnapshots(menu.days, parsed.data.days));
+        }
     } catch (error) {
         return res.status(400).json({error: error instanceof Error ? error.message : "Некорректное изменение меню"});
     }
     if (parsed.data.title) menu.title = parsed.data.title;
+    if (parsed.data.description !== undefined) menu.description = parsed.data.description;
     await menu.save();
     return res.json(menu);
 }
@@ -180,13 +222,7 @@ export async function updateMeal(req: AuthenticatedRequest, res: Response) {
             servings: z.number().int().min(1).max(100),
             includeInShopping: z.boolean(),
         })).optional(),
-        extraProducts: z.array(z.object({
-            id: z.string().uuid(),
-            name: z.string().trim().min(1).max(255),
-            amount: z.string().trim().max(50),
-            um: z.string().trim().min(1).max(50),
-            includeInShopping: z.boolean(),
-        })).optional(),
+        extraProducts: z.array(extraProductSchema).optional(),
         includeInShopping: z.boolean().optional(),
     }).safeParse(req.body);
     if (!input.success) return res.status(400).json({error: "Некорректные данные приёма пищи"});
@@ -203,7 +239,11 @@ export async function updateMeal(req: AuthenticatedRequest, res: Response) {
     }
     if (input.data.extraProducts) meal.extraProducts = input.data.extraProducts;
     if (typeof input.data.includeInShopping === "boolean") meal.includeInShopping = input.data.includeInShopping;
-    menu.days = days;
+    try {
+        menu.days = await normalizeExtraProducts(days);
+    } catch (error) {
+        return res.status(400).json({error: error instanceof Error ? error.message : "Некорректный дополнительный продукт"});
+    }
     await menu.save();
     return res.json(menu);
 }

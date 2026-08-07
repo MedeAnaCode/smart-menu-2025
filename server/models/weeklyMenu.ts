@@ -6,6 +6,7 @@ export class WeeklyMenuModel extends Model<InferAttributes<WeeklyMenuModel>, Inf
     declare id: CreationOptional<number>;
     declare userId: number;
     declare title: string;
+    declare description: CreationOptional<string>;
     declare days: CreationOptional<MenuDay[]>;
     declare createdAt: CreationOptional<Date>;
     declare updatedAt: CreationOptional<Date>;
@@ -15,6 +16,7 @@ WeeklyMenuModel.init({
     id: {type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true},
     userId: {type: DataTypes.INTEGER, allowNull: false},
     title: {type: DataTypes.STRING, allowNull: false, defaultValue: "Меню недели"},
+    description: {type: DataTypes.TEXT, allowNull: false, defaultValue: ""},
     days: {type: DataTypes.JSONB, allowNull: false, defaultValue: []},
     createdAt: {type: DataTypes.DATE, allowNull: false},
     updatedAt: {type: DataTypes.DATE, allowNull: false},

@@ -3,6 +3,7 @@
  padding: 40px 30px 30px;
  color: $recipes-text;
  position: relative;
+ min-width: 0;
 
  &::after {
   content: "";
@@ -21,8 +22,10 @@
  overflow: scroll;
  display: flex;
  flex-direction: column;
+ min-width: 0;
  padding-right: 10px;
  padding-bottom: 20px;
+ overflow-wrap: anywhere;
 }
 
 .recipe-card__img-wrapper {
@@ -50,9 +53,9 @@
 }
 
 .recipe-card__ingredients {
- width: 100%;
- display: grid;
- grid-template-columns: auto auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
  column-gap: 10px;
  row-gap: 2px;
  font-size: 14px;
@@ -60,7 +63,9 @@
 }
 
 .recipe-card__ingredients-name {
+ min-width: 0;
  font-weight: bold;
+ overflow-wrap: anywhere;
 }
 
 .recipe-card__ingredients-amount {

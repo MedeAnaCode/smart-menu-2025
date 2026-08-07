@@ -11,6 +11,24 @@ export function calculateShoppingItems(days: MenuDay[]): ShoppingListItem[] {
     const groupedCommon = new Map<string, ShoppingListItem>();
     const result: ShoppingListItem[] = [];
 
+    const addItem = (item: ShoppingListItem, isCommon: boolean) => {
+        if (!isCommon || !item.commonIngredientId) {
+            result.push(item);
+            return;
+        }
+
+        const key = `${item.commonIngredientId}::${item.um.trim().toLocaleLowerCase("ru-RU")}`;
+        const existing = groupedCommon.get(key);
+        const numericAmount = Number(item.amount);
+        if (existing && Number.isFinite(numericAmount) && Number.isFinite(Number(existing.amount))) {
+            existing.amount = String(Number((Number(existing.amount) + numericAmount).toFixed(2)));
+            if (existing.source !== item.source) existing.source = "Несколько источников";
+            return;
+        }
+        if (!existing) groupedCommon.set(key, item);
+        result.push(item);
+    };
+
     const addRecipeIngredient = (
         ingredient: Ingredient,
         selectedServings: number,
@@ -31,21 +49,7 @@ export function calculateShoppingItems(days: MenuDay[]): ShoppingListItem[] {
             manual: false,
         };
 
-        if (!isCommon) {
-            result.push(item);
-            return;
-        }
-
-        const key = `${ingredient.commonIngredientId}::${ingredient.um.trim().toLocaleLowerCase("ru-RU")}`;
-        const existing = groupedCommon.get(key);
-        const numericAmount = Number(amount);
-        if (existing && Number.isFinite(numericAmount) && Number.isFinite(Number(existing.amount))) {
-            existing.amount = String(Number((Number(existing.amount) + numericAmount).toFixed(2)));
-            if (existing.source !== source) existing.source = "Несколько рецептов";
-            return;
-        }
-        if (!existing) groupedCommon.set(key, item);
-        result.push(item);
+        addItem(item, isCommon);
     };
 
     for (const day of days) {
@@ -65,16 +69,18 @@ export function calculateShoppingItems(days: MenuDay[]): ShoppingListItem[] {
             }
             for (const product of meal.extraProducts) {
                 if (!product.includeInShopping) continue;
-                result.push({
+                const isCommon = product.custom === false && Boolean(product.commonIngredientId);
+                addItem({
                     id: randomUUID(),
                     name: product.name,
                     amount: product.amount,
                     um: product.um,
                     source: meal.title,
-                    sourceType: "extra",
+                    sourceType: isCommon ? "common" : "extra",
+                    commonIngredientId: product.commonIngredientId ?? null,
                     checked: false,
                     manual: false,
-                });
+                }, isCommon);
             }
         }
     }

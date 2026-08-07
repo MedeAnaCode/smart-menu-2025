@@ -52,6 +52,16 @@ const product = (id: string, name: string, included = true): ExtraProduct => ({
     includeInShopping: included,
 });
 
+const commonProduct = (id: string, commonIngredientId: number, name: string, amount: string, um: string): ExtraProduct => ({
+    id,
+    name,
+    amount,
+    um,
+    includeInShopping: true,
+    commonIngredientId,
+    custom: false,
+});
+
 const meal = (recipes: MenuRecipe[], extraProducts: ExtraProduct[] = [], included = true): Meal => ({
     id: "00000000-0000-4000-8000-000000000010",
     title: "Обед",
@@ -113,6 +123,17 @@ describe("calculateShoppingItems", () => {
 
         expect(items).toHaveLength(2);
         expect(items.every((item) => item.sourceType === "extra")).toBe(true);
+    });
+
+    it("объединяет дополнительный продукт из общей базы с ингредиентом рецепта", () => {
+        const items = calculateShoppingItems([day([meal([
+            menuRecipe("00000000-0000-4000-8000-000000000001", [common(7, "Томат", "100", "г")]),
+        ], [
+            commonProduct("00000000-0000-4000-8000-000000000003", 7, "Томат", "50", "г"),
+        ])])]);
+
+        expect(items).toHaveLength(1);
+        expect(items[0]).toMatchObject({name: "Томат", amount: "150", commonIngredientId: 7, sourceType: "common"});
     });
 
     it("исключает отключённые дни, приёмы пищи, рецепты и продукты", () => {

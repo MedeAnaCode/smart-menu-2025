@@ -78,7 +78,7 @@ module.exports = {
         },
         proxy: [
             {
-                context: ["/api"],
+                context: ["/api", "/uploads"],
                 target: "http://backend:3001",
                 changeOrigin: true,
                 pathRewrite: { "^/api": "" },

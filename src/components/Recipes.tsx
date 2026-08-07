@@ -14,6 +14,7 @@ import {
     useUpdateRecipeMutation
 } from "../apiRtk";
 import type {Recipe} from "../types";
+import RecipeImage from "./RecipeImage";
 import {useAuth} from "../auth/AuthContext";
 
 function AuthPanel() {
@@ -29,7 +30,6 @@ function AuthPanel() {
                 </>
             ) : (
                 <div className="smartmenu-form">
-                    <button className="button-dark" type="button" onClick={() => void auth.login()}>Войти</button>
                     <button className="button-dark" type="button" onClick={() => void auth.register()}>Зарегистрироваться</button>
                 </div>
             )}
@@ -73,7 +73,7 @@ function RecipeTile({recipe, mode, alreadySaved, authenticated, onEdit}: RecipeT
     return (
         <article className="recipes-container__card recipe-card">
             <div className="recipe-card__content">
-                <div className="recipe-card__img-wrapper"><img src={recipe.image} alt={recipe.title} className="recipe-card__img" /></div>
+                <div className="recipe-card__img-wrapper"><RecipeImage src={recipe.image} alt={recipe.title} className="recipe-card__img" /></div>
                 <h2 className="recipe-card__title">{recipe.title}</h2>
                 <p>{recipe.description}</p>
                 <p className="recipe-card__meta">

@@ -29,6 +29,7 @@ docker compose up --build
 После запуска доступны:
 
 - приложение: `http://localhost:9000`;
+- альтернативный локальный адрес приложения: `http://127.0.0.1:9000`;
 - backend API: `http://localhost:3001`;
 - Keycloak: `http://localhost:8080`;
 - консоль администратора Keycloak: `http://localhost:8080/admin`.
@@ -50,6 +51,7 @@ Keycloak запускается командой `start-dev` и предназн
 ```text
 docs/migrations/2026-07-28-smartmenu-v2.sql
 docs/migrations/2026-07-29-normalized-ingredients-keycloak.sql
+docs/migrations/2026-08-04-menu-descriptions.sql
 ```
 
 Старые применённые миграции не редактировались. Изображения рецептов сохраняются вне основной таблицы БД в Docker volume `uploads_data`, а в рецепте хранится URL файла.
@@ -82,4 +84,4 @@ npm run test:unit
 npm run test:e2e
 ```
 
-E2E-тесты ожидают запущенный Docker Compose stack на портах `9000`, `3001` и `8080`. Конфигурация Playwright использует установленный Google Chrome.
+E2E-тесты ожидают запущенный Docker Compose stack на портах `9000`, `3001` и `8080`. По умолчанию Playwright открывает приложение через `http://127.0.0.1:9000`, чтобы избежать системных различий разрешения `localhost`, и использует установленный Google Chrome.

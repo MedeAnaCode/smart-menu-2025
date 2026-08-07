@@ -51,6 +51,7 @@ services:
       POSTGRES_PORT: 5432
       KEYCLOAK_INTERNAL_URL: http://keycloak:8080
       KEYCLOAK_PUBLIC_URL: http://localhost:8080
+      KEYCLOAK_ADDITIONAL_PUBLIC_URLS: http://127.0.0.1:8080
       KEYCLOAK_REALM: smartmenu
       KEYCLOAK_CLIENT_ID: smartmenu-web
       MIGRATIONS_DIR: /app/docs/migrations

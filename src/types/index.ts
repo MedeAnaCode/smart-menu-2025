@@ -50,6 +50,8 @@ type ExtraProduct = {
     amount: string;
     um: string;
     includeInShopping: boolean;
+    commonIngredientId?: number | null;
+    custom?: boolean;
 };
 
 type Meal = {
@@ -66,12 +68,14 @@ type MenuDay = {
     title: string;
     includeInShopping: boolean;
     meals: Meal[];
+    comment?: string;
 };
 
 type WeeklyMenu = {
     id: number;
     userId: number;
     title: string;
+    description: string;
     days: MenuDay[];
 };
 

@@ -1,18 +1,11 @@
 .recipes-container {
   padding: 30px;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
   gap: 30px;
-
-  @media(min-width: $tablet-width) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media(min-width: $desktop-width) {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 
 .recipes-container__card {
+  min-width: 0;
   height: 360px;
 }

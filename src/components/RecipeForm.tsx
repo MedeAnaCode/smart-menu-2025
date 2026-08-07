@@ -1,8 +1,9 @@
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
 import {useGetIngredientsQuery, useUploadRecipeImageMutation} from "../apiRtk";
 import {recipeFormSchema, type RecipeFormValues} from "../validation/recipe";
+import RecipeImage from "./RecipeImage";
 
 const emptyIngredient = (custom: boolean): RecipeFormValues["ingredients"][number] => ({
     name: "",
@@ -23,7 +24,9 @@ export default function RecipeForm({initialValues, submitLabel, onSubmit, onCanc
     const {data: commonIngredients = [], isLoading: ingredientsLoading} = useGetIngredientsQuery();
     const [uploadImage] = useUploadRecipeImageMutation();
     const [imageFile, setImageFile] = useState<File | null>(null);
+    const [filePreview, setFilePreview] = useState("");
     const [submitError, setSubmitError] = useState("");
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const {
         control,
         register,
@@ -39,17 +42,27 @@ export default function RecipeForm({initialValues, submitLabel, onSubmit, onCanc
             category: "Домашнее",
             servings: 1,
             preparing: "",
-            image: "/img/recipes/unknown.jpg",
+            image: "",
             ingredients: [emptyIngredient(true)],
         },
     });
     const {fields, append, remove} = useFieldArray({control, name: "ingredients"});
     const image = watch("image");
 
+    useEffect(() => {
+        if (!imageFile) {
+            setFilePreview("");
+            return;
+        }
+        const objectUrl = URL.createObjectURL(imageFile);
+        setFilePreview(objectUrl);
+        return () => URL.revokeObjectURL(objectUrl);
+    }, [imageFile]);
+
     const submit = handleSubmit(async (values) => {
         setSubmitError("");
         try {
-            let imageUrl = values.image;
+            let imageUrl = values.image.trim() || "/img/recipes/unknown.jpg";
             if (imageFile) {
                 const body = new FormData();
                 body.append("image", imageFile);
@@ -84,28 +97,47 @@ export default function RecipeForm({initialValues, submitLabel, onSubmit, onCanc
                 Описание
                 <textarea {...register("description")} rows={3} />
             </label>
-            <label className="recipe-form__field">
-                Изображение
-                <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
-                />
-                <span className="recipe-form__hint">JPG, PNG, WebP или GIF, до 5 МБ</span>
-            </label>
-            {(imageFile || image) && (
-                <img
+            <fieldset className="recipe-form__image-fieldset">
+                <legend>Изображение</legend>
+                <label className="recipe-form__field">
+                    Ссылка на изображение
+                    <input
+                        {...register("image")}
+                        type="url"
+                        placeholder="https://example.com/recipe.jpg"
+                    />
+                    {errors.image && <span className="recipe-form__error">{errors.image.message}</span>}
+                </label>
+                <span className="recipe-form__image-separator">или</span>
+                <label className="recipe-form__field">
+                    Загрузить с компьютера
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
+                    />
+                    <span className="recipe-form__hint">JPG, PNG, WebP или GIF, до 5 МБ. Загруженный файл имеет приоритет над ссылкой.</span>
+                </label>
+                {imageFile && (
+                    <button type="button" onClick={() => {
+                        setImageFile(null);
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                    }}>
+                        Убрать выбранный файл
+                    </button>
+                )}
+            </fieldset>
+            {(filePreview || image) && (
+                <RecipeImage
                     className="recipe-form__preview"
-                    src={imageFile ? URL.createObjectURL(imageFile) : image}
+                    src={filePreview || image}
                     alt="Предпросмотр рецепта"
                 />
             )}
             <section className="recipe-form__ingredients">
                 <div className="recipe-form__section-title">
                     <h3>Ингредиенты</h3>
-                    <button className="button-dark" type="button" onClick={() => append(emptyIngredient(commonIngredients.length === 0))}>
-                        Добавить
-                    </button>
                 </div>
                 {ingredientsLoading && <p>Загружаем общую базу...</p>}
                 {fields.map((field, index) => (
@@ -170,6 +202,15 @@ export default function RecipeForm({initialValues, submitLabel, onSubmit, onCanc
                         )}
                     </fieldset>
                 ))}
+                <button
+                    className="recipe-form__add-ingredient"
+                    type="button"
+                    aria-label="Добавить ингредиент"
+                    title="Добавить ингредиент"
+                    onClick={() => append(emptyIngredient(commonIngredients.length === 0))}
+                >
+                    <span aria-hidden="true">+</span>
+                </button>
                 <p className="recipe-form__hint">
                     Свои ингредиенты сохраняются только в этом рецепте и не объединяются автоматически в списке покупок.
                 </p>

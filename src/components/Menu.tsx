@@ -1,9 +1,10 @@
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {
     useAddRecipeToMenuMutation,
     useCalculateShoppingListMutation,
     useCreateMenuMutation,
     useDeleteMenuMutation,
+    useGetIngredientsQuery,
     useGetMenusQuery,
     useGetMyRecipesQuery,
     useGetRecipesQuery,
@@ -13,15 +14,19 @@ import {
 } from "../apiRtk";
 import {useAuth} from "../auth/AuthContext";
 import type {
+    CommonIngredient,
     ExtraProduct,
     Meal,
     MenuDay,
+    MenuRecipe,
     Recipe,
     ShoppingListItem,
     WeeklyMenu
 } from "../types";
+import {Modal} from "./Modal";
+import RecipeImage from "./RecipeImage";
 
-const firstMeal = (menu?: WeeklyMenu) => menu?.days[0]?.meals[0]?.id ?? "";
+const mealTitles = ["Завтрак", "Обед", "Ужин", "Перекус"] as const;
 
 const uniqueRecipes = (...groups: Recipe[][]) => {
     const recipes = new Map<number, Recipe>();
@@ -31,10 +36,64 @@ const uniqueRecipes = (...groups: Recipe[][]) => {
 
 type PersistDays = (updater: (days: MenuDay[]) => MenuDay[]) => Promise<void>;
 
-function MealEditor({meal, persistDays}: {meal: Meal; persistDays: PersistDays}) {
+type AddRecipeToMeal = (mealId: string, recipeId: number, servings: number) => Promise<void>;
+
+const scaledAmount = (amount: string, selectedServings: number, baseServings: number) => {
+    const numeric = Number(amount.replace(",", "."));
+    if (!Number.isFinite(numeric)) return amount;
+    return String(Math.round((numeric * selectedServings / baseServings) * 100) / 100);
+};
+
+function MenuRecipeDetails({item, open, onOpenChange}: {
+    item: MenuRecipe | undefined;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}) {
+    if (!item) return null;
+    const recipe = item.recipeSnapshot;
+    return (
+        <Modal open={open} onOpenChange={onOpenChange} title={recipe.title}>
+            <article className="smartmenu-recipe-details">
+                <RecipeImage className="smartmenu-recipe-details__image" src={recipe.image} alt={recipe.title} />
+                <p>{recipe.description}</p>
+                <p className="recipe-card__meta">
+                    <span>{recipe.category}</span>
+                    <span>{item.servings} порц.</span>
+                </p>
+                <h3>Ингредиенты</h3>
+                <ul>
+                    {recipe.ingredients.map((ingredient, index) => (
+                        <li key={`${ingredient.name}-${index}`}>
+                            {ingredient.name} {scaledAmount(ingredient.amount, item.servings, recipe.servings)} {ingredient.um}
+                            {ingredient.custom && <small> Свой ингредиент</small>}
+                        </li>
+                    ))}
+                </ul>
+                <h3>Приготовление</h3>
+                <p>{recipe.preparing}</p>
+            </article>
+        </Modal>
+    );
+}
+
+function MealEditor({meal, recipes, commonIngredients, persistDays, addRecipe, addingRecipe, removeMeal}: {
+    meal: Meal;
+    recipes: Recipe[];
+    commonIngredients: CommonIngredient[];
+    persistDays: PersistDays;
+    addRecipe: AddRecipeToMeal;
+    addingRecipe: boolean;
+    removeMeal: () => Promise<void>;
+}) {
     const [name, setName] = useState("");
     const [amount, setAmount] = useState("");
     const [unit, setUnit] = useState("шт");
+    const [customProduct, setCustomProduct] = useState(false);
+    const [commonProductId, setCommonProductId] = useState<number | null>(null);
+    const [selectedRecipeId, setSelectedRecipeId] = useState<number | null>(null);
+    const [selectedServings, setSelectedServings] = useState(1);
+    const [openedRecipeId, setOpenedRecipeId] = useState<string | null>(null);
+    const [addError, setAddError] = useState("");
 
     const updateMeal = (updater: (current: Meal) => Meal) => persistDays((days) => days.map((day) => ({
         ...day,
@@ -42,18 +101,37 @@ function MealEditor({meal, persistDays}: {meal: Meal; persistDays: PersistDays})
     })));
 
     const addProduct = async () => {
-        if (!name.trim()) return;
+        const commonIngredient = commonIngredients.find((ingredient) => ingredient.id === commonProductId);
+        const productName = customProduct ? name.trim() : commonIngredient?.name ?? "";
+        if (!productName) return;
         const product: ExtraProduct = {
             id: crypto.randomUUID(),
-            name: name.trim(),
+            name: productName,
             amount,
             um: unit,
             includeInShopping: true,
+            commonIngredientId: customProduct ? null : commonIngredient!.id,
+            custom: customProduct,
         };
         await updateMeal((current) => ({...current, extraProducts: [...current.extraProducts, product]}));
         setName("");
         setAmount("");
+        setCommonProductId(null);
     };
+
+    const addSelectedRecipe = async () => {
+        if (!selectedRecipeId) return;
+        setAddError("");
+        try {
+            await addRecipe(meal.id, selectedRecipeId, selectedServings);
+            setSelectedRecipeId(null);
+            setSelectedServings(1);
+        } catch {
+            setAddError("Не удалось добавить блюдо.");
+        }
+    };
+
+    const openedRecipe = meal.recipes.find((item) => item.id === openedRecipeId);
 
     return (
         <section className="smartmenu-meal">
@@ -73,24 +151,31 @@ function MealEditor({meal, persistDays}: {meal: Meal; persistDays: PersistDays})
                 >
                     Очистить
                 </button>
+                <button type="button" onClick={() => void removeMeal()}>Удалить приём пищи</button>
             </div>
             <div className="smartmenu-meal__items">
                 {meal.recipes.map((item) => (
                     <div className="smartmenu-menu-item" key={item.id}>
-                        <label title="Учитывать в списке покупок">
-                            <input
-                                type="checkbox"
-                                checked={item.includeInShopping}
-                                onChange={(event) => void updateMeal((current) => ({
-                                    ...current,
-                                    recipes: current.recipes.map((recipe) => recipe.id === item.id
-                                        ? {...recipe, includeInShopping: event.target.checked}
-                                        : recipe),
-                                }))}
-                            />
-                            {item.recipeSnapshot.title}
-                        </label>
-                        <div className="smartmenu-stepper" aria-label={`Порции: ${item.recipeSnapshot.title}`}>
+                        <input
+                            type="checkbox"
+                            checked={item.includeInShopping}
+                            aria-label={`Учитывать в покупках: ${item.recipeSnapshot.title}`}
+                            onChange={(event) => void updateMeal((current) => ({
+                                ...current,
+                                recipes: current.recipes.map((recipe) => recipe.id === item.id
+                                    ? {...recipe, includeInShopping: event.target.checked}
+                                    : recipe),
+                            }))}
+                        />
+                        <div className="smartmenu-dish">
+                            <button
+                                className="smartmenu-dish__title"
+                                type="button"
+                                onClick={() => setOpenedRecipeId(item.id)}
+                            >
+                                {item.recipeSnapshot.title}
+                            </button>
+                            <div className="smartmenu-stepper" aria-label={`Порции: ${item.recipeSnapshot.title}`}>
                             <button
                                 type="button"
                                 aria-label="Уменьшить число порций"
@@ -113,6 +198,7 @@ function MealEditor({meal, persistDays}: {meal: Meal; persistDays: PersistDays})
                                         : recipe),
                                 }))}
                             >+</button>
+                            </div>
                         </div>
                         <button
                             type="button"
@@ -153,38 +239,141 @@ function MealEditor({meal, persistDays}: {meal: Meal; persistDays: PersistDays})
                 ))}
                 {meal.recipes.length === 0 && meal.extraProducts.length === 0 && <p className="smartmenu-empty">Пока пусто</p>}
             </div>
-            <div className="smartmenu-inline-form">
-                <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Дополнительный продукт" />
-                <input value={amount} onChange={(event) => setAmount(event.target.value)} type="number" min="0" step="any" placeholder="Количество" />
-                <select value={unit} onChange={(event) => setUnit(event.target.value)}>
+            <div className="smartmenu-add-dish">
+                <select
+                    aria-label={`Рецепт для ${meal.title}`}
+                    value={selectedRecipeId ?? ""}
+                    onChange={(event) => {
+                        const recipeId = Number(event.target.value);
+                        setSelectedRecipeId(recipeId || null);
+                        setSelectedServings(recipes.find((recipe) => recipe.id === recipeId)?.servings ?? 1);
+                    }}
+                >
+                    <option value="">Выберите рецепт</option>
+                    {recipes.map((recipe) => <option key={recipe.id} value={recipe.id}>{recipe.title}</option>)}
+                </select>
+                <label>
+                    Порций
+                    <input
+                        aria-label={`Порций для ${meal.title}`}
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={selectedServings}
+                        onChange={(event) => setSelectedServings(Math.min(100, Math.max(1, Number(event.target.value) || 1)))}
+                    />
+                </label>
+                <button type="button" onClick={() => void addSelectedRecipe()} disabled={!selectedRecipeId || addingRecipe}>
+                    {addingRecipe ? "Добавляем..." : "Добавить блюдо"}
+                </button>
+            </div>
+            {addError && <p className="smartmenu-error" role="alert">{addError}</p>}
+            <fieldset className="smartmenu-extra-product">
+                <legend>Дополнительный продукт</legend>
+                <label className="recipe-form__custom-toggle">
+                    <input
+                        type="checkbox"
+                        checked={customProduct}
+                        onChange={(event) => {
+                            setCustomProduct(event.target.checked);
+                            setCommonProductId(null);
+                            setName("");
+                        }}
+                    />
+                    Свой продукт
+                </label>
+                {customProduct ? (
+                    <input
+                        value={name}
+                        aria-label={`Название своего продукта для ${meal.title}`}
+                        onChange={(event) => setName(event.target.value)}
+                        placeholder="Название продукта"
+                    />
+                ) : (
+                    <select
+                        value={commonProductId ?? ""}
+                        aria-label={`Дополнительный продукт для ${meal.title}`}
+                        onChange={(event) => setCommonProductId(Number(event.target.value) || null)}
+                    >
+                        <option value="">Выберите из базы ингредиентов</option>
+                        {commonIngredients.map((ingredient) => (
+                            <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>
+                        ))}
+                    </select>
+                )}
+                <input
+                    value={amount}
+                    aria-label={`Количество дополнительного продукта для ${meal.title}`}
+                    onChange={(event) => setAmount(event.target.value)}
+                    type="number"
+                    min="0"
+                    step="any"
+                    placeholder="Количество"
+                />
+                <select value={unit} aria-label={`Единица дополнительного продукта для ${meal.title}`} onChange={(event) => setUnit(event.target.value)}>
                     {["шт", "г", "кг", "мл", "л", "уп."].map((item) => <option key={item}>{item}</option>)}
                 </select>
-                <button type="button" onClick={() => void addProduct()} disabled={!name.trim()}>Добавить продукт</button>
-            </div>
+                <button
+                    type="button"
+                    onClick={() => void addProduct()}
+                    disabled={customProduct ? !name.trim() : !commonProductId}
+                >
+                    Добавить продукт
+                </button>
+            </fieldset>
+            <MenuRecipeDetails
+                item={openedRecipe}
+                open={Boolean(openedRecipe)}
+                onOpenChange={(open) => {
+                    if (!open) setOpenedRecipeId(null);
+                }}
+            />
         </section>
     );
 }
 
-function DayEditor({day, persistDays}: {day: MenuDay; persistDays: PersistDays}) {
-    const [mealTitle, setMealTitle] = useState("");
+function DayEditor({day, recipes, commonIngredients, persistDays, addRecipe, addingRecipe}: {
+    day: MenuDay;
+    recipes: Recipe[];
+    commonIngredients: CommonIngredient[];
+    persistDays: PersistDays;
+    addRecipe: AddRecipeToMeal;
+    addingRecipe: boolean;
+}) {
+    const [mealTitle, setMealTitle] = useState<string>(mealTitles[0]);
+    const [comment, setComment] = useState(day.comment ?? "");
 
     const updateDay = (updater: (current: MenuDay) => MenuDay) => persistDays((days) => (
         days.map((item) => item.id === day.id ? updater(item) : item)
     ));
 
+    useEffect(() => {
+        setComment(day.comment ?? "");
+    }, [day.comment, day.id]);
+
+    const availableMealTitles = mealTitles.filter((title) => !day.meals.some((meal) => meal.title === title));
+    const selectedMealTitle = availableMealTitles.includes(mealTitle as typeof mealTitles[number])
+        ? mealTitle
+        : availableMealTitles[0] ?? "";
+
     const addMeal = async () => {
-        if (!mealTitle.trim()) return;
+        if (!selectedMealTitle) return;
         await updateDay((current) => ({
             ...current,
             meals: [...current.meals, {
                 id: crypto.randomUUID(),
-                title: mealTitle.trim(),
+                title: selectedMealTitle,
                 includeInShopping: true,
                 recipes: [],
                 extraProducts: [],
             }],
         }));
         setMealTitle("");
+    };
+
+    const saveComment = async () => {
+        if (comment.trim() === (day.comment ?? "")) return;
+        await updateDay((current) => ({...current, comment: comment.trim()}));
     };
 
     return (
@@ -211,12 +400,89 @@ function DayEditor({day, persistDays}: {day: MenuDay; persistDays: PersistDays})
                     Очистить день
                 </button>
             </header>
-            {day.meals.map((meal) => <MealEditor key={meal.id} meal={meal} persistDays={persistDays} />)}
-            <div className="smartmenu-inline-form smartmenu-inline-form--meal">
-                <input value={mealTitle} onChange={(event) => setMealTitle(event.target.value)} placeholder="Новый приём пищи" />
-                <button type="button" onClick={() => void addMeal()} disabled={!mealTitle.trim()}>Добавить</button>
+            <div className="smartmenu-day__meals">
+                {day.meals.map((meal) => (
+                    <MealEditor
+                        key={meal.id}
+                        meal={meal}
+                        recipes={recipes}
+                        commonIngredients={commonIngredients}
+                        persistDays={persistDays}
+                        addRecipe={addRecipe}
+                        addingRecipe={addingRecipe}
+                        removeMeal={() => updateDay((current) => ({
+                            ...current,
+                            meals: current.meals.filter((item) => item.id !== meal.id),
+                        }))}
+                    />
+                ))}
+                {day.meals.length === 0 && <p className="smartmenu-empty">Добавьте приём пищи.</p>}
             </div>
+            <div className="smartmenu-add-meal">
+                <select value={selectedMealTitle} onChange={(event) => setMealTitle(event.target.value)} aria-label={`Приём пищи для ${day.title}`}>
+                    {availableMealTitles.map((title) => <option key={title}>{title}</option>)}
+                </select>
+                <button type="button" onClick={() => void addMeal()} disabled={!selectedMealTitle}>Добавить приём пищи</button>
+            </div>
+            <footer className="smartmenu-day__comment">
+                <label>
+                    Комментарий к дню
+                    <textarea
+                        value={comment}
+                        rows={2}
+                        maxLength={2000}
+                        placeholder="Например, подготовить продукты заранее"
+                        onChange={(event) => setComment(event.target.value)}
+                    />
+                </label>
+                <button type="button" onClick={() => void saveComment()} disabled={comment.trim() === (day.comment ?? "")}>
+                    Сохранить комментарий
+                </button>
+            </footer>
         </article>
+    );
+}
+
+function MenuDescriptionEditor({menu, saving, onSave}: {
+    menu: WeeklyMenu;
+    saving: boolean;
+    onSave: (description: string) => Promise<void>;
+}) {
+    const [description, setDescription] = useState(menu.description ?? "");
+    const [saveError, setSaveError] = useState("");
+
+    useEffect(() => {
+        setDescription(menu.description ?? "");
+    }, [menu.description, menu.id]);
+
+    const unchanged = description.trim() === (menu.description ?? "");
+
+    const save = async () => {
+        setSaveError("");
+        try {
+            await onSave(description.trim());
+        } catch {
+            setSaveError("Не удалось сохранить описание.");
+        }
+    };
+
+    return (
+        <section className="smartmenu-panel smartmenu-panel--column smartmenu-menu-description">
+            <label className="recipe-form__field">
+                Описание меню
+                <textarea
+                    value={description}
+                    rows={3}
+                    maxLength={4000}
+                    placeholder="Цель меню, особенности недели или общие заметки"
+                    onChange={(event) => setDescription(event.target.value)}
+                />
+            </label>
+            <button type="button" onClick={() => void save()} disabled={unchanged || saving}>
+                {saving ? "Сохраняем..." : "Сохранить описание"}
+            </button>
+            {saveError && <p className="smartmenu-error" role="alert">{saveError}</p>}
+        </section>
     );
 }
 
@@ -353,6 +619,7 @@ function ShoppingListEditor({menuId}: {menuId: number}) {
 function Menu() {
     const auth = useAuth();
     const {data: menus = [], isLoading: menusLoading, isError: menusError} = useGetMenusQuery(undefined, {skip: !auth.authenticated});
+    const {data: commonIngredients = []} = useGetIngredientsQuery(undefined, {skip: !auth.authenticated});
     const {data: recipesData} = useGetMyRecipesQuery(undefined, {skip: !auth.authenticated});
     const {data: catalog = []} = useGetRecipesQuery();
     const [createMenu, {isLoading: creating}] = useCreateMenuMutation();
@@ -360,9 +627,7 @@ function Menu() {
     const [updateMenu, {isLoading: menuSaving}] = useUpdateMenuMutation();
     const [addRecipeToMenu, {isLoading: addingRecipe}] = useAddRecipeToMenuMutation();
     const [selectedMenuId, setSelectedMenuId] = useState<number | null>(null);
-    const [selectedRecipeId, setSelectedRecipeId] = useState<number | null>(null);
-    const [selectedMealId, setSelectedMealId] = useState("");
-    const [selectedServings, setSelectedServings] = useState(1);
+    const [createMenuOpen, setCreateMenuOpen] = useState(false);
     const [newMenuTitle, setNewMenuTitle] = useState("");
     const [error, setError] = useState("");
     const selectedMenu = useMemo(
@@ -374,17 +639,18 @@ function Menu() {
         recipesData?.saved.map((item) => item.recipe).filter(Boolean) ?? [],
         catalog,
     );
+    const daysRef = useRef<MenuDay[]>([]);
+    const persistQueueRef = useRef<Promise<void>>(Promise.resolve());
 
     useEffect(() => {
-        if (selectedMenu && !selectedMealId) setSelectedMealId(firstMeal(selectedMenu));
-    }, [selectedMealId, selectedMenu]);
+        daysRef.current = selectedMenu ? structuredClone(selectedMenu.days) : [];
+    }, [selectedMenu]);
 
     if (!auth.authenticated) {
         return (
             <section className="smartmenu-panel smartmenu-panel--column">
                 <h1>Меню недели</h1>
-                <p>Войдите, чтобы планировать меню и сохранять списки покупок.</p>
-                <button className="button-dark" type="button" onClick={() => void auth.login()}>Войти</button>
+                <p>Войдите через кнопку в шапке, чтобы планировать меню и сохранять списки покупок.</p>
             </section>
         );
     }
@@ -392,37 +658,47 @@ function Menu() {
     const persistDays: PersistDays = async (updater) => {
         if (!selectedMenu) return;
         setError("");
+        const currentDays = daysRef.current.length > 0 ? daysRef.current : selectedMenu.days;
+        const nextDays = updater(structuredClone(currentDays));
+        daysRef.current = structuredClone(nextDays);
+        const operation = persistQueueRef.current.then(async () => {
+            const updatedMenu = await updateMenu({id: selectedMenu.id, patch: {days: nextDays}}).unwrap();
+            daysRef.current = structuredClone(updatedMenu.days);
+        });
+        persistQueueRef.current = operation.catch(() => undefined);
         try {
-            await updateMenu({id: selectedMenu.id, patch: {days: updater(structuredClone(selectedMenu.days))}}).unwrap();
+            await operation;
         } catch {
             setError("Не удалось сохранить изменение меню.");
         }
     };
 
     const create = async () => {
+        if (!newMenuTitle.trim()) return;
         setError("");
         try {
-            const menu = await createMenu({title: newMenuTitle.trim() || `Меню ${menus.length + 1}`}).unwrap();
+            const menu = await createMenu({title: newMenuTitle.trim()}).unwrap();
             setSelectedMenuId(menu.id);
-            setSelectedMealId(firstMeal(menu));
             setNewMenuTitle("");
+            setCreateMenuOpen(false);
         } catch {
             setError("Не удалось создать меню.");
         }
     };
 
-    const addRecipe = async () => {
-        if (!selectedMenu || !selectedRecipeId || !selectedMealId) return;
+    const addRecipe: AddRecipeToMeal = async (mealId, recipeId, servings) => {
+        if (!selectedMenu) return;
         setError("");
         try {
             await addRecipeToMenu({
                 menuId: selectedMenu.id,
-                mealId: selectedMealId,
-                recipeId: selectedRecipeId,
-                servings: selectedServings,
+                mealId,
+                recipeId,
+                servings,
             }).unwrap();
-        } catch {
+        } catch (caughtError) {
             setError("Не удалось добавить рецепт в меню.");
+            throw caughtError;
         }
     };
 
@@ -441,15 +717,15 @@ function Menu() {
                     )}
                 </div>
                 <div className="smartmenu-toolbar">
-                    <select value={selectedMenu?.id ?? ""} onChange={(event) => {
-                        setSelectedMenuId(Number(event.target.value));
-                        setSelectedMealId("");
-                    }}>
-                        {menus.map((menu) => <option key={menu.id} value={menu.id}>{menu.title}</option>)}
-                    </select>
-                    <input value={newMenuTitle} onChange={(event) => setNewMenuTitle(event.target.value)} placeholder="Название нового меню" />
-                    <button className="button-dark" type="button" onClick={() => void create()} disabled={creating}>
-                        {creating ? "Создаём..." : "Создать меню"}
+                    {menus.length > 0 && (
+                        <select value={selectedMenu?.id ?? ""} onChange={(event) => {
+                            setSelectedMenuId(Number(event.target.value));
+                        }} aria-label="Выбранное меню">
+                            {menus.map((menu) => <option key={menu.id} value={menu.id}>{menu.title}</option>)}
+                        </select>
+                    )}
+                    <button className="button-dark" type="button" onClick={() => setCreateMenuOpen(true)}>
+                        Создать меню
                     </button>
                 </div>
                 {menusLoading && <p>Загружаем меню...</p>}
@@ -458,44 +734,49 @@ function Menu() {
             </section>
             {selectedMenu && (
                 <>
-                    <section className="smartmenu-panel smartmenu-panel--column">
-                        <h2>Добавить рецепт</h2>
-                        <div className="smartmenu-toolbar">
-                            <select value={selectedRecipeId ?? ""} onChange={(event) => {
-                                const id = Number(event.target.value);
-                                setSelectedRecipeId(id || null);
-                                setSelectedServings(recipes.find((recipe) => recipe.id === id)?.servings ?? 1);
-                            }}>
-                                <option value="">Выберите рецепт</option>
-                                {recipes.map((recipe) => <option key={recipe.id} value={recipe.id}>{recipe.title}</option>)}
-                            </select>
-                            <select value={selectedMealId} onChange={(event) => setSelectedMealId(event.target.value)}>
-                                {selectedMenu.days.flatMap((day) => day.meals.map((meal) => (
-                                    <option key={meal.id} value={meal.id}>{day.title}: {meal.title}</option>
-                                )))}
-                            </select>
-                            <label>
-                                Порций
-                                <input
-                                    type="number"
-                                    min="1"
-                                    max="100"
-                                    value={selectedServings}
-                                    onChange={(event) => setSelectedServings(Math.max(1, Number(event.target.value) || 1))}
-                                />
-                            </label>
-                            <button className="button-dark" type="button" onClick={() => void addRecipe()} disabled={!selectedRecipeId || addingRecipe}>
-                                {addingRecipe ? "Добавляем..." : "Добавить рецепт"}
-                            </button>
-                        </div>
-                    </section>
+                    <MenuDescriptionEditor
+                        menu={selectedMenu}
+                        saving={menuSaving}
+                        onSave={async (description) => {
+                            await updateMenu({id: selectedMenu.id, patch: {description}}).unwrap();
+                        }}
+                    />
                     <section className="smartmenu-board" aria-busy={menuSaving}>
-                        {selectedMenu.days.map((day) => <DayEditor key={day.id} day={day} persistDays={persistDays} />)}
+                        {selectedMenu.days.map((day) => (
+                            <DayEditor
+                                key={day.id}
+                                day={day}
+                                recipes={recipes}
+                                commonIngredients={commonIngredients}
+                                persistDays={persistDays}
+                                addRecipe={addRecipe}
+                                addingRecipe={addingRecipe}
+                            />
+                        ))}
                     </section>
                     <ShoppingListEditor menuId={selectedMenu.id} />
                 </>
             )}
             {error && <p className="smartmenu-error" role="alert">{error}</p>}
+            <Modal open={createMenuOpen} onOpenChange={setCreateMenuOpen} title="Новое меню">
+                <form className="smartmenu-create-menu" onSubmit={(event) => {
+                    event.preventDefault();
+                    void create();
+                }}>
+                    <label className="recipe-form__field">
+                        Название меню
+                        <input
+                            value={newMenuTitle}
+                            maxLength={255}
+                            autoFocus
+                            onChange={(event) => setNewMenuTitle(event.target.value)}
+                        />
+                    </label>
+                    <button className="button-dark" type="submit" disabled={!newMenuTitle.trim() || creating}>
+                        {creating ? "Создаём..." : "Подтвердить создание"}
+                    </button>
+                </form>
+            </Modal>
         </>
     );
 }

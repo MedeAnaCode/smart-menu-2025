@@ -19,7 +19,7 @@ export async function requireAuth(req: AuthenticatedRequest, res: Response, next
     if (!token) return res.status(401).json({error: "Требуется авторизация"});
 
     try {
-        const {payload} = await jwtVerify(token, jwks, {issuer: keycloakConfig.issuer});
+        const {payload} = await jwtVerify(token, jwks, {issuer: keycloakConfig.issuers});
         const keycloakId = payload.sub;
         const email = typeof payload.email === "string" ? payload.email.toLowerCase() : "";
         const name = typeof payload.name === "string"

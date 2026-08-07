@@ -77,7 +77,7 @@ export const apiRtk = createApi({
             query: () => "/menus",
             providesTags: ["Menu"],
         }),
-        createMenu: builder.mutation<WeeklyMenu, {title: string}>({
+        createMenu: builder.mutation<WeeklyMenu, {title: string; description?: string}>({
             query: (body) => ({url: "/menus", method: "POST", body}),
             invalidatesTags: ["Menu"],
         }),

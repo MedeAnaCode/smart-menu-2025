@@ -6,7 +6,10 @@ export const recipeFormSchema = z.object({
     category: z.string().trim().min(1, "Укажите категорию"),
     servings: z.number().int().min(1, "Минимум одна порция").max(100),
     preparing: z.string().trim().min(1, "Опишите этапы приготовления"),
-    image: z.string().min(1),
+    image: z.string().trim().max(1000, "Ссылка слишком длинная").refine(
+        (value) => value === "" || value.startsWith("/") || URL.canParse(value),
+        "Введите корректную ссылку на изображение",
+    ),
     ingredients: z.array(z.object({
         name: z.string().trim().min(1, "Укажите ингредиент"),
         amount: z.string().trim(),

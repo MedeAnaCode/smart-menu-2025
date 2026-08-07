@@ -48,6 +48,12 @@ export const extraProductSchema = z.object({
     amount: z.string().trim().max(50),
     um: z.string().trim().min(1).max(50),
     includeInShopping: z.boolean(),
+    commonIngredientId: z.number().int().positive().nullable().optional(),
+    custom: z.boolean().optional(),
+}).superRefine((product, context) => {
+    if (product.custom === false && !product.commonIngredientId) {
+        context.addIssue({code: "custom", message: "Выберите продукт из общей базы"});
+    }
 });
 
 export const mealSchema = z.object({
@@ -64,6 +70,7 @@ export const menuDaySchema = z.object({
     title: z.string().trim().min(1).max(100),
     includeInShopping: z.boolean(),
     meals: z.array(mealSchema),
+    comment: z.string().trim().max(2000).optional(),
 });
 
 export const shoppingListItemSchema = z.object({

@@ -1,9 +1,11 @@
 import React from 'react';
 import {NavLink, useLocation} from 'react-router-dom';
 import classNames from 'classnames';
+import {useAuth} from '../auth/AuthContext';
 
 function Nav () {
     const location = useLocation();
+    const auth = useAuth();
 
     const getNavClassName = (): string => {
         return classNames("page-header__navigation", {
@@ -32,9 +34,13 @@ function Nav () {
             </ul>
             <ul className="page-header__navigation-user-list">
                 <li className="page-header__navigation-user-item">
-                    <a className="page-header__navigation-user-link" href="#">
-                        Войти
-                    </a>
+                    <button
+                        className="page-header__navigation-user-link"
+                        type="button"
+                        onClick={() => void (auth.authenticated ? auth.logout() : auth.login())}
+                    >
+                        {auth.authenticated ? "Выйти" : "Войти"}
+                    </button>
                 </li>
             </ul>
         </nav>
