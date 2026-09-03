@@ -1,5 +1,6 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
+const webpack = require('webpack');
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 
 const isDev = process.env.NODE_ENV !== "production";
@@ -53,6 +54,9 @@ module.exports = {
         ]
     },
     plugins: [
+        new webpack.DefinePlugin({
+            'process.env.SMARTMENU_KEYCLOAK_PORT': JSON.stringify(process.env.SMARTMENU_KEYCLOAK_PORT || '8080'),
+        }),
         new HtmlWebpackPlugin({
             template: './src/index.html', // Путь к вашему HTML шаблону
             minify: !isDev

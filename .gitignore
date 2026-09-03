@@ -4,4 +4,4 @@ test-results/
 playwright-report/
 uploads/
 .env
-
+.local/

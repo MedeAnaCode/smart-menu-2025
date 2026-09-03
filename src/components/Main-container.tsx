@@ -1,63 +1,25 @@
-import React from 'react';
-
-function MainContainer () {
-    return (
-        <main className="main-container">
-            <h1 className="visually-hidden">
-                Главная страница "Smart menu".
-            </h1>
-            <section className="banner">
-                <h2 className="visually-hidden">
-                    Описание приложения
-                </h2>
-                <div className="banner__logo-wrapper">
-                    <img className="banner__logo-image" src='/img/logo-image-tablet.svg' width="120" height="90"
-                                 alt="Логотип Smart-menu"/>
-                </div>
-                <p className="banner__description">
-                    <b className="banner__description-accent">Smart menu</b> - это незаменимый помощник в составлении твоего личного
-                    меню.
-                </p>
-            </section>
-            <div className="main-container__information container">
-                <section className="help">
-                    <h2 className="help__title">
-                        Smart menu поможет тебе:
-                    </h2>
-                    <ul className="help__list">
-                        <li className="help__list-item help__list-item--strong">
-                            Следить за здоровьем и всегда оставаться в форме!
-                        </li>
-                        <li className="help__list-item help__list-item--broccoli">
-                            Питаться разнообразно и полноценно.
-                        </li>
-                        <li className="help__list-item help__list-item--cart">
-                            Собрать продуктовую корзину на неделю за секунду!
-                        </li>
-                    </ul>
-                </section>
-                <section className="registration">
-                    <h2 className="registration__title">
-                        Попробуй, <br className="mobile-break"/>как это удобно!
-                    </h2>
-                    <a className="registration__button button-dark" href="#">
-                        Регистрация
-                    </a>
-                </section>
-                <section className="about-content">
-                    <h2 className="visually-hidden">
-                        Что вы можете у нас найти?
-                    </h2>
-                    <p className="about-content__description">
-                        В нашей базе более 1000 простых и вкусных рецептов*
-                    </p>
-                    <small className="about-content__note">
-                        * - пока что это ложь
-                    </small>
-                </section>
-            </div>
-        </main>
-    );
+import {Link} from 'react-router-dom';
+import {useGetMyRecipesQuery, useGetRecipesQuery} from '../apiRtk';
+import {useAuth} from '../auth/AuthContext';
+import RecipeImage from './RecipeImage';
+export default function MainContainer() {
+    const auth = useAuth();
+    const {data: catalog = [], isLoading, isError} = useGetRecipesQuery();
+    const {data: mine} = useGetMyRecipesQuery(undefined, {skip: !auth.authenticated});
+    const collection = auth.authenticated ? [...(mine?.owned ?? []), ...(mine?.saved.map(item => item.recipe) ?? [])] : catalog;
+    const cards = collection.slice(0, 3);
+    return <div className="home-page">
+        <section className="home-intro"><p className="eyebrow">Простые радости каждый день</p><h1>Вкусно жить. Легко планировать.</h1><p>Любимые рецепты и немного заботы о себе.</p></section>
+        <section className="home-stories" aria-label="Для вдохновения">
+            <Link to="/profile/recipes" className="home-story"><img src="/img/editorial/toasts.jpg" alt="Тосты с малиной и фруктами" fetchPriority="high" /><span className="home-story__tag">Неспешные завтраки</span><div className="home-story__caption"><h2>Хорошее утро<br />начинается с любимого</h2><p>Ягодные тосты и время для себя</p></div></Link>
+            <Link to="/profile/recipes" className="home-story"><img src="/img/editorial/banana-cake.jpg" alt="Домашний банановый кекс" /><span className="home-story__tag">Из домашней духовки</span><div className="home-story__caption"><h2>Когда дома пахнет<br />выпечкой</h2><p>Банановый кекс к чашке чая</p></div></Link>
+        </section>
+        <section className="home-menu-callout"><div><h2>Что приготовим на этой неделе?</h2><p>Собери любимые блюда в меню — всё будет под рукой.</p></div><Link className="button-dark" to="/profile/menu">Собрать меню <span aria-hidden="true">→</span></Link></section>
+        <div className="home-collection-layout"><section><div className="home-section-heading"><h2>{auth.authenticated ? 'Мои рецепты' : 'Рецепты'}</h2><Link to="/profile/recipes">Коллекция для вдохновения</Link></div>
+            {isLoading && <p role="status">Загружаем рецепты...</p>}{isError && <p className="smartmenu-error" role="alert">Не удалось загрузить рецепты. <Link to="/profile/recipes">Открыть коллекцию</Link></p>}
+            <div className="home-recipe-grid">{cards.map(recipe => <Link className="home-recipe" to="/profile/recipes" key={recipe.id}><RecipeImage src={recipe.image} alt={recipe.title} /><p className="eyebrow">{recipe.category}</p><h3>{recipe.title}</h3></Link>)}</div>
+            {!isLoading && !isError && cards.length === 0 && <div className="recipe-invitation"><span className="chef-mark"><img src="/img/logo-image-mobile.svg" alt="" /></span><h3>Место для нового любимого блюда</h3><Link to="/profile/recipes">Добавить свой рецепт →</Link></div>}
+        </section><aside className="home-menu-note"><p><img src="/img/cart.svg" alt="" /> Моё меню</p><h2>Маленький план.<br />Больше свободного времени.</h2><p>Выбери блюда из коллекции — здесь появится твоё меню.</p><Link to="/profile/menu">Всё начинается с одного рецепта →</Link></aside></div>
+        {!auth.authenticated && <section className="home-register"><h2>Сохраняй любимое</h2><p>Рецепты, меню и списки покупок — в твоём аккаунте.</p><button className="button-dark" onClick={() => void auth.register()}>Зарегистрироваться</button></section>}
+    </div>;
 }
-
-export default MainContainer;

@@ -1,6 +1,6 @@
 import Keycloak from "keycloak-js";
 
-const keycloakUrl = `${window.location.protocol}//${window.location.hostname}:8080`;
+const keycloakUrl = `${window.location.protocol}//${window.location.hostname}:${process.env.SMARTMENU_KEYCLOAK_PORT || "8080"}`;
 
 export const keycloak = new Keycloak({
     url: keycloakUrl,
