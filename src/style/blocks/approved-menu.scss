@@ -1,0 +1,81 @@
+.menu-workspace .page-title-row { margin-bottom:20px; }
+.menu-week-label { margin:0 0 28px; font-weight:500; }
+.menu-day-strip { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; margin-bottom:22px; }
+.menu-day-strip button { min-width:0; height:116px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; border:1px solid var(--sm-line); background:#fff; color:var(--sm-muted); }
+.menu-day-strip button.is-current,.menu-day-strip button[aria-pressed=true] { background:var(--sm-blue); color:#fff; border-color:var(--sm-blue); }
+.menu-day-strip button>span:first-child { text-transform:capitalize; font-size:12px; }
+.menu-day-strip button strong { font:500 31px/1 var(--sm-heading); }
+.menu-day-strip__mark { min-height:12px; color:var(--sm-blue); font-size:20px; line-height:.5; }
+.menu-day-strip .is-current .menu-day-strip__mark,.menu-day-strip button[aria-pressed=true] .menu-day-strip__mark { color:#fff; }
+.menu-shopping-toolbar { display:flex; align-items:center; gap:15px; margin-bottom:30px; }
+.menu-shopping-toolbar>span { margin-right:auto; font-size:13px; }
+.smartmenu-board { display:block; }
+.smartmenu-day { width:100%; padding:0; margin:0; border:0; box-shadow:none; background:#fff; }
+.smartmenu-day__heading { display:flex; align-items:center; justify-content:space-between; padding:0 0 20px; border-bottom:1px solid var(--sm-line); }
+.smartmenu-day__heading h2 { font-size:34px; margin:0 0 5px; }
+.smartmenu-day__heading time { font-size:13px; }
+.smartmenu-day__meals { display:block; }
+.smartmenu-meal { padding:25px 0; border-bottom:1px solid var(--sm-line); background:#fff; box-shadow:none; }
+.smartmenu-meal__heading { display:flex; align-items:center; gap:10px; margin-bottom:15px; }
+.smartmenu-meal__heading h3 { font-size:23px; margin:0 auto 0 0; }
+.smartmenu-meal__heading .ui-icon-button { background:none; }
+.smartmenu-meal__items { display:grid; gap:15px; }
+.smartmenu-menu-item { display:grid; grid-template-columns:auto 128px minmax(0,1fr) auto; gap:14px; align-items:center; border:0; padding:0; background:#fff; }
+.smartmenu-menu-item>input[type=checkbox] { accent-color:var(--sm-blue); }
+.smartmenu-menu-item__image { width:128px; height:128px; object-fit:cover; }
+.smartmenu-dish { min-width:0; }
+.smartmenu-dish__title { display:block; padding:0; border:0; background:none; color:var(--sm-ink); font:500 23px/1.3 var(--sm-heading); text-align:left; }
+.smartmenu-portions { display:flex; align-items:center; gap:10px; margin-top:13px; font-size:12px; }
+.smartmenu-portions input { width:65px; min-height:39px; border:1px solid var(--sm-line); padding:7px; }
+.smartmenu-remove-dish { border:0; background:none; color:var(--sm-muted); font-size:23px; }
+.smartmenu-choose-dish { display:flex; width:100%; min-height:98px; align-items:center; justify-content:space-between; padding:25px; border:1px dashed #b9cfdd; background:#fff; color:var(--sm-muted); }
+.smartmenu-choose-dish span:last-child { color:var(--sm-blue); font-size:27px; }
+.smartmenu-extra-disclosure,.menu-description-disclosure { margin-top:16px; font-size:13px; color:var(--sm-muted); }
+.smartmenu-extra-disclosure summary,.menu-description-disclosure summary { color:var(--sm-blue); cursor:pointer; }
+.smartmenu-extra-product { margin-top:12px; }
+.smartmenu-add-meal { padding-top:30px; display:flex; gap:10px; }
+.smartmenu-add-meal select { border:1px solid var(--sm-line); padding:11px; }
+.smartmenu-add-meal button { border:1px solid var(--sm-line); color:var(--sm-blue); background:#fff; padding:11px 15px; }
+.smartmenu-day__comment { margin-top:35px; padding:25px; background:var(--sm-wash); }
+.smartmenu-day__comment h3 { font-size:23px; margin:0 0 12px; }
+.smartmenu-day__comment label { display:block; }
+.smartmenu-day__comment textarea { width:100%; border:1px solid var(--sm-line); padding:10px; resize:vertical; }
+.smartmenu-day__comment button { margin-top:10px; border:1px solid var(--sm-line); color:var(--sm-blue); background:#fff; padding:9px 13px; }
+.menu-description-disclosure .smartmenu-panel { margin-top:12px; }
+.menu-empty { padding:30px; background:var(--sm-wash); }
+.menu-week-actions { display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+.menu-recipe-picker>input { width:100%; border:1px solid var(--sm-line); padding:10px; }
+.menu-picker-context { background:var(--sm-wash); padding:12px; font-weight:500; }
+.menu-picker-list { display:grid; gap:12px; margin-top:18px; max-height:360px; overflow-y:auto; }
+.menu-picker-recipe { display:grid; grid-template-columns:54px minmax(0,1fr) 38px; align-items:center; gap:10px; }
+.menu-picker-recipe img { width:54px; height:54px; object-fit:cover; }
+.menu-picker-recipe .ui-icon-button { min-width:38px; min-height:38px; }
+.shopping-sidebar>.smartmenu-panel { padding:0; border:0; box-shadow:none; background:#fff; }
+.shopping-sidebar .smartmenu-panel__heading { display:block; }
+.shopping-sidebar .smartmenu-panel__heading h2 { font-size:23px; margin:0 0 10px; }
+.shopping-sidebar .smartmenu-actions { display:flex; gap:7px; }
+.shopping-sidebar .smartmenu-actions .button-dark { display:none; }
+.shopping-sidebar .smartmenu-actions button { border:0; background:#fff; color:var(--sm-blue); padding:6px 0; }
+.smartmenu-shopping-list { display:grid; gap:10px; }
+.shopping-sidebar .smartmenu-shopping-item { display:grid; grid-template-columns:auto minmax(0,1fr) 62px 48px; gap:5px; border-bottom:1px solid var(--sm-line); padding-bottom:8px; }
+.shopping-sidebar .smartmenu-shopping-item input:not([type=checkbox]) { width:100%; min-width:0; border:1px solid var(--sm-line); padding:6px; }
+.shopping-sidebar .smartmenu-shopping-item span { grid-column:2/4; font-size:10px; color:var(--sm-muted); }
+.shopping-sidebar .smartmenu-shopping-item button { grid-column:4; grid-row:2; border:0; background:none; color:var(--sm-danger); font-size:11px; }
+.shopping-sidebar .smartmenu-inline-form { display:grid; grid-template-columns:minmax(0,1fr) 60px 45px 38px; gap:5px; margin-top:15px; }
+.shopping-sidebar .smartmenu-inline-form input { width:100%; min-width:0; padding:8px; border:1px solid var(--sm-line); }
+.shopping-sidebar .smartmenu-inline-form button { font-size:0; border:0; background:var(--sm-wash); color:var(--sm-blue); }
+.shopping-sidebar .smartmenu-inline-form button::before { content:"+"; font-size:22px; }
+.smartmenu-create-menu { display:grid; gap:20px; }
+@media(max-width:760px) {
+ .menu-workspace .page-title-row h1 { font-size:32px; }
+ .menu-day-strip { gap:4px; overflow-x:auto; }
+ .menu-day-strip button { height:110px; min-width:58px; }
+ .menu-shopping-toolbar { display:grid; grid-template-columns:auto 1fr; }
+ .menu-shopping-toolbar>span { margin:0; }
+ .menu-shopping-toolbar>.button-dark { grid-column:1/-1; }
+ .smartmenu-day__heading h2 { font-size:30px; }
+ .smartmenu-menu-item { grid-template-columns:auto 92px minmax(0,1fr) auto; gap:10px; }
+ .smartmenu-menu-item__image { width:92px; height:128px; }
+ .smartmenu-dish__title { font-size:20px; }
+ .smartmenu-add-meal { align-items:stretch; flex-direction:column; }
+}

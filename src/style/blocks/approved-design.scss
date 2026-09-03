@@ -4,6 +4,12 @@
   --sm-body:"Golos Text",Arial,sans-serif; --sm-heading:"Literata",Georgia,serif;
 }
 html { height:auto; }
+.page-header { flex-direction:row; position:static; }
+.page-header__container { border:0; }
+.page-header__navigation { border:0; box-shadow:none; }
+.page-header__navigation-list { max-width:none; flex-wrap:nowrap; }
+.page-header__navigation-link,.page-header__navigation-user-link { text-transform:none; }
+.page-header__navigation-user-link { width:auto; border-radius:0; }
 body { display:block; height:auto; min-height:100vh; margin:0; border-top:5px solid var(--sm-blue); font:400 16px/1.5 var(--sm-body); color:var(--sm-ink); background:#fff; }
 button,input,select,textarea { font:inherit; } button { cursor:pointer; } button:disabled { opacity:.55; cursor:default; }
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible { outline:2px solid var(--sm-blue); outline-offset:3px; }
@@ -28,7 +34,7 @@ a { color:var(--sm-blue); } img { max-width:100%; } [hidden] { display:none!impo
 .home-page { max-width:1280px; width:calc(100% - 80px); margin:0 auto 55px; }
 .home-intro { text-align:center; padding:42px 0 36px; } .eyebrow { font-size:12px; text-transform:uppercase; letter-spacing:.12em; color:var(--sm-muted); }
 .home-intro h1 { margin:20px 0 12px; font-size:clamp(32px,4vw,52px); } .home-intro>p:last-child { color:var(--sm-muted); margin:0; }
-.home-stories { display:grid; grid-template-columns:1.12fr 1fr; gap:24px; } .home-story { position:relative; display:block; min-height:360px; aspect-ratio:1.38; overflow:hidden; color:white; }
+.home-stories { display:grid; grid-template-columns:1.12fr 1fr; gap:24px; } .home-story { position:relative; display:block; height:clamp(360px,35vw,440px); overflow:hidden; color:white; }
 .home-story>img { width:100%; height:100%; object-fit:cover; object-position:50% 56%; display:block; } .home-story:nth-child(2)>img { object-position:50% 38%; }
 .home-story::after { content:""; position:absolute; inset:35% 0 0; background:linear-gradient(transparent,#000a); pointer-events:none; }
 .home-story__tag { position:absolute; z-index:1; top:28px; left:28px; padding:7px 13px; background:white; color:var(--sm-blue); font-size:13px; letter-spacing:.07em; }
