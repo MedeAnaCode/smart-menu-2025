@@ -146,12 +146,14 @@ type IngredientFieldsetProps = {
 
 type AddRecipeFormProps = {
     onSuccess: () => void;
+    onBusyChange?: (busy: boolean) => void;
 };
 
 type EditRecipeFormProps = {
     initialValues: Recipe | null;
     onSaved: (patch: Partial<Recipe>) => Promise<void>;
     onCancel: () => void;
+    onBusyChange?: (busy: boolean) => void;
 };
 
 type UpdateRecipeArg = {

@@ -1,233 +1,42 @@
-import {useEffect, useRef, useState} from "react";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {Controller, useFieldArray, useForm} from "react-hook-form";
-import {useGetIngredientsQuery, useUploadRecipeImageMutation} from "../apiRtk";
-import {recipeFormSchema, type RecipeFormValues} from "../validation/recipe";
-import RecipeImage from "./RecipeImage";
+import {useEffect,useId,useRef,useState} from 'react';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {Controller,useFieldArray,useForm} from 'react-hook-form';
+import {useGetIngredientsQuery,useUploadRecipeImageMutation} from '../apiRtk';
+import {recipeFormSchema,type RecipeFormValues} from '../validation/recipe';
+import RecipeImage from './RecipeImage';
 
-const emptyIngredient = (custom: boolean): RecipeFormValues["ingredients"][number] => ({
-    name: "",
-    amount: "",
-    um: "г",
-    commonIngredientId: null,
-    custom,
-});
-
-type Props = {
-    initialValues?: RecipeFormValues;
-    submitLabel: string;
-    onSubmit: (values: RecipeFormValues) => Promise<void>;
-    onCancel?: () => void;
-};
-
-export default function RecipeForm({initialValues, submitLabel, onSubmit, onCancel}: Props) {
-    const {data: commonIngredients = [], isLoading: ingredientsLoading} = useGetIngredientsQuery();
-    const [uploadImage] = useUploadRecipeImageMutation();
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [filePreview, setFilePreview] = useState("");
-    const [submitError, setSubmitError] = useState("");
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const {
-        control,
-        register,
-        handleSubmit,
-        setValue,
-        watch,
-        formState: {errors, isSubmitting},
-    } = useForm<RecipeFormValues>({
-        resolver: zodResolver(recipeFormSchema),
-        defaultValues: initialValues ?? {
-            title: "",
-            description: "",
-            category: "Домашнее",
-            servings: 1,
-            preparing: "",
-            image: "",
-            ingredients: [emptyIngredient(true)],
-        },
-    });
-    const {fields, append, remove} = useFieldArray({control, name: "ingredients"});
-    const image = watch("image");
-
-    useEffect(() => {
-        if (!imageFile) {
-            setFilePreview("");
-            return;
-        }
-        const objectUrl = URL.createObjectURL(imageFile);
-        setFilePreview(objectUrl);
-        return () => URL.revokeObjectURL(objectUrl);
-    }, [imageFile]);
-
-    const submit = handleSubmit(async (values) => {
-        setSubmitError("");
-        try {
-            let imageUrl = values.image.trim() || "/img/recipes/unknown.jpg";
-            if (imageFile) {
-                const body = new FormData();
-                body.append("image", imageFile);
-                imageUrl = (await uploadImage(body).unwrap()).url;
-            }
-            await onSubmit({...values, image: imageUrl});
-        } catch {
-            setSubmitError("Не удалось сохранить рецепт. Проверьте данные и повторите попытку.");
-        }
-    });
-
-    return (
-        <form className="add-recipe-form recipe-form" onSubmit={(event) => void submit(event)} noValidate>
-            <label className="recipe-form__field">
-                Название
-                <input {...register("title")} type="text" autoFocus />
-                {errors.title && <span className="recipe-form__error">{errors.title.message}</span>}
-            </label>
-            <div className="recipe-form__row">
-                <label className="recipe-form__field">
-                    Категория
-                    <input {...register("category")} type="text" />
-                    {errors.category && <span className="recipe-form__error">{errors.category.message}</span>}
-                </label>
-                <label className="recipe-form__field">
-                    Базовое число порций
-                    <input {...register("servings", {valueAsNumber: true})} type="number" min="1" max="100" step="1" />
-                    {errors.servings && <span className="recipe-form__error">{errors.servings.message}</span>}
-                </label>
-            </div>
-            <label className="recipe-form__field">
-                Описание
-                <textarea {...register("description")} rows={3} />
-            </label>
-            <fieldset className="recipe-form__image-fieldset">
-                <legend>Изображение</legend>
-                <label className="recipe-form__field">
-                    Ссылка на изображение
-                    <input
-                        {...register("image")}
-                        type="url"
-                        placeholder="https://example.com/recipe.jpg"
-                    />
-                    {errors.image && <span className="recipe-form__error">{errors.image.message}</span>}
-                </label>
-                <span className="recipe-form__image-separator">или</span>
-                <label className="recipe-form__field">
-                    Загрузить с компьютера
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp,image/gif"
-                        onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
-                    />
-                    <span className="recipe-form__hint">JPG, PNG, WebP или GIF, до 5 МБ. Загруженный файл имеет приоритет над ссылкой.</span>
-                </label>
-                {imageFile && (
-                    <button type="button" onClick={() => {
-                        setImageFile(null);
-                        if (fileInputRef.current) fileInputRef.current.value = "";
-                    }}>
-                        Убрать выбранный файл
-                    </button>
-                )}
-            </fieldset>
-            {(filePreview || image) && (
-                <RecipeImage
-                    className="recipe-form__preview"
-                    src={filePreview || image}
-                    alt="Предпросмотр рецепта"
-                />
-            )}
-            <section className="recipe-form__ingredients">
-                <div className="recipe-form__section-title">
-                    <h3>Ингредиенты</h3>
-                </div>
-                {ingredientsLoading && <p>Загружаем общую базу...</p>}
-                {fields.map((field, index) => (
-                    <fieldset className="recipe-form__ingredient" key={field.id}>
-                        <legend>Ингредиент {index + 1}</legend>
-                        <Controller
-                            control={control}
-                            name={`ingredients.${index}.custom`}
-                            render={({field: customField}) => (
-                                <label className="recipe-form__custom-toggle">
-                                    <input
-                                        type="checkbox"
-                                        checked={customField.value}
-                                        onChange={(event) => {
-                                            customField.onChange(event.target.checked);
-                                            setValue(`ingredients.${index}.commonIngredientId`, null);
-                                            setValue(`ingredients.${index}.name`, "");
-                                        }}
-                                    />
-                                    Свой ингредиент
-                                </label>
-                            )}
-                        />
-                        {watch(`ingredients.${index}.custom`) ? (
-                            <>
-                                <input {...register(`ingredients.${index}.name`)} placeholder="Название ингредиента" />
-                                <span className="recipe-form__custom-mark">Свой ингредиент</span>
-                            </>
-                        ) : (
-                            <Controller
-                                control={control}
-                                name={`ingredients.${index}.commonIngredientId`}
-                                render={({field: commonField}) => (
-                                    <select
-                                        value={commonField.value ?? ""}
-                                        onChange={(event) => {
-                                            const id = Number(event.target.value);
-                                            commonField.onChange(id || null);
-                                            setValue(
-                                                `ingredients.${index}.name`,
-                                                commonIngredients.find((item) => item.id === id)?.name ?? "",
-                                            );
-                                        }}
-                                    >
-                                        <option value="">Выберите из общей базы</option>
-                                        {commonIngredients.map((ingredient) => (
-                                            <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>
-                                        ))}
-                                    </select>
-                                )}
-                            />
-                        )}
-                        <input {...register(`ingredients.${index}.amount`)} type="number" min="0" step="any" placeholder="Количество" />
-                        <select {...register(`ingredients.${index}.um`)}>
-                            {["г", "кг", "мл", "л", "шт", "ч.л.", "ст.л.", "по вкусу"].map((unit) => (
-                                <option key={unit} value={unit}>{unit}</option>
-                            ))}
-                        </select>
-                        <button type="button" aria-label={`Удалить ингредиент ${index + 1}`} onClick={() => remove(index)}>Удалить</button>
-                        {errors.ingredients?.[index]?.name && (
-                            <span className="recipe-form__error">{errors.ingredients[index]?.name?.message}</span>
-                        )}
-                    </fieldset>
-                ))}
-                <button
-                    className="recipe-form__add-ingredient"
-                    type="button"
-                    aria-label="Добавить ингредиент"
-                    title="Добавить ингредиент"
-                    onClick={() => append(emptyIngredient(commonIngredients.length === 0))}
-                >
-                    <span aria-hidden="true">+</span>
-                </button>
-                <p className="recipe-form__hint">
-                    Свои ингредиенты сохраняются только в этом рецепте и не объединяются автоматически в списке покупок.
-                </p>
-                {errors.ingredients?.root && <span className="recipe-form__error">{errors.ingredients.root.message}</span>}
+const emptyIngredient=(custom:boolean):RecipeFormValues['ingredients'][number]=>({name:'',amount:'',um:'г',commonIngredientId:null,custom});
+type Props={initialValues?:RecipeFormValues;submitLabel:string;onSubmit:(values:RecipeFormValues)=>Promise<void>;onCancel?:()=>void;onBusyChange?:(busy:boolean)=>void};
+export default function RecipeForm({initialValues,submitLabel,onSubmit,onCancel,onBusyChange}:Props){
+    const {data:commonIngredients=[],isLoading:ingredientsLoading,isError:ingredientsError}=useGetIngredientsQuery();
+    const [uploadImage]=useUploadRecipeImageMutation();
+    const [imageFile,setImageFile]=useState<File|null>(null),[filePreview,setFilePreview]=useState(''),[submitError,setSubmitError]=useState(''),[fileError,setFileError]=useState('');
+    const fileInputRef=useRef<HTMLInputElement>(null),id=useId();
+    const {control,register,handleSubmit,setValue,watch,formState:{errors,isSubmitting}}=useForm<RecipeFormValues>({resolver:zodResolver(recipeFormSchema),defaultValues:initialValues??{title:'',description:'',category:'Домашнее',servings:1,preparing:'',image:'',ingredients:[emptyIngredient(true)]}});
+    const {fields,append,remove}=useFieldArray({control,name:'ingredients'}),image=watch('image'),servings=watch('servings');
+    useEffect(()=>{onBusyChange?.(isSubmitting);return()=>onBusyChange?.(false);},[isSubmitting,onBusyChange]);
+    useEffect(()=>{if(!imageFile){setFilePreview('');return;}const objectUrl=URL.createObjectURL(imageFile);setFilePreview(objectUrl);return()=>URL.revokeObjectURL(objectUrl);},[imageFile]);
+    const submit=handleSubmit(async values=>{setSubmitError('');try{let imageUrl=values.image.trim()||'/img/recipes/unknown.jpg';if(imageFile){const body=new FormData();body.append('image',imageFile);imageUrl=(await uploadImage(body).unwrap()).url;}await onSubmit({...values,image:imageUrl});}catch{setSubmitError('Не удалось сохранить рецепт. Проверьте данные и повторите попытку.');}});
+    const hasImage=Boolean(filePreview||(image&&image!=='/img/recipes/unknown.jpg'));
+    const removeImage=()=>{setImageFile(null);setFileError('');setValue('image','',{shouldDirty:true});if(fileInputRef.current)fileInputRef.current.value='';};
+    return <form className="add-recipe-form recipe-form" onSubmit={e=>void submit(e)} noValidate>
+        <fieldset className="recipe-form__body" disabled={isSubmitting}>
+            <section className="recipe-form__basics"><div className="recipe-form__photo-field"><div className="recipe-form__photo">{hasImage?<RecipeImage src={filePreview||image} alt="Фото блюда"/>:<span className="chef-mark"><img src="/img/logo-image-mobile.svg" alt="Фото блюда"/></span>}</div><div><button type="button" className="ui-link" onClick={()=>fileInputRef.current?.click()}>{hasImage?'Заменить фото':'Добавить фото'}</button>{hasImage&&<button type="button" className="ui-link recipe-form__remove-photo" onClick={removeImage}>Убрать</button>}<p className="recipe-form__hint">JPG, PNG, WebP, GIF<br/>до 5 МБ</p></div><label className="visually-hidden" htmlFor={`${id}-file`}>Загрузить с компьютера</label><input id={`${id}-file`} ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onChange={e=>{const file=e.target.files?.[0]??null;setFileError('');if(file&&(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)||file.size>5*1024*1024)){setFileError('Выберите изображение размером до 5 МБ.');e.target.value='';return;}setImageFile(file);}}/></div>
+            <div className="recipe-form__main-fields"><label className="recipe-form__field">Название рецепта<input {...register('title')} type="text" autoFocus aria-invalid={!!errors.title}/>{errors.title&&<span className="recipe-form__error">{errors.title.message}</span>}</label><label className="recipe-form__field">Описание · необязательно<textarea {...register('description')} rows={3}/></label></div></section>
+            {fileError&&<p className="recipe-form__error" role="alert">{fileError}</p>}
+            <details className="recipe-form__image-link"><summary>Фото по ссылке</summary><label className="recipe-form__field">Ссылка на изображение<input {...register('image')} type="url" placeholder="https://example.com/recipe.jpg"/>{errors.image&&<span className="recipe-form__error">{errors.image.message}</span>}</label>{imageFile&&<p className="recipe-form__hint">Используется выбранный файл. Уберите его, чтобы использовать ссылку.</p>}</details>
+            <div className="recipe-form__row"><label className="recipe-form__field">Категория<input {...register('category')} type="text" list={`${id}-categories`}/><datalist id={`${id}-categories`}>{['Завтраки','Основные блюда','Супы','Салаты','Выпечка','Десерты','Напитки','Домашнее'].map(c=><option key={c}>{c}</option>)}</datalist>{errors.category&&<span className="recipe-form__error">{errors.category.message}</span>}</label><label className="recipe-form__field">Базовое число порций<input {...register('servings',{valueAsNumber:true})} type="number" min="1" max="100" step="1"/>{errors.servings&&<span className="recipe-form__error">{errors.servings.message}</span>}</label></div>
+            <section className="recipe-form__ingredients"><div className="recipe-form__section-title"><h3>Ингредиенты</h3><span>На {Number.isFinite(servings)?servings:1} порц.</span></div>
+                {ingredientsLoading&&<p role="status">Загружаем общую базу...</p>}{ingredientsError&&<p className="recipe-form__error" role="alert">Не удалось загрузить общую базу. Можно добавить свой ингредиент.</p>}
+                <div className="recipe-form__ingredient-head" aria-hidden="true"><span>Продукт</span><span>Количество</span><span>Единица</span></div>
+                {fields.map((field,index)=><fieldset className="recipe-form__ingredient" key={field.id}><legend className="visually-hidden">Ингредиент {index+1}</legend><div className="recipe-form__ingredient-name">
+                    {watch(`ingredients.${index}.custom`)?<input {...register(`ingredients.${index}.name`)} placeholder="Название ингредиента" aria-label={`Продукт ${index+1}`}/>:<Controller control={control} name={`ingredients.${index}.commonIngredientId`} render={({field:commonField})=><select aria-label={`Продукт ${index+1} из общей базы`} value={commonField.value??''} onChange={e=>{const ingredientId=Number(e.target.value);commonField.onChange(ingredientId||null);setValue(`ingredients.${index}.name`,commonIngredients.find(item=>item.id===ingredientId)?.name??'');}}><option value="">Выберите из общей базы</option>{commonIngredients.map(ingredient=><option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>)}</select>}/>}
+                    <Controller control={control} name={`ingredients.${index}.custom`} render={({field:customField})=><label className="recipe-form__custom-toggle"><input type="checkbox" checked={customField.value} onChange={e=>{customField.onChange(e.target.checked);setValue(`ingredients.${index}.commonIngredientId`,null);setValue(`ingredients.${index}.name`,'');}}/>Свой ингредиент</label>}/>
+                </div><input className="recipe-form__amount" {...register(`ingredients.${index}.amount`)} type="number" min="0" step="any" placeholder="Количество" aria-label={`Количество ингредиента ${index+1}`}/><select className="recipe-form__unit" {...register(`ingredients.${index}.um`)} aria-label={`Единица ингредиента ${index+1}`}>{['г','кг','мл','л','шт','ч.л.','ст.л.','по вкусу'].map(unit=><option key={unit}>{unit}</option>)}</select><button className="recipe-form__delete-ingredient" type="button" aria-label={`Удалить ингредиент ${index+1}`} disabled={fields.length===1} onClick={()=>remove(index)}>×</button>{errors.ingredients?.[index]?.name&&<span className="recipe-form__error">{errors.ingredients[index]?.name?.message}</span>}</fieldset>)}
+                <button className="recipe-form__add-ingredient" type="button" onClick={()=>append(emptyIngredient(commonIngredients.length===0))}>+ Добавить ингредиент</button><p className="recipe-form__hint">Свои ингредиенты сохраняются только в этом рецепте и не объединяются автоматически в списке покупок.</p>{errors.ingredients?.root&&<span className="recipe-form__error">{errors.ingredients.root.message}</span>}
             </section>
-            <label className="recipe-form__field">
-                Этапы приготовления
-                <textarea {...register("preparing")} rows={6} />
-                {errors.preparing && <span className="recipe-form__error">{errors.preparing.message}</span>}
-            </label>
-            {submitError && <p className="recipe-form__error" role="alert">{submitError}</p>}
-            <div className="recipe-form__actions">
-                <button className="button-dark" type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Сохраняем..." : submitLabel}
-                </button>
-                {onCancel && <button type="button" onClick={onCancel} disabled={isSubmitting}>Отменить</button>}
-            </div>
-        </form>
-    );
+            <label className="recipe-form__field recipe-form__preparing"><span>Приготовление</span><textarea {...register('preparing')} rows={7}/>{errors.preparing&&<span className="recipe-form__error">{errors.preparing.message}</span>}</label>
+        </fieldset>
+        {submitError&&<p className="recipe-form__error" role="alert">{submitError}</p>}<div className="recipe-form__actions">{onCancel&&<button type="button" onClick={onCancel} disabled={isSubmitting}>Отмена</button>}<button className="button-dark" type="submit" disabled={isSubmitting||!!fileError}>{isSubmitting?'Сохраняем...':submitLabel}</button></div>
+    </form>;
 }

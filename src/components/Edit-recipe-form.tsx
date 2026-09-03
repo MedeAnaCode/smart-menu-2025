@@ -2,7 +2,7 @@ import type {EditRecipeFormProps} from "../types";
 import type {RecipeFormValues} from "../validation/recipe";
 import RecipeForm from "./RecipeForm";
 
-function EditRecipeForm({initialValues, onSaved, onCancel}: EditRecipeFormProps) {
+function EditRecipeForm({initialValues, onSaved, onCancel, onBusyChange}: EditRecipeFormProps) {
     if (!initialValues) return <p>Рецепт не найден.</p>;
 
     const values: RecipeFormValues = {
@@ -22,6 +22,7 @@ function EditRecipeForm({initialValues, onSaved, onCancel}: EditRecipeFormProps)
 
     return (
         <RecipeForm
+            onBusyChange={onBusyChange}
             initialValues={values}
             submitLabel="Сохранить изменения"
             onSubmit={onSaved}

@@ -3,7 +3,7 @@ import type {AddRecipeFormProps} from "../types";
 import type {RecipeFormValues} from "../validation/recipe";
 import RecipeForm from "./RecipeForm";
 
-function AddRecipeForm({onSuccess}: AddRecipeFormProps) {
+function AddRecipeForm({onSuccess, onBusyChange}: AddRecipeFormProps) {
     const [sendRecipe] = useSendRecipeMutation();
 
     const createRecipe = async (values: RecipeFormValues) => {
@@ -11,7 +11,7 @@ function AddRecipeForm({onSuccess}: AddRecipeFormProps) {
         onSuccess();
     };
 
-    return <RecipeForm submitLabel="Создать рецепт" onSubmit={createRecipe} />;
+    return <RecipeForm submitLabel="Создать рецепт" onSubmit={createRecipe} onCancel={onSuccess} onBusyChange={onBusyChange} />;
 }
 
 export default AddRecipeForm;
