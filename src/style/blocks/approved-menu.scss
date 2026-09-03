@@ -9,14 +9,15 @@
 .menu-day-strip .is-current .menu-day-strip__mark,.menu-day-strip button[aria-pressed=true] .menu-day-strip__mark { color:#fff; }
 .menu-shopping-toolbar { display:flex; align-items:center; gap:15px; margin-bottom:30px; }
 .menu-shopping-toolbar>span { margin-right:auto; font-size:13px; }
-.smartmenu-board { display:block; }
+.smartmenu-board { display:block; padding:0; }
 .smartmenu-day { width:100%; padding:0; margin:0; border:0; box-shadow:none; background:#fff; }
-.smartmenu-day__heading { display:flex; align-items:center; justify-content:space-between; padding:0 0 20px; border-bottom:1px solid var(--sm-line); }
+.smartmenu-day__heading { display:flex; flex-direction:row; align-items:center; justify-content:space-between; padding:0 0 20px; border-bottom:1px solid var(--sm-line); }
+.smartmenu-day__heading>div { width:auto; text-align:left; }
 .smartmenu-day__heading h2 { font-size:34px; margin:0 0 5px; }
 .smartmenu-day__heading time { font-size:13px; }
 .smartmenu-day__meals { display:block; }
 .smartmenu-meal { padding:25px 0; border-bottom:1px solid var(--sm-line); background:#fff; box-shadow:none; }
-.smartmenu-meal__heading { display:flex; align-items:center; gap:10px; margin-bottom:15px; }
+.smartmenu-meal__heading { display:flex; flex-direction:row; align-items:center; gap:10px; margin-bottom:15px; }
 .smartmenu-meal__heading h3 { font-size:23px; margin:0 auto 0 0; }
 .smartmenu-meal__heading .ui-icon-button { background:none; }
 .smartmenu-meal__items { display:grid; gap:15px; }
@@ -74,7 +75,8 @@
  .menu-shopping-toolbar>span { margin:0; }
  .menu-shopping-toolbar>.button-dark { grid-column:1/-1; }
  .smartmenu-day__heading h2 { font-size:30px; }
- .smartmenu-menu-item { grid-template-columns:auto 92px minmax(0,1fr) auto; gap:10px; }
+ .smartmenu-menu-item,.smartmenu-menu-item:not(.smartmenu-menu-item--extra) { grid-template-columns:auto 92px minmax(0,1fr) auto; gap:10px; }
+ .smartmenu-menu-item:not(.smartmenu-menu-item--extra)>button:last-child { grid-column:auto; }
  .smartmenu-menu-item__image { width:92px; height:128px; }
  .smartmenu-dish__title { font-size:20px; }
  .smartmenu-add-meal { align-items:stretch; flex-direction:column; }

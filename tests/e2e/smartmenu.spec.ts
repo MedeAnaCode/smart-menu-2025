@@ -50,7 +50,7 @@ test("основной сценарий рецепта, меню и списка
     await page.reload({waitUntil: "domcontentloaded"});
     await expect(page.locator("header").getByRole("button", {name: "Выйти"})).toBeVisible();
 
-    await page.getByRole("button", {name: "Новый рецепт"}).click();
+    await page.getByRole("button", {name: "+ Добавить рецепт", exact: true}).click();
     await page.getByLabel("Название").fill("E2E овощной суп");
     await page.getByLabel("Категория").fill("Супы");
     await page.getByLabel("Описание").fill("Рецепт для проверки SmartMenu");
@@ -59,22 +59,16 @@ test("основной сценарий рецепта, меню и списка
     await page.getByLabel("Свой ингредиент").check();
     const ingredientName = page.getByPlaceholder("Название ингредиента");
     await ingredientName.fill("Тестовый овощ");
-    await expect.poll(() => ingredientName.evaluate((input) => getComputedStyle(input).borderTopWidth)).toBe("0px");
+    await expect.poll(() => ingredientName.evaluate((input) => getComputedStyle(input).borderTopWidth)).toBe("1px");
     const addIngredientButton = page.getByRole("button", {name: "Добавить ингредиент"});
-    await expect(addIngredientButton).toHaveText("+");
-    expect(await addIngredientButton.evaluate((button) => {
-        const styles = getComputedStyle(button);
-        return button.clientWidth === button.clientHeight
-            && styles.borderRadius === "50%"
-            && styles.backgroundColor !== "rgba(0, 0, 0, 0)";
-    })).toBe(true);
+    await expect(addIngredientButton).toHaveText("+ Добавить ингредиент");
     expect(await page.locator(".recipe-form__ingredients").evaluate((section) => {
         const ingredient = section.querySelector(".recipe-form__ingredient:last-of-type");
         const button = section.querySelector(".recipe-form__add-ingredient");
         return Boolean(ingredient && button && (ingredient.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING));
     })).toBe(true);
     await page.getByPlaceholder("Количество").first().fill("100");
-    await page.getByLabel("Этапы приготовления").fill("Смешать и приготовить.");
+    await page.getByLabel("Приготовление").fill("Смешать и приготовить.");
     await page.getByRole("button", {name: "Создать рецепт"}).click();
 
     const ownCard = page.locator(".recipe-card").filter({hasText: "E2E овощной суп"}).first();
@@ -82,29 +76,35 @@ test("основной сценарий рецепта, меню и списка
     const uploadedImage = ownCard.getByRole("img", {name: "E2E овощной суп"});
     await expect(uploadedImage).toHaveAttribute("src", /\/uploads\//);
     await expect.poll(() => uploadedImage.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
-    await ownCard.getByLabel("Порций").fill("4");
-    await expect(ownCard.getByText(/200 г/)).toBeVisible();
-    await ownCard.getByRole("button", {name: "Ред."}).click();
+    await ownCard.getByRole("button", {name: "Состав →"}).click();
+    await page.getByLabel("Порций").fill("4");
+    await expect(page.getByText(/200 г/)).toBeVisible();
+    await ownCard.getByLabel(/^Действия:/).click();
+    await page.getByRole("menuitem", {name: "Редактировать"}).click();
     await page.getByLabel("Описание").fill("Обновлённое описание");
+    await page.getByText("Фото по ссылке").click();
     await page.getByLabel("Ссылка на изображение").fill("http://127.0.0.1:9000/img/recipes/salad.png");
     await page.getByRole("button", {name: "Сохранить изменения"}).click();
-    await expect(ownCard.getByText("Обновлённое описание")).toBeVisible();
+    await ownCard.getByRole("button", {name: "Состав →"}).click();
+    await expect(page.getByText("Обновлённое описание")).toBeVisible();
     await expect(ownCard.getByRole("img", {name: "E2E овощной суп"})).toHaveAttribute(
         "src",
         "http://127.0.0.1:9000/img/recipes/salad.png",
     );
-    await ownCard.getByRole("button", {name: "Опубликовать"}).click();
-    await expect(ownCard.getByRole("button", {name: "Снять"})).toBeVisible();
+    await ownCard.getByLabel(/^Действия:/).click();
+    await page.getByRole("menuitem", {name: "Опубликовать"}).click();
+    await expect(ownCard).toContainText("опубликован");
 
     await page.goto("/profile/menu", {waitUntil: "domcontentloaded"});
     await expect(page.getByLabel("Название меню")).toHaveCount(0);
-    await page.getByRole("button", {name: "Создать меню"}).click();
+    await page.getByRole("button", {name: "Создать меню"}).first().click();
     const createMenuDialog = page.getByRole("dialog", {name: "Новое меню"});
     await createMenuDialog.getByLabel("Название меню").fill("E2E неделя");
     const confirmMenuCreation = createMenuDialog.getByRole("button", {name: "Подтвердить создание"});
     await expect(confirmMenuCreation).toBeEnabled();
     await confirmMenuCreation.click({force: true});
     await expect(createMenuDialog).toHaveCount(0);
+    await page.locator(".menu-description-disclosure > summary").click();
     const descriptionPanel = page.locator(".smartmenu-menu-description");
     await descriptionPanel.getByLabel("Описание меню").fill("Проверочная неделя с овощными блюдами");
     await descriptionPanel.getByRole("button", {name: "Сохранить описание"}).click();
@@ -113,12 +113,11 @@ test("основной сценарий рецепта, меню и списка
     await monday.getByLabel("Приём пищи для Понедельник").selectOption({label: "Завтрак"});
     await monday.getByRole("button", {name: "Добавить приём пищи"}).click();
     const firstMeal = monday.locator(".smartmenu-meal").filter({hasText: "Завтрак"});
-    await firstMeal.getByLabel("Рецепт для Завтрак").selectOption({label: "E2E овощной суп"});
-    await expect(firstMeal.getByLabel("Порций для Завтрак")).toHaveValue("2");
-    await firstMeal.getByLabel("Порций для Завтрак").fill("3");
-    await firstMeal.getByRole("button", {name: "Добавить блюдо"}).click();
-    await expect(firstMeal.getByRole("button", {name: "E2E овощной суп"})).toBeVisible();
-    await firstMeal.getByRole("button", {name: "E2E овощной суп"}).click();
+    await firstMeal.getByRole("button", {name: "Выбрать блюдо"}).click();
+    await page.getByRole("button", {name: "Добавить блюдо: E2E овощной суп"}).first().click();
+    await firstMeal.getByLabel("Порции: E2E овощной суп").fill("3");
+    await expect(firstMeal.getByRole("button", {name: "E2E овощной суп", exact: true})).toBeVisible();
+    await firstMeal.getByRole("button", {name: "E2E овощной суп", exact: true}).click();
     const recipeDialog = page.getByRole("dialog");
     await expect(recipeDialog.getByText("3 порц.")).toBeVisible();
     await expect(recipeDialog.getByText(/150 г/)).toBeVisible();
@@ -126,6 +125,7 @@ test("основной сценарий рецепта, меню и списка
 
     await monday.getByLabel("Комментарий к дню").fill("Подготовить овощи вечером");
     await monday.getByRole("button", {name: "Сохранить комментарий"}).click();
+    await firstMeal.locator(".smartmenu-extra-disclosure > summary").click();
     const commonProductSelect = firstMeal.getByLabel("Дополнительный продукт для Завтрак");
     await expect.poll(() => commonProductSelect.locator("option").count()).toBeGreaterThan(1);
     const commonProductName = (await commonProductSelect.locator("option").nth(1).textContent())!;
@@ -143,11 +143,11 @@ test("основной сценарий рецепта, меню и списка
     const breadCheckbox = breadRow.getByRole("checkbox");
     await breadCheckbox.click();
     await expect(breadCheckbox).not.toBeChecked();
-    await page.getByRole("button", {name: "Рассчитать заново"}).click();
+    await page.getByRole("button", {name: "Посчитать покупки"}).click();
     await expect(page.locator('input[value="Тестовый овощ"]')).toBeVisible();
     const commonShoppingInput = page.locator(`input[value="${commonProductName}"]`);
     await expect(commonShoppingInput).toBeVisible();
-    await expect.poll(() => commonShoppingInput.evaluate((input) => getComputedStyle(input).borderTopWidth)).toBe("0px");
+    await expect.poll(() => commonShoppingInput.evaluate((input) => getComputedStyle(input).borderTopWidth)).toBe("1px");
     await expect(page.locator('input[value="Хлеб"]')).toHaveCount(0);
 
     await page.getByPlaceholder("Добавить вручную").fill("Салфетки");
@@ -156,7 +156,7 @@ test("основной сценарий рецепта, меню и списка
     await expect(page.locator('input[value="Салфетки"]')).toBeVisible();
 
     page.once("dialog", (dialog) => void dialog.accept());
-    await page.getByRole("button", {name: "Рассчитать заново"}).click();
+    await page.getByRole("button", {name: "Посчитать покупки"}).click();
     await expect(page.locator('input[value="Салфетки"]')).toHaveCount(0);
 
     await page.reload({waitUntil: "domcontentloaded"});
@@ -167,29 +167,38 @@ test("основной сценарий рецепта, меню и списка
     await reloadedMonday.scrollIntoViewIfNeeded();
     await page.setViewportSize({width: 390, height: 844});
     await expectResponsiveLayout(page);
+    await page.getByRole("button", {name: "Открыть боковую панель"}).click();
+    await expect(page.getByRole("dialog", {name: "Под рукой"})).toBeVisible();
+    await page.getByRole("button", {name: "Закрыть боковую панель"}).click();
+    await page.dispatchEvent("body", "touchstart", {touches: [{identifier: 1, clientX: 389, clientY: 400}]});
+    await page.dispatchEvent("body", "touchend", {changedTouches: [{identifier: 1, clientX: 280, clientY: 400}]});
+    await expect(page.getByRole("dialog", {name: "Под рукой"})).toBeVisible();
+    await page.getByRole("button", {name: "Закрыть боковую панель"}).click();
     await expect(reloadedMonday).toBeVisible();
     await reloadedMonday.scrollIntoViewIfNeeded();
     await page.setViewportSize({width: 1280, height: 720});
 
     await page.goto("/profile/recipes", {waitUntil: "domcontentloaded"});
     const updatedCard = page.locator(".recipe-card").filter({hasText: "E2E овощной суп"}).first();
-    await updatedCard.getByRole("button", {name: "Снять"}).click();
-    await expect(updatedCard.getByRole("button", {name: "Опубликовать"})).toBeVisible();
+    await updatedCard.getByLabel(/^Действия:/).click();
+    await page.getByRole("menuitem", {name: "Снять с публикации"}).click();
+    await expect(updatedCard).not.toContainText("опубликован");
 });
 
 test("сохранение опубликованного рецепта и создание своей копии", async ({browser}) => {
     const ownerPage = await browser.newPage();
     await register(ownerPage, uniqueEmail("publisher"), "Publisher");
-    await ownerPage.getByRole("button", {name: "Новый рецепт"}).click();
+    await ownerPage.getByRole("button", {name: "+ Добавить рецепт", exact: true}).click();
     await ownerPage.getByLabel("Название").fill("E2E опубликованный рецепт");
     await ownerPage.getByLabel("Описание").fill("Для второго пользователя");
-    await ownerPage.getByLabel("Этапы приготовления").fill("Приготовить.");
+    await ownerPage.getByLabel("Приготовление").fill("Приготовить.");
     await ownerPage.getByLabel("Свой ингредиент").check();
     await ownerPage.getByPlaceholder("Название ингредиента").fill("Продукт");
     await ownerPage.getByPlaceholder("Количество").first().fill("1");
     await ownerPage.getByRole("button", {name: "Создать рецепт"}).click();
     const published = ownerPage.locator(".recipe-card").filter({hasText: "E2E опубликованный рецепт"}).first();
-    await published.getByRole("button", {name: "Опубликовать"}).click();
+    await published.getByLabel(/^Действия:/).click();
+    await ownerPage.getByRole("menuitem", {name: "Опубликовать"}).click();
 
     const readerPage = await browser.newPage();
     await register(readerPage, uniqueEmail("reader"), "Reader");
@@ -197,8 +206,11 @@ test("сохранение опубликованного рецепта и со
     await catalogCard.getByRole("button", {name: "В мои рецепты"}).click();
     const savedCard = readerPage.locator(".recipe-card").filter({hasText: "E2E опубликованный рецепт"}).first();
     await expect(savedCard).toBeVisible();
-    await savedCard.getByRole("button", {name: "Создать свою копию"}).click();
+    const savedAfterClone = readerPage.locator(".recipe-card").filter({hasText: "Сохранённый рецепт"}).first();
+    await savedAfterClone.getByLabel(/^Действия:/).click();
+    await readerPage.getByRole("menuitem", {name: "Создать свою копию"}).click();
     await expect(readerPage.getByText("E2E опубликованный рецепт (копия)").first()).toBeVisible();
-    await readerPage.getByRole("button", {name: "Удалить из моих"}).click();
-    await expect(readerPage.getByRole("button", {name: "Удалить из моих"})).toHaveCount(0);
+    await savedAfterClone.getByLabel(/^Действия:/).click();
+    await readerPage.getByRole("menuitem", {name: "Удалить из моих"}).click();
+    await expect(readerPage.getByText("Сохранённый рецепт")).toHaveCount(0);
 });

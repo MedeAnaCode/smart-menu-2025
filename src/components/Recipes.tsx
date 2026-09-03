@@ -44,6 +44,7 @@ export default function Recipes() {
     const [updateRecipe]=useUpdateRecipeMutation();
     const owned=mine?.owned??[],saved=mine?.saved.map(item=>item.recipe).filter(Boolean)??[];
     const ownedIds=new Set(owned.map(r=>r.id)),savedIds=new Set(saved.map(r=>r.id));
+    const visibleCatalog=catalog.filter(r=>!ownedIds.has(r.id)&&!savedIds.has(r.id));
     const collection=auth.authenticated?[...owned,...saved]:catalog;
     const categories=[...new Set(collection.map(r=>r.category))].sort();
     const matches=(r:Recipe)=>(!category||r.category===category)&&r.title.toLocaleLowerCase().includes(search.toLocaleLowerCase());
@@ -65,8 +66,8 @@ export default function Recipes() {
             </section>}
             <section className="recipe-catalog" aria-labelledby="catalog-title"><h2 id="catalog-title">Общий каталог</h2>
                 {catalogLoading&&<p role="status">Загружаем каталог...</p>}{catalogError&&<p className="smartmenu-error" role="alert">Каталог временно недоступен.</p>}
-                {!catalogLoading&&!catalogError&&catalog.filter(matches).length===0&&<p className="smartmenu-empty">По вашему запросу ничего не найдено.</p>}
-                <div className="recipes-container">{catalog.filter(matches).map(r=>tile(r,ownedIds.has(r.id)?'owned':'catalog'))}</div>
+                {!catalogLoading&&!catalogError&&visibleCatalog.filter(matches).length===0&&<p className="smartmenu-empty">По вашему запросу ничего не найдено.</p>}
+                <div className="recipes-container">{visibleCatalog.filter(matches).map(r=>tile(r,'catalog'))}</div>
             </section>
         </div>
         <Sidebar open={sideOpen} onOpenChange={setSideOpen}><section className="sidebar-section"><h3>Моя коллекция</h3><div className="recipe-categories"><button type="button" aria-pressed={!category} onClick={()=>{setCategory('');setSideOpen(false);}}>Все рецепты <span>{collection.length}</span></button>{categories.map(c=><button type="button" key={c} aria-pressed={category===c} onClick={()=>{setCategory(c);setSideOpen(false);}}>{c}<span>{collection.filter(r=>r.category===c).length}</span></button>)}</div></section>
