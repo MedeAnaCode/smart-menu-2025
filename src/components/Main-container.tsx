@@ -11,7 +11,7 @@ export default function MainContainer() {
     return <div className="home-page">
         <section className="home-intro"><p className="eyebrow">Простые радости каждый день</p><h1>Вкусно жить. Легко планировать.</h1><p>Любимые рецепты и немного заботы о себе.</p></section>
         <section className="home-stories" aria-label="Для вдохновения">
-            <Link to="/profile/recipes" className="home-story"><img src="/img/editorial/toasts.jpg" alt="Тосты с малиной и фруктами" fetchPriority="high" /><span className="home-story__tag">Неспешные завтраки</span><div className="home-story__caption"><h2>Хорошее утро<br />начинается с любимого</h2><p>Ягодные тосты и время для себя</p></div></Link>
+            <Link to="/profile/recipes" className="home-story"><img src="/img/editorial/toasts.jpg" alt="Тосты с малиной и фруктами" /><span className="home-story__tag">Неспешные завтраки</span><div className="home-story__caption"><h2>Хорошее утро<br />начинается с любимого</h2><p>Ягодные тосты и время для себя</p></div></Link>
             <Link to="/profile/recipes" className="home-story"><img src="/img/editorial/banana-cake.jpg" alt="Домашний банановый кекс" /><span className="home-story__tag">Из домашней духовки</span><div className="home-story__caption"><h2>Когда дома пахнет<br />выпечкой</h2><p>Банановый кекс к чашке чая</p></div></Link>
         </section>
         <section className="home-menu-callout"><div><h2>Что приготовим на этой неделе?</h2><p>Собери любимые блюда в меню — всё будет под рукой.</p></div><Link className="button-dark" to="/profile/menu">Собрать меню <span aria-hidden="true">→</span></Link></section>

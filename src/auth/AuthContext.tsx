@@ -30,17 +30,19 @@ export function AuthProvider({children}: {children: ReactNode}) {
         authenticated,
         name: String(keycloak.tokenParsed?.name ?? keycloak.tokenParsed?.preferred_username ?? ""),
         login: async () => {
+            await initializeKeycloak();
             await keycloak.login({redirectUri: window.location.href});
         },
         register: async () => {
+            await initializeKeycloak();
             await keycloak.register({redirectUri: `${window.location.origin}/profile/recipes`});
         },
         logout: async () => {
+            await initializeKeycloak();
             await keycloak.logout({redirectUri: `${window.location.origin}/profile/recipes`});
         },
     }), [authenticated, ready]);
 
-    if (!ready) return <p className="smartmenu-status">Восстанавливаем сессию...</p>;
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
