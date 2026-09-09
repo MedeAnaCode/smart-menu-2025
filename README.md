@@ -28,7 +28,7 @@ docker compose up --build
 
 После запуска доступны:
 
-- приложение: `http://localhost:9000`;
+- приложение: `git `;
 - альтернативный локальный адрес приложения: `http://127.0.0.1:9000`;
 - backend API: `http://localhost:3001`;
 - Keycloak: `http://localhost:8080`;
