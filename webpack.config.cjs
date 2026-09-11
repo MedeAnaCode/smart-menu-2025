@@ -78,7 +78,10 @@ module.exports = {
         hot: true, //ключ для HMR
         historyApiFallback: true, //для ReactRouter
         client: {
-            overlay: true
+            overlay: {
+                errors: true,
+                warnings: false,
+            }
         },
         proxy: [
             {

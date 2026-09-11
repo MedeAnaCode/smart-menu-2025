@@ -29,28 +29,13 @@ function Footer () {
                 </a>
                 <ul className="page-footer__social-list social-list">
                     <li className="social-list__item">
-                        <a className="social-list__link" href="#">
-            <span className="visually-hidden">
-                Телеграм.
-            </span>
-                            <img className="social-list__icon" width="36" height="36" src='/img/icons/telegram.svg'/>
-                        </a>
+                        <a className="social-list__link" href="#">Telegram</a>
                     </li>
                     <li className="social-list__item">
-                        <a className="social-list__link" href="#">
-            <span className="visually-hidden">
-                Youtube.
-            </span>
-                            <img className="social-list__icon" width="36" height="36" src='/img/icons/youtube.svg'/>
-                        </a>
+                        <a className="social-list__link" href="#">YouTube</a>
                     </li>
                     <li className="social-list__item">
-                        <a className="social-list__link" href="#">
-            <span className="visually-hidden">
-                В контакте.
-            </span>
-                            <img className="social-list__icon" width="36" height="36" src='/img/icons/vk.svg'/>
-                        </a>
+                        <a className="social-list__link" href="#">VK</a>
                     </li>
                 </ul>
                 <div className="page-footer__contacts">

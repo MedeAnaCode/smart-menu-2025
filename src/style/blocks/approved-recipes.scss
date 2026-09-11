@@ -176,7 +176,7 @@
 .recipe-form__actions > button { padding: 12px 20px; border: 1px solid var(--sm-line); border-radius: 3px; }
 .recipe-form__actions > .button-dark { border-color: var(--sm-blue); background: var(--sm-blue); color: #fff; }
 
-@media (max-width: 1050px) {
+@media (max-width: 900px) {
   .recipes-workspace { grid-template-columns: minmax(0, 1fr) 210px; gap: 20px; }
   .recipes-container { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 34px 18px; }
   .recipe-card .recipe-card__title { font-size: 19px; }
