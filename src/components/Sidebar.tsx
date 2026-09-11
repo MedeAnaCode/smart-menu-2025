@@ -1,6 +1,14 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import {type ReactNode, useEffect, useRef, useState} from 'react';
-export default function Sidebar({children, open, onOpenChange}: {children: ReactNode; open: boolean; onOpenChange: (open: boolean) => void}) {
+type SidebarProps = {
+    children: ReactNode;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    title?: string;
+    mobileTitle?: string;
+    triggerLabel?: string;
+};
+export default function Sidebar({children, open, onOpenChange, title='Под рукой', mobileTitle, triggerLabel='Открыть боковую панель'}: SidebarProps) {
     const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 760px)').matches);
     const trigger = useRef<HTMLButtonElement>(null);
     useEffect(() => {
@@ -28,10 +36,10 @@ export default function Sidebar({children, open, onOpenChange}: {children: React
         document.addEventListener('touchstart', down, {passive:true}); document.addEventListener('touchend', end, {passive:true}); document.addEventListener('touchcancel', cancel);
         return () => { document.removeEventListener('touchstart', down); document.removeEventListener('touchend', end); document.removeEventListener('touchcancel', cancel); };
     }, [mobile, open, onOpenChange]);
-    if (!mobile) return <aside className="sidebar"><h2 className="sidebar__title">Под рукой</h2>{children}</aside>;
-    return <Dialog.Root open={open} onOpenChange={onOpenChange}><Dialog.Trigger asChild><button ref={trigger} className="sidebar-bookmark" aria-label="Открыть боковую панель"><span aria-hidden="true" /></button></Dialog.Trigger><Dialog.Portal>
+    if (!mobile) return <aside className="sidebar"><h2 className="sidebar__title">{title}</h2>{children}</aside>;
+    return <Dialog.Root open={open} onOpenChange={onOpenChange}><Dialog.Trigger asChild><button ref={trigger} className="sidebar-bookmark" aria-label={triggerLabel}><span aria-hidden="true" /></button></Dialog.Trigger><Dialog.Portal>
         <Dialog.Overlay className="sidebar-overlay" /><Dialog.Content className="sidebar sidebar--drawer" aria-describedby={undefined} onCloseAutoFocus={(event) => { event.preventDefault(); trigger.current?.focus(); }}>
-            <header className="sidebar__header"><Dialog.Title className="sidebar__title">Под рукой</Dialog.Title><Dialog.Close asChild><button className="ui-icon-button" aria-label="Закрыть боковую панель">×</button></Dialog.Close></header>{children}
+            <header className="sidebar__header"><Dialog.Title className="sidebar__title">{mobileTitle ?? title}</Dialog.Title><Dialog.Close asChild><button className="ui-icon-button" aria-label="Закрыть боковую панель">×</button></Dialog.Close></header>{children}
         </Dialog.Content>
     </Dialog.Portal></Dialog.Root>;
 }

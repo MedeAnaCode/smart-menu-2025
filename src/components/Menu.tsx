@@ -144,7 +144,6 @@ function MealEditor({meal, commonIngredients, persistDays, onChooseRecipe, remov
                                     : recipe),
                             }))}
                         />
-                        <RecipeImage className="smartmenu-menu-item__image" src={item.recipeSnapshot.image} alt={item.recipeSnapshot.title}/>
                         <div className="smartmenu-dish">
                             <button
                                 className="smartmenu-dish__title"
@@ -261,11 +260,12 @@ function MealEditor({meal, commonIngredients, persistDays, onChooseRecipe, remov
     );
 }
 
-function DayEditor({day, commonIngredients, persistDays, onChooseRecipe}: {
+function DayEditor({day, commonIngredients, persistDays, onChooseRecipe, showHeading=true}: {
     day: MenuDay;
     commonIngredients: CommonIngredient[];
     persistDays: PersistDays;
     onChooseRecipe: (mealId: string) => void;
+    showHeading?: boolean;
 }) {
     const [mealTitle, setMealTitle] = useState<string>(mealTitles[0]);
     const [comment, setComment] = useState(day.comment ?? "");
@@ -305,10 +305,10 @@ function DayEditor({day, commonIngredients, persistDays, onChooseRecipe}: {
 
     return (
         <article className="smartmenu-day">
-            <header className="smartmenu-day__heading">
+            {showHeading&&<header className="smartmenu-day__heading">
                 <div><h2>{day.title}</h2><time dateTime={day.date}>{new Date(`${day.date}T12:00:00`).toLocaleDateString("ru-RU",{day:"numeric",month:"long"})}</time></div>
                 <ActionMenu label={`Действия дня: ${day.title}`} actions={[{label:"Очистить день",danger:true,onSelect:()=>void updateDay(current=>({...current,meals:current.meals.map(meal=>({...meal,recipes:[],extraProducts:[]}))}))}]}/>
-            </header>
+            </header>}
             <div className="smartmenu-day__meals">
                 {day.meals.map((meal) => (
                     <MealEditor
@@ -526,7 +526,7 @@ function useShoppingListEditor(menuId: number | null) {
             {error && <p className="smartmenu-error" role="alert">{error}</p>}
         </section>
     );
-    return {content, recalculate, calculating};
+    return {content, recalculate, calculating, itemCount:items.length};
 }
 
 function Menu() {
@@ -543,7 +543,7 @@ function Menu() {
     const [createMenuOpen, setCreateMenuOpen] = useState(false);
     const [newMenuTitle, setNewMenuTitle] = useState("");
     const [error, setError] = useState("");
-    const [sideOpen,setSideOpen]=useState(false),[selectedDayId,setSelectedDayId]=useState<string|null>(null),[choosingMealId,setChoosingMealId]=useState<string|null>(null),[multiDay,setMultiDay]=useState(false),[checkedDays,setCheckedDays]=useState<string[]>([]),[pickerSearch,setPickerSearch]=useState("");
+    const [sideOpen,setSideOpen]=useState(false),[selectedDayId,setSelectedDayId]=useState<string|null>(null),[choosingMealId,setChoosingMealId]=useState<string|null>(null),[multiDay,setMultiDay]=useState(false),[checkedDays,setCheckedDays]=useState<string[]>([]),[pickerSearch,setPickerSearch]=useState(""),[mobile,setMobile]=useState(()=>window.matchMedia('(max-width: 760px)').matches);
     const selectedMenu = useMemo(
         () => menus.find((menu) => menu.id === (selectedMenuId ?? menus[0]?.id)),
         [menus, selectedMenuId],
@@ -567,6 +567,11 @@ function Menu() {
     }, [selectedMenu]);
 
     useEffect(()=>{setSelectedDayId(null);setChoosingMealId(null);setMultiDay(false);setCheckedDays([]);},[selectedMenu?.id]);
+    useEffect(()=>{
+        const query=window.matchMedia('(max-width: 760px)'),change=()=>setMobile(query.matches);
+        query.addEventListener('change',change);
+        return()=>query.removeEventListener('change',change);
+    },[]);
 
     if (!auth.authenticated) {
         return (
@@ -634,35 +639,40 @@ function Menu() {
         if(calculated){setChoosingMealId(null);setSideOpen(true);}
     };
 
+    const selectedMenuIndex=selectedMenu?menus.findIndex(menu=>menu.id===selectedMenu.id):-1;
+    const moveWeek=(offset:number)=>{
+        const next=menus[selectedMenuIndex+offset];
+        if(next)setSelectedMenuId(next.id);
+    };
+    const selectDay=(day:MenuDay)=>{
+        if(multiDay)setCheckedDays(current=>current.includes(day.id)?current.filter(id=>id!==day.id):[...current,day.id]);
+        else {setSelectedDayId(day.id);setChoosingMealId(null);}
+    };
+    const daySummary=(day:MenuDay)=>day.meals.flatMap(meal=>meal.recipes.map(item=>item.recipeSnapshot.title)).join(' · ')||'Меню пока не заполнено';
+
     return (
         <div className="workspace menu-workspace">
             <div className="workspace__main">
-                <div className="page-title-row"><h1>Меню на неделю</h1></div>
+                <h1 className="visually-hidden">Меню на неделю</h1>
                 {menusLoading&&<p role="status">Загружаем меню...</p>}
                 {menusError&&<p className="smartmenu-error" role="alert">Не удалось загрузить меню.</p>}
                 {!menusLoading&&!selectedMenu&&<div className="menu-empty"><p>Создайте первое недельное меню.</p><button className="button-dark" onClick={()=>setCreateMenuOpen(true)}>Создать меню</button></div>}
                 {selectedMenu&&selectedDay&&<>
-                    <p className="menu-week-label">{dateLabel(selectedMenu.days[0].date)} — {dateLabel(selectedMenu.days[selectedMenu.days.length-1].date)}</p>
-                    <div className="menu-day-strip" aria-label="Дни недели">
-                        {selectedMenu.days.map(day=><button key={day.id} type="button" className={selectedDay.id===day.id?'is-current':''} aria-pressed={multiDay?checkedDays.includes(day.id):selectedDay.id===day.id} aria-label={`${day.title}, ${dateLabel(day.date)}`} onClick={()=>{
-                            if(multiDay)setCheckedDays(current=>current.includes(day.id)?current.filter(id=>id!==day.id):[...current,day.id]);
-                            else {setSelectedDayId(day.id);setChoosingMealId(null);}
-                        }}><span>{new Date(`${day.date}T12:00:00`).toLocaleDateString('ru-RU',{weekday:'short'})}</span><strong>{new Date(`${day.date}T12:00:00`).getDate()}</strong><span className="menu-day-strip__mark">{multiDay?(checkedDays.includes(day.id)?'✓':''):day.meals.some(meal=>meal.recipes.length||meal.extraProducts.length)?'•':''}</span></button>)}
+                    <div className="menu-week-toolbar">
+                        <div className="menu-week-switcher"><button type="button" aria-label="Предыдущая неделя" disabled={selectedMenuIndex<=0} onClick={()=>moveWeek(-1)}>←</button><span>{dateLabel(selectedMenu.days[0].date)} — {dateLabel(selectedMenu.days[selectedMenu.days.length-1].date)}</span><button type="button" aria-label="Следующая неделя" disabled={selectedMenuIndex<0||selectedMenuIndex>=menus.length-1} onClick={()=>moveWeek(1)}>→</button></div>
+                        <div className="menu-week-toolbar__actions"><button type="button" className="ui-secondary" aria-pressed={multiDay} onClick={()=>{setMultiDay(!multiDay);setCheckedDays([selectedDay.id]);}}>{multiDay?`Готово · ${daysForShopping.length}`:'Выбрать дни'}</button><button type="button" className="button-dark" disabled={!daysForShopping.length||shopping.calculating||menuSaving||addingRecipe} onClick={()=>void calculateSelection()}>{shopping.calculating?'Считаем...':mobile?'Пересчитать':`Обновить покупки · ${shopping.itemCount}`}</button></div>
                     </div>
-                    <div className="menu-shopping-toolbar"><button type="button" className="ui-secondary" aria-pressed={multiDay} onClick={()=>{setMultiDay(!multiDay);setCheckedDays([selectedDay.id]);}}>{multiDay?'Готово':'Выбрать дни'}</button><span>{multiDay?`Выбрано дней: ${daysForShopping.length}`:`За ${selectedDay.title.toLocaleLowerCase()}, ${dateLabel(selectedDay.date)}`}</span><button type="button" className="button-dark" disabled={!daysForShopping.length||shopping.calculating||menuSaving||addingRecipe} onClick={()=>void calculateSelection()}>{shopping.calculating?'Считаем...':'Посчитать покупки'}</button></div>
-                    <section className="smartmenu-board" aria-busy={menuSaving}>
-                        <DayEditor key={selectedDay.id} day={selectedDay} commonIngredients={commonIngredients} persistDays={persistDays} onChooseRecipe={chooseRecipe}/>
-                    </section>
+                    {mobile?<><div className="menu-day-strip" aria-label="Дни недели">{selectedMenu.days.map(day=><button key={day.id} type="button" className={!multiDay&&selectedDay.id===day.id?'is-current':''} aria-pressed={multiDay?checkedDays.includes(day.id):selectedDay.id===day.id} aria-label={`${day.title}, ${dateLabel(day.date)}`} onClick={()=>selectDay(day)}><span>{new Date(`${day.date}T12:00:00`).toLocaleDateString('ru-RU',{weekday:'short'})}</span><strong>{new Date(`${day.date}T12:00:00`).getDate()}</strong><span className="menu-day-strip__mark">{multiDay&&checkedDays.includes(day.id)?'✓':day.meals.some(meal=>meal.recipes.length||meal.extraProducts.length)?'•':''}</span></button>)}</div><section className="smartmenu-board" aria-busy={menuSaving}><DayEditor key={selectedDay.id} day={selectedDay} commonIngredients={commonIngredients} persistDays={persistDays} onChooseRecipe={chooseRecipe}/></section></>:<section className="menu-week-accordion" aria-label="Меню на всю неделю" aria-busy={menuSaving}>{selectedMenu.days.map(day=>{const opened=selectedDay.id===day.id;const checked=multiDay&&checkedDays.includes(day.id);return <article className={`menu-accordion-day${opened?' is-open':''}${checked?' is-selected':''}`} key={day.id}><button className="menu-accordion-day__summary" type="button" aria-expanded={opened} aria-pressed={multiDay?checked:undefined} onClick={()=>selectDay(day)}><time dateTime={day.date}><strong>{new Date(`${day.date}T12:00:00`).getDate()}</strong><span>{new Date(`${day.date}T12:00:00`).toLocaleDateString('ru-RU',{weekday:'short'})}</span></time><b>{day.title}</b><span>{daySummary(day)}</span><i aria-hidden="true">{multiDay?(checked?'✓':''):'⌄'}</i></button>{opened&&<div className="menu-accordion-day__content"><DayEditor key={day.id} day={day} commonIngredients={commonIngredients} persistDays={persistDays} onChooseRecipe={chooseRecipe} showHeading={false}/></div>}</article>})}</section>}
                     <details className="menu-description-disclosure"><summary>Описание меню</summary><MenuDescriptionEditor menu={selectedMenu} saving={menuSaving} onSave={async description=>{await updateMenu({id:selectedMenu.id,patch:{description}}).unwrap();}}/></details>
                 </>}
                 {error&&<p className="smartmenu-error" role="alert">{error}</p>}
             </div>
-            <Sidebar open={sideOpen} onOpenChange={setSideOpen}>
-                <section className="sidebar-section"><h3>Мои недели</h3>
+            <Sidebar open={sideOpen} onOpenChange={setSideOpen} title="Под рукой" mobileTitle={choosingMeal?'Выбрать блюдо':'Список покупок'} triggerLabel={choosingMeal?'Открыть выбор блюда':'Открыть список покупок'}>
+                <section className="sidebar-section menu-week-sidebar"><h3>Мои недели</h3>
                     {menus.length>0&&<label className="recipe-form__field">Выбранная неделя<select value={selectedMenu?.id??''} onChange={e=>setSelectedMenuId(Number(e.target.value))} aria-label="Выбранное меню">{menus.map(menu=><option key={menu.id} value={menu.id}>{menu.title}</option>)}</select></label>}
                     <div className="menu-week-actions"><button className="ui-link" onClick={()=>{setSideOpen(false);setCreateMenuOpen(true);}}>Создать меню</button>{selectedMenu&&<ActionMenu label="Действия недели" actions={[{label:'Удалить меню',danger:true,onSelect:()=>{if(window.confirm(`Удалить меню «${selectedMenu.title}»?`))void deleteMenu(selectedMenu.id).unwrap().then(()=>setSelectedMenuId(null)).catch(()=>setError('Не удалось удалить меню.'));}}]}/>}</div>
                 </section>
-                <section className="sidebar-section menu-recipe-picker"><h3>Выбрать блюдо</h3>{choosingMeal?<><p className="menu-picker-context">{selectedDay?.title} · {choosingMeal.title}</p><input type="search" aria-label="Поиск блюда" placeholder="Найти рецепт" value={pickerSearch} onChange={e=>setPickerSearch(e.target.value)}/><div className="menu-picker-list">{recipes.filter(recipe=>recipe.title.toLocaleLowerCase().includes(pickerSearch.toLocaleLowerCase())).map(recipe=><div className="menu-picker-recipe" key={recipe.id}><RecipeImage src={recipe.image} alt=""/><span>{recipe.title}</span><button className="ui-icon-button" aria-label={`Добавить блюдо: ${recipe.title}`} disabled={addingRecipe||menuSaving} onClick={()=>void addRecipe(choosingMeal.id,recipe.id,recipe.servings).catch(()=>undefined)}>+</button></div>)}</div>{!recipes.length&&<p>Добавьте или сохраните рецепт в коллекции.</p>}<button className="ui-link" onClick={()=>setChoosingMealId(null)}>Отменить выбор</button></>:<p>Нажми «Выбрать блюдо» в нужном приёме пищи.</p>}</section>
+                <section className={`sidebar-section menu-recipe-picker${choosingMeal?' is-active':''}`}><h3>Выбрать блюдо</h3>{choosingMeal?<><p className="menu-picker-context">{selectedDay?.title} · {choosingMeal.title}</p><input type="search" aria-label="Поиск блюда" placeholder="Найти рецепт" value={pickerSearch} onChange={e=>setPickerSearch(e.target.value)}/><div className="menu-picker-list">{recipes.filter(recipe=>recipe.title.toLocaleLowerCase().includes(pickerSearch.toLocaleLowerCase())).map(recipe=><div className="menu-picker-recipe" key={recipe.id}><RecipeImage src={recipe.image} alt=""/><span>{recipe.title}</span><button className="ui-icon-button" aria-label={`Добавить блюдо: ${recipe.title}`} disabled={addingRecipe||menuSaving} onClick={()=>void addRecipe(choosingMeal.id,recipe.id,recipe.servings).catch(()=>undefined)}>+</button></div>)}</div>{!recipes.length&&<p>Добавьте или сохраните рецепт в коллекции.</p>}<button className="ui-link" onClick={()=>setChoosingMealId(null)}>Отменить выбор</button></>:<p>Нажми «Выбрать блюдо» в нужном приёме пищи.</p>}</section>
                 {selectedMenu&&<div className="sidebar-section shopping-sidebar">{shopping.content}</div>}
             </Sidebar>
             <Modal open={createMenuOpen} onOpenChange={setCreateMenuOpen} title="Новое меню" busy={creating}>
