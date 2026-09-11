@@ -305,6 +305,7 @@ function DayEditor({day, commonIngredients, persistDays, onChooseRecipe, showHea
 
     return (
         <article className="smartmenu-day">
+            {!showHeading&&<h2 className="visually-hidden">{day.title}</h2>}
             {showHeading&&<header className="smartmenu-day__heading">
                 <div><h2>{day.title}</h2><time dateTime={day.date}>{new Date(`${day.date}T12:00:00`).toLocaleDateString("ru-RU",{day:"numeric",month:"long"})}</time></div>
                 <ActionMenu label={`Действия дня: ${day.title}`} actions={[{label:"Очистить день",danger:true,onSelect:()=>void updateDay(current=>({...current,meals:current.meals.map(meal=>({...meal,recipes:[],extraProducts:[]}))}))}]}/>

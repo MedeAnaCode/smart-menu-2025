@@ -143,7 +143,7 @@ test("основной сценарий рецепта, меню и списка
     const breadCheckbox = breadRow.getByRole("checkbox");
     await breadCheckbox.click();
     await expect(breadCheckbox).not.toBeChecked();
-    await page.getByRole("button", {name: "Посчитать покупки"}).click();
+    await page.getByRole("button", {name: /Обновить покупки/}).click();
     await expect(page.locator('input[value="Тестовый овощ"]')).toBeVisible();
     const commonShoppingInput = page.locator(`input[value="${commonProductName}"]`);
     await expect(commonShoppingInput).toBeVisible();
@@ -156,7 +156,7 @@ test("основной сценарий рецепта, меню и списка
     await expect(page.locator('input[value="Салфетки"]')).toBeVisible();
 
     page.once("dialog", (dialog) => void dialog.accept());
-    await page.getByRole("button", {name: "Посчитать покупки"}).click();
+    await page.getByRole("button", {name: /Обновить покупки/}).click();
     await expect(page.locator('input[value="Салфетки"]')).toHaveCount(0);
 
     await page.reload({waitUntil: "domcontentloaded"});
@@ -167,12 +167,12 @@ test("основной сценарий рецепта, меню и списка
     await reloadedMonday.scrollIntoViewIfNeeded();
     await page.setViewportSize({width: 390, height: 844});
     await expectResponsiveLayout(page);
-    await page.getByRole("button", {name: "Открыть боковую панель"}).click();
-    await expect(page.getByRole("dialog", {name: "Под рукой"})).toBeVisible();
+    await page.getByRole("button", {name: "Открыть список покупок"}).click();
+    await expect(page.getByRole("dialog", {name: "Список покупок"})).toBeVisible();
     await page.getByRole("button", {name: "Закрыть боковую панель"}).click();
     await page.dispatchEvent("body", "touchstart", {touches: [{identifier: 1, clientX: 389, clientY: 400}]});
     await page.dispatchEvent("body", "touchend", {changedTouches: [{identifier: 1, clientX: 280, clientY: 400}]});
-    await expect(page.getByRole("dialog", {name: "Под рукой"})).toBeVisible();
+    await expect(page.getByRole("dialog", {name: "Список покупок"})).toBeVisible();
     await page.getByRole("button", {name: "Закрыть боковую панель"}).click();
     await expect(reloadedMonday).toBeVisible();
     await reloadedMonday.scrollIntoViewIfNeeded();
