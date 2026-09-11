@@ -58,7 +58,7 @@ export default function Recipes() {
         <div className="workspace__main">
             <h1 className="visually-hidden">Мои рецепты</h1>
             {!auth.authenticated&&<div className="auth-notice"><p>Войди, чтобы сохранять рецепты и собирать свою коллекцию.</p><button className="ui-link" onClick={()=>void auth.register()}>Зарегистрироваться</button></div>}
-            <div className="recipes-toolbar"><label className="recipe-search"><span className="visually-hidden">Поиск по названию</span><input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Найти любимый рецепт"/></label>{auth.authenticated&&<button className="button-dark recipes-add" type="button" onClick={add}>+ <span className="recipes-add__desktop">Добавить рецепт</span><span className="recipes-add__mobile">Добавить</span></button>}</div>
+            <div className="recipes-toolbar"><label className="recipe-search"><span className="visually-hidden">Поиск по названию</span><input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Найти рецепт"/></label>{auth.authenticated&&<button className="button-dark recipes-add" type="button" onClick={add}>+ <span className="recipes-add__desktop">Добавить рецепт</span><span className="recipes-add__mobile">Добавить</span></button>}</div>
             <p className="recipes-meta">{auth.authenticated?'Рецептов в коллекции':'Рецептов'}: {collection.filter(matches).length}</p>
             {auth.authenticated&&<section aria-label="Моя коллекция">
                 {mineLoading&&<p role="status">Загружаем вашу коллекцию...</p>}{mineError&&<p className="smartmenu-error" role="alert">Не удалось загрузить коллекцию.</p>}

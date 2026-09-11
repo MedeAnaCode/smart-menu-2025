@@ -20,6 +20,5 @@ export default function MainContainer() {
             <div className="home-recipe-grid">{cards.map(recipe => <Link className="home-recipe" to="/profile/recipes" key={recipe.id}><RecipeImage src={recipe.image} alt={recipe.title} /><p className="eyebrow">{recipe.category}</p><h3>{recipe.title}</h3></Link>)}</div>
             {!isLoading && !isError && cards.length === 0 && <div className="recipe-invitation"><span className="chef-mark"><img src="/img/logo-image-mobile.svg" alt="" /></span><h3>Место для нового любимого блюда</h3><Link to="/profile/recipes">Добавить свой рецепт →</Link></div>}
         </section><aside className="home-menu-note"><p><img src="/img/cart.svg" alt="" /> Моё меню</p><h2>Маленький план.<br />Больше свободного времени.</h2><p>Выбери блюда из коллекции — здесь появится твоё меню.</p><Link to="/profile/menu">Всё начинается с одного рецепта →</Link></aside></div>
-        {!auth.authenticated && <section className="home-register"><h2>Сохраняй любимое</h2><p>Рецепты, меню и списки покупок — в твоём аккаунте.</p><button className="button-dark" onClick={() => void auth.register()}>Зарегистрироваться</button></section>}
     </div>;
 }
