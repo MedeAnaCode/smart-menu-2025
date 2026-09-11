@@ -96,10 +96,18 @@
 }
 
 .menu-accordion-day__summary > b {
+  min-width: 0;
+  overflow: hidden;
+  padding-right: 12px;
+  border-right: 1px solid var(--sm-line);
   font: 500 17px/1.3 var(--sm-heading);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .menu-accordion-day__summary > span {
+  min-width: 0;
+  padding-left: 4px;
   overflow: hidden;
   color: var(--sm-muted);
   font-size: 10px;
@@ -467,7 +475,7 @@
 
 @media (max-width: 1000px) and (min-width: 761px) {
   .menu-workspace { grid-template-columns: minmax(0, 1fr) 230px; }
-  .menu-accordion-day__summary { grid-template-columns: 54px 105px minmax(0, 1fr) 20px; }
+  .menu-accordion-day__summary { grid-template-columns: 54px 120px minmax(0, 1fr) 20px; column-gap: 10px; }
   .smartmenu-day__meals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
