@@ -54,12 +54,13 @@ export default function Recipes() {
     const showDetails=(recipe:Recipe)=>{setDetailsId(recipe.id);setServings(recipe.servings);setSideOpen(true);};
     const add=()=>{setEditingId(null);setOpen(true);};
     const tile=(recipe:Recipe,mode:'owned'|'saved'|'catalog')=><RecipeTile key={`${mode}-${recipe.id}`} recipe={recipe} mode={mode} authenticated={auth.authenticated} alreadySaved={savedIds.has(recipe.id)} onEdit={edit} onDetails={showDetails}/>;
-    return <div className="workspace">
+    return <div className="workspace recipes-workspace">
         <div className="workspace__main">
-            <div className="page-title-row"><h1>Мои рецепты</h1>{auth.authenticated&&<button className="button-dark" type="button" onClick={add}>+ Добавить рецепт</button>}</div>
+            <h1 className="visually-hidden">Мои рецепты</h1>
             {!auth.authenticated&&<div className="auth-notice"><p>Войди, чтобы сохранять рецепты и собирать свою коллекцию.</p><button className="ui-link" onClick={()=>void auth.register()}>Зарегистрироваться</button></div>}
-            <label className="recipe-search"><span className="visually-hidden">Поиск по названию</span><input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Найти любимый рецепт"/></label>
-            {auth.authenticated&&<section aria-label="Моя коллекция"><p className="recipe-count">Рецептов в коллекции: {collection.filter(matches).length}</p>
+            <div className="recipes-toolbar"><label className="recipe-search"><span className="visually-hidden">Поиск по названию</span><input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Найти любимый рецепт"/></label>{auth.authenticated&&<button className="button-dark recipes-add" type="button" onClick={add}>+ <span className="recipes-add__desktop">Добавить рецепт</span><span className="recipes-add__mobile">Добавить</span></button>}</div>
+            <p className="recipes-meta">{auth.authenticated?'Рецептов в коллекции':'Рецептов'}: {collection.filter(matches).length}</p>
+            {auth.authenticated&&<section aria-label="Моя коллекция">
                 {mineLoading&&<p role="status">Загружаем вашу коллекцию...</p>}{mineError&&<p className="smartmenu-error" role="alert">Не удалось загрузить коллекцию.</p>}
                 {!mineLoading&&!mineError&&collection.filter(matches).length===0&&<p className="smartmenu-empty">{search||category?'По вашему запросу ничего не найдено.':'Коллекция пока пуста.'}</p>}
                 <div className="recipes-container">{owned.filter(matches).map(r=>tile(r,'owned'))}{saved.filter(matches).map(r=>tile(r,'saved'))}<div className="recipe-invitation"><span className="chef-mark"><img src="/img/logo-image-mobile.svg" alt=""/></span><h2>Место для нового любимого блюда</h2><button className="ui-link" onClick={add}>Добавить свой рецепт →</button></div></div>
