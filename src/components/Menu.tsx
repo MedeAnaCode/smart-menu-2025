@@ -498,7 +498,7 @@ function useShoppingListEditor(menuId: number | null, onRequestCalculate: () => 
                 <h2>Список покупок</h2>
                 <div className="smartmenu-actions">
                     <button className="button-dark" type="button" onClick={onRequestCalculate} disabled={calculating || menuBusy}>
-                        {calculating ? "Считаем..." : selecting ? "Рассчитать список" : "Рассчитать заново"}
+                        {calculating ? "Считаем..." : selecting ? "Рассчитать" : "Список покупок"}
                     </button>
                     <button type="button" onClick={() => void save()} disabled={!localDirty || saving}>
                         {saving ? "Сохраняем..." : "Сохранить изменения"}
@@ -551,12 +551,12 @@ function useShoppingListEditor(menuId: number | null, onRequestCalculate: () => 
                 ))}
                 {!isLoading && items.length === 0 && <p>Рассчитайте список по текущему меню.</p>}
             </div>
-            <div className="smartmenu-inline-form">
+            <form className="smartmenu-inline-form" onSubmit={(event) => {event.preventDefault(); addManual();}}>
                 <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Добавить вручную" />
                 <input value={amount} onChange={(event) => setAmount(event.target.value)} type="number" min="0" step="any" placeholder="Количество" />
                 <input value={unit} onChange={(event) => setUnit(event.target.value)} placeholder="Единица" />
-                <button type="button" onClick={addManual} disabled={!name.trim()}>Добавить</button>
-            </div>
+                <button type="submit" disabled={!name.trim()}>Добавить</button>
+            </form>
             {error && <p className="smartmenu-error" role="alert">{error}</p>}
         </section>
     );
@@ -688,10 +688,10 @@ function DesktopMenuBoard({menu, recipes, commonIngredients, persistDays, addRec
                 <button type="button" className="ui-secondary" onClick={() => addDay("end")} disabled={addingRecipe}>+ День справа</button>
                 <button type="button" className="ui-secondary" onClick={removeLastDay} disabled={menu.days.length <= 1 || addingRecipe}>− Последний</button>
                 {shoppingSelection && <button type="button" className="ui-secondary" disabled={addingRecipe} onClick={onCancelSelection}>Отмена</button>}
-                <button type="button" className="button-dark" disabled={addingRecipe} onClick={onCalculate}>{shoppingSelection ? "Рассчитать список" : "Рассчитать список покупок"}</button>
+                <button type="button" className="button-dark" disabled={addingRecipe} onClick={onCalculate}>{shoppingSelection ? "Рассчитать" : "Список покупок"}</button>
             </div>
         </header>
-        {shoppingSelection && <p className="menu-shopping-selection" role="status">Выберите продукты: отмечена вся неделя. Снимите отметки с лишнего и нажмите «Рассчитать список».</p>}
+        {shoppingSelection && <p className="menu-shopping-selection" role="status">Выберите продукты: отмечена вся неделя. Снимите отметки с лишнего и нажмите «Рассчитать».</p>}
         <div className="desktop-menu__viewport"><div className="desktop-menu__grid">{menu.days.map((day) => <article className="desktop-day smartmenu-day" key={day.id}>
             <header className="desktop-day__header">
                 <h2>{day.title}</h2>
@@ -887,9 +887,9 @@ function Menu() {
                 {selectedMenu&&selectedDay&&<>
                     {!desktop&&<div className="menu-week-toolbar">
                         <div className="menu-week-switcher"><button type="button" aria-label="Предыдущая неделя" disabled={selectedMenuIndex<=0} onClick={()=>moveWeek(-1)}>←</button><span>{selectedMenu.title}</span><button type="button" aria-label="Следующая неделя" disabled={selectedMenuIndex<0||selectedMenuIndex>=menus.length-1} onClick={()=>moveWeek(1)}>→</button></div>
-                        <div className="menu-week-toolbar__actions">{shoppingSelection && <button type="button" className="ui-secondary" disabled={shopping.calculating||menuSaving} onClick={() => setExcludedShoppingIds(null)}>Отмена</button>}<button type="button" className="button-dark" disabled={shopping.calculating||menuSaving||addingRecipe} onClick={()=>void calculateSelection()}>{shopping.calculating?'Считаем...':shoppingSelection?'Рассчитать список':'Рассчитать список покупок'}</button></div>
+                        <div className="menu-week-toolbar__actions">{shoppingSelection && <button type="button" className="ui-secondary" disabled={shopping.calculating||menuSaving} onClick={() => setExcludedShoppingIds(null)}>Отмена</button>}<button type="button" className="button-dark" disabled={shopping.calculating||menuSaving||addingRecipe} onClick={()=>void calculateSelection()}>{shopping.calculating?'Считаем...':shoppingSelection?'Рассчитать':'Список покупок'}</button></div>
                     </div>}
-                    {!desktop && shoppingSelection && <p className="menu-shopping-selection" role="status">Выберите продукты: отмечена вся неделя. Снимите отметки с лишнего и нажмите «Рассчитать список».</p>}
+                    {!desktop && shoppingSelection && <p className="menu-shopping-selection" role="status">Выберите продукты: отмечена вся неделя. Снимите отметки с лишнего и нажмите «Рассчитать».</p>}
                     {desktop ? <DesktopMenuBoard menu={selectedMenu} recipes={recipes} commonIngredients={commonIngredients} persistDays={persistDays} addRecipe={addRecipe} addingRecipe={addingRecipe||shopping.calculating||menuSaving} onSetTarget={setDesktopTargetMealId} onCalculate={()=>void calculateSelection()} onCancelSelection={() => setExcludedShoppingIds(null)} shoppingSelection={shoppingSelection}/> : mobile ? <>
                         <div className="menu-day-strip" aria-label="Дни недели">{selectedMenu.days.map(day => <button key={day.id} type="button" className={selectedDay.id===day.id?'is-current':''} aria-pressed={selectedDay.id===day.id} aria-label={day.title} onClick={()=>selectDay(day)}><span>{day.title}</span><span className="menu-day-strip__mark" aria-hidden="true">{day.meals.some(meal=>meal.recipes.length||meal.extraProducts.length)?'•':''}</span></button>)}</div>
                         <section className="smartmenu-board" aria-busy={menuSaving}><DayEditor key={selectedDay.id} day={selectedDay} commonIngredients={commonIngredients} persistDays={persistDays} onChooseRecipe={chooseRecipe} shoppingSelection={shoppingSelection}/></section>

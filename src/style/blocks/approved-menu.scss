@@ -598,41 +598,42 @@
   .desktop-day__add-meal { display:block; width:calc(100% - 14px); min-height:32px; margin:0 7px 10px; padding:6px; border:1px dashed #b9cfdd; background:#fff; color:var(--sm-blue); font-size:10px; text-align:left; }
   .desktop-day__add-meal:hover { background:var(--sm-wash); border-color:var(--sm-blue); }
   .desktop-day__meals { display:grid; gap:7px; padding:7px; }
-  .desktop-meal { min-width:0; margin:0; padding:0; border-top:2px solid var(--sm-blue); background:var(--sm-wash); box-shadow:none; }
-  .desktop-meal.is-drag-over { outline:2px dashed var(--sm-blue); outline-offset:2px; background:var(--sm-pale); }
+  .desktop-meal { min-width:0; margin:0; padding:0; border-top:2px solid #fff; background:var(--sm-blue-strong); color:#fff; box-shadow:none; }
+  .desktop-meal.is-drag-over { outline:2px dashed #fff; outline-offset:2px; background:var(--sm-blue); }
   .desktop-meal__header { display:flex; align-items:center; justify-content:space-between; gap:3px; min-height:26px; padding:3px 5px; }
-  .desktop-meal__header h3, .desktop-meal__header input, .desktop-meal__title { min-width:0; margin:0; border:0; background:transparent; color:var(--sm-muted); font:600 10px/1.2 var(--sm-body); text-transform:uppercase; }
+  .desktop-meal__header h3, .desktop-meal__header input, .desktop-meal__title { min-width:0; margin:0; border:0; background:transparent; color:#fff; font:600 10px/1.2 var(--sm-body); text-transform:uppercase; }
   .desktop-meal__header input, .desktop-meal__title { width:100%; padding:1px; text-align:left; }
   .desktop-meal__title { cursor:text; }
-  .desktop-meal__title:hover, .desktop-meal__title:focus-visible { color:var(--sm-blue); }
+  .desktop-meal__title:hover, .desktop-meal__title:focus-visible { color:#fff; text-decoration:underline; }
   .desktop-meal__header div { display:flex; align-items:center; }
-  .desktop-meal .ui-icon-button { min-width:22px; min-height:22px; padding:0; background:transparent; font-size:15px; }
+  .desktop-meal .ui-icon-button { min-width:22px; min-height:22px; padding:0; background:transparent; color:#fff; font-size:15px; }
   .desktop-meal__cards { display:grid; gap:5px; padding:0 5px 5px; }
-  .desktop-dish { position:relative; min-width:0; padding:5px; background:#fff; box-shadow:0 1px 2px #24374212; }
-  .desktop-dish__open { display:block; min-width:0; width:100%; padding:0 24px 0 0; border:0; background:transparent; color:var(--sm-ink); text-align:left; white-space:normal; overflow-wrap:anywhere; }
+  .desktop-dish { position:relative; min-width:0; padding:5px; border-top:1px solid #ffffff45; background:transparent; box-shadow:none; }
+  .desktop-dish__open { display:block; min-width:0; width:100%; padding:0 24px 0 0; border:0; background:transparent; color:#fff; text-align:left; white-space:normal; overflow-wrap:anywhere; }
   .desktop-dish__open span { display:block; width:100%; font:500 11px/1.35 var(--sm-body); white-space:normal; overflow-wrap:anywhere; }
-  .desktop-dish__open:hover span { color:var(--sm-blue); }
+  .desktop-dish__open:hover span { color:#fff; text-decoration:underline; }
   .desktop-dish__controls { display:flex; align-items:center; gap:6px; margin-top:5px; }
-  .desktop-dish__controls input { width:13px; height:13px; margin:0; accent-color:var(--sm-blue); }
-  .desktop-stepper { display:grid; grid-template-columns:24px 20px 24px; align-items:center; overflow:hidden; border:1px solid var(--sm-line); border-radius:3px; text-align:center; }
-  .desktop-stepper button { display:grid; width:24px; min-height:24px; place-items:center; padding:0; border:0; background:var(--sm-wash); color:var(--sm-blue); font-size:14px; }
-  .desktop-stepper button:hover:not(:disabled) { background:var(--sm-pale); }
+  .desktop-dish__controls input { width:13px; height:13px; margin:0; accent-color:#fff; }
+  .desktop-stepper { display:grid; grid-template-columns:20px 22px 20px; align-items:center; overflow:hidden; border:1px solid #ffffff80; border-radius:3px; color:#fff; text-align:center; }
+  .desktop-stepper button { display:grid; width:20px; min-height:22px; place-items:center; padding:0; border:0; background:transparent; color:#fff; font-size:14px; }
+  .desktop-stepper button:hover:not(:disabled) { background:#ffffff24; }
   .desktop-stepper span { font-size:10px; }
-  .desktop-dish__remove { position:absolute; top:3px; right:3px; width:22px; min-height:22px; padding:0; border:0; background:#fff; color:var(--sm-muted); font-size:17px; }
+  .desktop-dish__remove { position:absolute; top:3px; right:3px; width:22px; min-height:22px; padding:0; border:0; background:transparent; color:#fff; font-size:17px; }
   .desktop-dish:hover .desktop-dish__remove, .desktop-dish:focus-within .desktop-dish__remove { opacity:1; }
-  .desktop-meal__dropzone { min-height:43px; padding:5px; border:1px dashed #b9cfdd; background:#fff; color:var(--sm-muted); font-size:9px; line-height:1.25; text-align:left; }
-  .desktop-extra-product { display:flex; align-items:center; justify-content:space-between; gap:3px; padding:4px; background:#fff; color:var(--sm-muted); font-size:9px; }
+  .desktop-meal__dropzone { min-height:43px; padding:5px; border:1px dashed #ffffff99; background:transparent; color:#fff; font-size:9px; line-height:1.25; text-align:left; }
+  .desktop-extra-product { display:flex; align-items:center; justify-content:space-between; gap:3px; padding:4px; border-top:1px solid #ffffff45; background:transparent; color:#fff; font-size:9px; }
   .desktop-extra-product label { display:flex; align-items:center; min-width:0; overflow-wrap:anywhere; }
-  .desktop-extra-product input { margin:0 3px 0 0; accent-color:var(--sm-blue); }
-  .desktop-extra-product button { padding:0; border:0; background:transparent; color:var(--sm-muted); font-size:14px; }
-  .desktop-extra-form { color:var(--sm-blue); font-size:9px; }
+  .desktop-extra-product input { margin:0 3px 0 0; accent-color:#fff; }
+  .desktop-extra-product button { padding:0; border:0; background:transparent; color:#fff; font-size:14px; }
+  .desktop-extra-form { color:#fff; font-size:9px; }
   .desktop-extra-form > div { display:grid; grid-template-columns:minmax(0, 1fr) 32px 26px; gap:3px; }
-  .desktop-extra-form select, .desktop-extra-form input { min-width:0; min-height:24px; padding:3px; border:1px solid var(--sm-line); font-size:9px; }
+  .desktop-extra-form select, .desktop-extra-form input { min-width:0; min-height:24px; padding:3px; border:1px solid #ffffff80; background:#ffffff14; color:#fff; font-size:9px; }
   .desktop-extra-form select { grid-column:1 / -1; }
   .desktop-extra-form__name { grid-column:1 / -1; }
-  .desktop-extra-form button { border:0; background:var(--sm-blue); color:#fff; font-size:14px; }
-  .desktop-extra-form .desktop-extra-form__trigger { min-height:28px; padding:4px 0; background:transparent; color:var(--sm-blue); font-size:10px; }
-  .desktop-extra-form .desktop-extra-form__cancel { grid-column:1 / -1; padding:4px 0; background:transparent; color:var(--sm-blue); font-size:10px; text-align:left; }
+  .desktop-extra-form button { border:0; background:#ffffff24; color:#fff; font-size:14px; }
+  .desktop-extra-form .desktop-extra-form__trigger { min-height:28px; padding:4px 0; background:transparent; color:#fff; font-size:10px; }
+  .desktop-extra-form .desktop-extra-form__cancel { grid-column:1 / -1; padding:4px 0; background:transparent; color:#fff; font-size:10px; text-align:left; }
+  .desktop-meal button:focus-visible, .desktop-meal input:focus-visible, .desktop-meal select:focus-visible { outline-color:#fff; }
   .desktop-day__comment { margin:6px 7px; color:var(--sm-blue); font-size:9px; }
   .desktop-day__comment summary { cursor:pointer; }
   .desktop-day__comment textarea { width:100%; min-height:48px; margin-top:4px; padding:4px; border:1px solid var(--sm-line); font-size:10px; resize:vertical; }
@@ -653,13 +654,13 @@
   .shopping-sidebar { display:block; }
   /* The shopping sidebar is intentionally dense: a typical item stays on one
      scan-friendly line, leaving room to see the whole week's essentials. */
-  .shopping-sidebar .smartmenu-shopping-list { gap:2px; }
+  .shopping-sidebar .smartmenu-shopping-list { gap:1px; }
   .shopping-sidebar .smartmenu-shopping-item {
     grid-template-columns:16px minmax(0, 1fr) 38px 30px 18px;
     align-items:center;
     gap:4px;
-    min-height:28px;
-    padding:2px 0;
+    min-height:26px;
+    padding:1px 0;
   }
   .shopping-sidebar .smartmenu-shopping-item > input[type=checkbox] {
     width:14px;
