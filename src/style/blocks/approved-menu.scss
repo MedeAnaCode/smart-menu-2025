@@ -608,18 +608,19 @@
   .desktop-meal__header div { display:flex; align-items:center; }
   .desktop-meal .ui-icon-button { min-width:22px; min-height:22px; padding:0; background:transparent; color:#fff; font-size:15px; }
   .desktop-meal__cards { display:grid; gap:5px; padding:0 5px 5px; }
-  .desktop-dish { position:relative; min-width:0; padding:5px; border-top:1px solid #ffffff45; background:transparent; box-shadow:none; }
-  .desktop-dish__open { display:block; min-width:0; width:100%; padding:0 24px 0 0; border:0; background:transparent; color:#fff; text-align:left; white-space:normal; overflow-wrap:anywhere; }
+  .desktop-dish { position:relative; min-width:0; padding:5px; border-top:0; background:#fff; box-shadow:0 1px 2px #24374218; }
+  .desktop-dish__open { display:block; min-width:0; width:100%; padding:0 24px 0 0; border:0; background:transparent; color:var(--sm-ink); text-align:left; white-space:normal; overflow-wrap:anywhere; }
   .desktop-dish__open span { display:block; width:100%; font:500 11px/1.35 var(--sm-body); white-space:normal; overflow-wrap:anywhere; }
-  .desktop-dish__open:hover span { color:#fff; text-decoration:underline; }
+  .desktop-dish__open:hover span { color:var(--sm-blue); text-decoration:underline; }
   .desktop-dish__controls { display:flex; align-items:center; justify-content:flex-end; gap:4px; margin-top:5px; }
-  .desktop-dish__controls input { width:13px; height:13px; margin:0; accent-color:#fff; }
-  .desktop-stepper { display:grid; grid-template-columns:18px 20px 18px; align-items:center; overflow:hidden; border:1px solid #ffffff80; border-radius:3px; color:#fff; text-align:center; }
-  .desktop-stepper button { display:grid; width:18px; min-height:20px; place-items:center; padding:0; border:0; background:transparent; color:#fff; font-size:12px; }
-  .desktop-stepper button:hover:not(:disabled) { background:#ffffff24; }
+  .desktop-dish__controls input { width:13px; height:13px; margin:0; accent-color:var(--sm-blue); }
+  .desktop-stepper { display:grid; grid-template-columns:18px 20px 18px; align-items:center; overflow:hidden; border:1px solid var(--sm-line); border-radius:3px; color:var(--sm-ink); text-align:center; }
+  .desktop-stepper button { display:grid; width:18px; min-height:20px; place-items:center; padding:0; border:0; background:var(--sm-wash); color:var(--sm-blue); font-size:12px; }
+  .desktop-stepper button:hover:not(:disabled) { background:var(--sm-pale); }
   .desktop-stepper span { font-size:9px; }
-  .desktop-dish__remove { position:absolute; top:3px; right:3px; width:22px; min-height:22px; padding:0; border:0; background:transparent; color:#fff; font-size:17px; }
+  .desktop-dish__remove { position:absolute; top:3px; right:3px; width:22px; min-height:22px; padding:0; border:0; background:transparent; color:var(--sm-muted); font-size:17px; }
   .desktop-dish:hover .desktop-dish__remove, .desktop-dish:focus-within .desktop-dish__remove { opacity:1; }
+  .desktop-dish button:focus-visible, .desktop-dish input:focus-visible { outline-color:var(--sm-blue); }
   .desktop-meal__dropzone { min-height:43px; padding:5px; border:1px dashed #ffffff99; background:transparent; color:#fff; font-size:9px; line-height:1.25; text-align:left; }
   .desktop-extra-product { display:flex; align-items:center; justify-content:space-between; gap:3px; padding:4px; border-top:1px solid #ffffff45; background:transparent; color:#fff; font-size:9px; }
   .desktop-extra-product label { display:flex; align-items:center; min-width:0; overflow-wrap:anywhere; }
@@ -660,7 +661,7 @@
     align-items:center;
     gap:4px;
     min-height:26px;
-    padding:1px 0;
+    padding:0;
   }
   .shopping-sidebar .smartmenu-shopping-item > input[type=checkbox] {
     width:14px;
@@ -671,6 +672,13 @@
     padding:2px 0;
     font-size:11px;
     line-height:16px;
+  }
+  .shopping-sidebar .smartmenu-shopping-item:has(> input[type=checkbox]:checked) {
+    background:var(--sm-wash);
+  }
+  .shopping-sidebar .smartmenu-shopping-item > input[type=checkbox]:checked ~ input[aria-label="Название продукта"] {
+    color:var(--sm-muted);
+    text-decoration:line-through;
   }
   .shopping-sidebar .smartmenu-shopping-item span {
     display:none;
