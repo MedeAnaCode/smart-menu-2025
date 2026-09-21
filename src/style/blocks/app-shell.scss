@@ -1,0 +1,103 @@
+// The shared shell owns page height; the workspace and footer stay in document flow.
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 5px);
+  min-height: calc(100dvh - 5px);
+}
+
+.app-main {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.app-shell > .page-header,
+.app-shell > .page-footer {
+  flex-shrink: 0;
+}
+
+.functional-page {
+  position: static;
+  flex: 1;
+  height: auto;
+  overflow: visible;
+  margin-bottom: 32px;
+}
+
+.functional-page__content {
+  height: auto;
+  overflow: visible;
+}
+
+.functional-page--menu {
+  margin-top: 0;
+}
+
+.page-footer {
+  margin-top: 0;
+  padding: 40px 0;
+}
+
+.page-footer--profile {
+  padding: 18px 0;
+}
+
+.page-footer__container {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 28px;
+}
+
+.page-footer__logo-link {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.page-footer__social-list {
+  align-items: center;
+  border: 0;
+}
+
+.page-footer__social-list .social-list__item {
+  align-items: center;
+}
+
+.page-footer__social-list li + li::before {
+  content: "";
+  width: 3px;
+  height: 3px;
+  flex: 0 0 3px;
+  align-self: center;
+  margin: 0 10px;
+  border-radius: 50%;
+  background: var(--sm-muted);
+}
+
+.page-footer__social-list .social-list__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  font-size: 13px;
+}
+
+.page-footer__contacts {
+  padding: 0;
+}
+
+.page-footer__contacts-paragraph,
+.page-footer__contacts-email {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--sm-muted);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .page-footer { padding: 28px 0; }
+  .page-footer--profile { padding: 16px 0; }
+  .page-footer__contacts { flex-basis: 100%; }
+}

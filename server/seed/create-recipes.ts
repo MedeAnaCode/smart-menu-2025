@@ -26,7 +26,7 @@ async function seedRecipes() {
                 { name: 'Оливковое масло', amount: '2', um: 'ст.л.' }
             ],
             preparing: 'Освежающий салат с огурцами, помидорами, сыром Фета, маслинами, заправленный лимонным соком и оливковым маслом.',
-            image: '/img/recipes/salad.png',
+            image: '/img/recipes/photo_1_2026-09-03_13-25-04.jpg',
             servings: 2,
         },
         {
@@ -39,7 +39,7 @@ async function seedRecipes() {
                 { name: 'Чеснок', amount: '1', um: 'зубчик' }
             ],
             preparing: 'Итальянская паста с беконом, смешанная с яйцами, сыром Пармезан и чесноком.',
-            image: '/img/recipes/porridge.png',
+            image: '/img/recipes/photo_2_2026-09-03_13-25-14.jpg',
             servings: 2,
         },
         {
@@ -53,7 +53,7 @@ async function seedRecipes() {
                 { name: 'Имбирь', amount: '', um: 'щепотка' }
             ],
             preparing: 'Нежное куриное мясо, маринованное в соусе Терияки, подается с рисом и овощами.',
-            image: '/img/recipes/salad.png',
+            image: '/img/recipes/photo_3_2026-09-03_13-25-24.jpg',
             servings: 2,
         },
         {
@@ -67,7 +67,7 @@ async function seedRecipes() {
                 { name: 'Макароны', amount: '100', um: 'г' }
             ],
             preparing: 'Итальянский суп с томатами, морковью, луком, сельдереем и макаронами.',
-            image: '/img/recipes/porridge.png',
+            image: '/img/recipes/photo_4_2026-09-03_13-25-04.jpg',
             servings: 2,
         },
         {
@@ -80,7 +80,7 @@ async function seedRecipes() {
                 { name: 'Грибы', amount: '50', um: 'г' }
             ],
             preparing: 'Острый тайский суп на основе кокосового молока с креветками, лимонграссом, листьями лайма и грибами.',
-            image: '/img/recipes/salad.png',
+            image: '/img/recipes/photo_5_2026-09-03_13-25-14.jpg',
             servings: 2,
         },
         {
@@ -93,7 +93,7 @@ async function seedRecipes() {
                 { name: 'Соль', amount: '', um: 'по вкусу' }
             ],
             preparing: 'Пельмени с начинкой из говядины, лука и специй, подаются с сметаной или соусом.',
-            image: '/img/recipes/porridge.png',
+            image: '/img/recipes/photo_6_2026-09-03_13-25-04.jpg',
             servings: 2,
         },
         {
@@ -104,7 +104,7 @@ async function seedRecipes() {
                 { name: 'Черника', amount: '0.5', um: 'ст.' },
             ],
             preparing: 'Засыпать все ингредиенты в чашу мультиварки и выставить режим "молочная каша" минут на 20. Подавать с бананом.',
-            image: '/img/recipes/porridge-1.jpg',
+            image: '/img/recipes/photo_7_2026-09-03_13-25-14.jpg',
             servings: 3,
         },
         {
@@ -116,7 +116,7 @@ async function seedRecipes() {
                 { name: 'Соль', amount: '', um: 'по вкусу' },
             ],
             preparing: 'Тыкву разрезать, вычистить семечки, порезать дольками. Полить оливковым маслом, посыпать розмарином, развномерно распределить по долькам, посолить по вкусу. Дольки выложить на смазанный оливковым маслом противень, кожурой вниз. Выпекать при температуре 200C около часа. Можно срезать корочки при желании, а можно есть прям с них, как апельсинки)',
-            image: '/img/recipes/pumpkin.jpg',
+            image: '/img/recipes/photo_8_2026-09-03_13-25-04.jpg',
             servings: 4,
         }
     ].map((recipe) => ({

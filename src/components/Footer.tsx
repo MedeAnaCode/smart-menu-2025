@@ -1,5 +1,5 @@
 import React from 'react';
-import {useLocation} from 'react-router-dom';
+import {Link, useLocation} from 'react-router-dom';
 import classNames from "classnames";
 
 function Footer () {
@@ -21,13 +21,13 @@ function Footer () {
     return (
         <footer className={getFooterClassName()}>
             <div className={getFooterContainerClassName()}>
-                <a className="page-footer__logo-link" href="#">
+                <Link className="page-footer__logo-link" to="/" aria-label="Smart Menu — главная">
     <span className="visually-hidden">
         Логотип Smart menu.
     </span>
-                    <img className="page-footer__logo-image" width="167" height="19" src='/img/icons/text-logo-mobile.svg'/>
-                </a>
-                <ul className="page-footer__social-list social-list">
+                    <img className="page-footer__logo-image" width="167" height="19" src='/img/icons/text-logo-mobile.svg' alt=""/>
+                </Link>
+                <ul className="page-footer__social-list social-list" aria-label="Социальные сети">
                     <li className="social-list__item">
                         <a className="social-list__link" href="#">Telegram</a>
                     </li>

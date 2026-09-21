@@ -5,13 +5,13 @@ import {Outlet} from 'react-router-dom';
 
 function Layout () {
 
-    return <>
+    return <div className="app-shell">
         <Header/>
-        <main>
+        <main className="app-main">
             <Outlet/>
         </main>
         <Footer/>
-    </>
+    </div>
 }
 
 export default Layout;

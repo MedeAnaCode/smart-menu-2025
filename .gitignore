@@ -3,5 +3,6 @@ dist/
 test-results/
 playwright-report/
 uploads/
+backups/
 .env
 .local/

@@ -66,7 +66,10 @@ export const mealSchema = z.object({
 
 export const menuDaySchema = z.object({
     id: z.string().uuid(),
-    date: z.string(),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Некорректная дата").refine((value) => {
+        const date = new Date(`${value}T12:00:00Z`);
+        return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+    }, "Некорректная дата"),
     title: z.string().trim().min(1).max(100),
     includeInShopping: z.boolean(),
     meals: z.array(mealSchema),

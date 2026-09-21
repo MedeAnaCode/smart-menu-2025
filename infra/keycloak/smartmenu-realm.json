@@ -2,6 +2,7 @@
   "realm": "smartmenu",
   "enabled": true,
   "displayName": "SmartMenu",
+  "loginTheme": "smartmenu",
   "registrationAllowed": true,
   "registrationEmailAsUsername": true,
   "loginWithEmailAllowed": true,
@@ -18,11 +19,13 @@
       "directAccessGrantsEnabled": false,
       "redirectUris": [
         "http://localhost:9000/*",
-        "http://127.0.0.1:9000/*"
+        "http://127.0.0.1:9000/*",
+        "http://127.0.0.1:9100/*"
       ],
       "webOrigins": [
         "http://localhost:9000",
-        "http://127.0.0.1:9000"
+        "http://127.0.0.1:9000",
+        "http://127.0.0.1:9100"
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256"

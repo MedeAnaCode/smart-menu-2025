@@ -27,6 +27,9 @@ services:
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Set KEYCLOAK_ADMIN_PASSWORD in .env}
     volumes:
       - ./infra/keycloak:/opt/keycloak/data/import:ro
+      - ./infra/keycloak/themes/smartmenu:/opt/keycloak/themes/smartmenu:ro
+      - ./public/fonts:/opt/keycloak/themes/smartmenu/login/resources/fonts:ro
+      - ./public/img/icons:/opt/keycloak/themes/smartmenu/login/resources/img:ro
       - keycloak_data:/opt/keycloak/data
     ports:
       - "8080:8080"

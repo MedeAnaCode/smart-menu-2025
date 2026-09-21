@@ -12,7 +12,8 @@ import {z} from "zod";
 const menuPatchSchema = z.object({
     title: z.string().trim().min(1).max(255).optional(),
     description: z.string().trim().max(4000).optional(),
-    days: z.array(menuDaySchema).length(7).optional(),
+    // A menu is a continuous planning period, not necessarily a calendar week.
+    days: z.array(menuDaySchema).min(1).max(366).optional(),
 }).refine((value) => Object.keys(value).length > 0, "Пустое обновление");
 
 const defaultDays = (): MenuDay[] => {
@@ -29,7 +30,13 @@ const defaultDays = (): MenuDay[] => {
             date: date.toISOString().slice(0, 10),
             title,
             includeInShopping: true,
-            meals: [],
+            meals: ["Завтрак", "Обед", "Перекус", "Ужин"].map((mealTitle) => ({
+                id: randomUUID(),
+                title: mealTitle,
+                includeInShopping: true,
+                recipes: [],
+                extraProducts: [],
+            })),
             comment: "",
         };
     });
@@ -53,6 +60,31 @@ async function findMenu(req: AuthenticatedRequest, res: Response) {
     return menu;
 }
 
+function isContinuousDays(days: MenuDay[]) {
+    return days.every((day, index) => {
+        if (index === 0) return true;
+        const previous = new Date(`${days[index - 1].date}T12:00:00`);
+        const current = new Date(`${day.date}T12:00:00`);
+        return Number.isFinite(previous.getTime()) && Number.isFinite(current.getTime())
+            && Math.round((current.getTime() - previous.getTime()) / 86_400_000) === 1;
+    });
+}
+
+function hasValidPeriodShape(currentDays: MenuDay[], requestedDays: MenuDay[]) {
+    const currentIndex = new Map(currentDays.map((day, index) => [day.id, index]));
+    const retained = requestedDays
+        .map((day, index) => ({index, currentIndex: currentIndex.get(day.id)}))
+        .filter((item): item is {index: number; currentIndex: number} => item.currentIndex !== undefined);
+    if (retained.length === 0) return true;
+    const firstRequested = retained[0];
+    const lastRequested = retained[retained.length - 1];
+    // Existing days cannot be reordered or have a gap cut from their middle.
+    if (!retained.every((item, index) => item.currentIndex === firstRequested.currentIndex + index)) return false;
+    // Newly created days are permitted only on the boundaries of the period.
+    return requestedDays.slice(firstRequested.index, lastRequested.index + 1)
+        .every((day) => currentIndex.has(day.id));
+}
+
 function preserveSnapshots(currentDays: MenuDay[], requestedDays: MenuDay[]): MenuDay[] {
     const currentRecipes = new Map<string, MenuRecipe>();
     const currentMeals = new Set<string>();
@@ -65,11 +97,15 @@ function preserveSnapshots(currentDays: MenuDay[], requestedDays: MenuDay[]): Me
 
     return requestedDays.map((day) => {
         const currentDay = currentDays.find((item) => item.id === day.id);
-        if (!currentDay) throw new Error("Нельзя добавлять или заменять дни меню");
+        // New days are allowed at either end of the continuous period. Recipes are
+        // still only added through the dedicated endpoint, so snapshots stay safe.
+        if (!currentDay && day.meals.some((meal) => meal.recipes.length > 0)) {
+            throw new Error("Добавляйте рецепт через специальное действие меню");
+        }
         return {
             ...day,
-            title: currentDay.title,
-            date: currentDay.date,
+            title: currentDay?.title ?? day.title,
+            date: currentDay?.date ?? day.date,
             meals: day.meals.map((meal) => {
                 if (!currentMeals.has(meal.id) && meal.recipes.length > 0) {
                     throw new Error("Добавляйте рецепт через специальное действие меню");
@@ -154,7 +190,14 @@ export async function updateMenu(req: AuthenticatedRequest, res: Response) {
     if (!parsed.success) return res.status(400).json({error: "Некорректные данные меню", details: parsed.error.flatten()});
     try {
         if (parsed.data.days) {
-            menu.days = await normalizeExtraProducts(preserveSnapshots(menu.days, parsed.data.days));
+            if (!hasValidPeriodShape(menu.days, parsed.data.days)) {
+                return res.status(400).json({error: "Дни можно добавлять или удалять только по краям периода"});
+            }
+            const preservedDays = preserveSnapshots(menu.days, parsed.data.days);
+            if (!isContinuousDays(preservedDays)) {
+                return res.status(400).json({error: "Дни меню должны идти подряд"});
+            }
+            menu.days = await normalizeExtraProducts(preservedDays);
         }
     } catch (error) {
         return res.status(400).json({error: error instanceof Error ? error.message : "Некорректное изменение меню"});

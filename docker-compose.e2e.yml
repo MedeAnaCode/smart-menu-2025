@@ -1,0 +1,26 @@
+# This override deliberately runs the acceptance-test stack on different host
+# ports. Invoke it together with docker-compose.yml using the
+# "smartmenu-e2e" project name; Docker will then give it separate volumes too.
+services:
+  db:
+    ports: !override
+      - "5433:5432"
+
+  keycloak:
+    ports: !override
+      - "8180:8080"
+
+  backend:
+    environment:
+      # Tokens issued to the test browser use its public Keycloak address.
+      KEYCLOAK_PUBLIC_URL: http://localhost:8180
+      KEYCLOAK_ADDITIONAL_PUBLIC_URLS: http://127.0.0.1:8180
+    ports: !override
+      - "3101:3001"
+
+  frontend:
+    environment:
+      # The browser uses this public port to open the test Keycloak instance.
+      SMARTMENU_KEYCLOAK_PORT: 8180
+    ports: !override
+      - "9100:9000"

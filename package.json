@@ -43,6 +43,7 @@
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
+    "test:e2e:isolated": "node scripts/run-e2e-isolated.mjs",
     "preview": "npx http-server dist -p 4173",
     "start": "npm run dev",
     "lint": "eslint .",

@@ -7,19 +7,10 @@
   @media (min-width: $tablet-width) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 280px;
-    height: calc(100vh - 216px);
-    height: calc(100dvh - 216px);
-    margin-bottom: 127px;
   }
 
   @media (min-width: $desktop-width) {
     grid-template-columns: minmax(0, 1fr) 365px;
-    overflow: hidden;
-    position: fixed;
-    top: 109px;
-    right: 0;
-    bottom: 82px;
-    left: 0;
     height: auto;
     margin: 0;
     width: 100%;
@@ -30,8 +21,7 @@
   position: static;
   grid-column: 1/2;
   min-width: 0;
-  overflow: auto;
-  height: 100%;
+  overflow: visible;
 }
 
 .functional-page__sidebar {
