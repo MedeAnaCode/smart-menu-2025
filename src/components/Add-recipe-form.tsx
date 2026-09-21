@@ -11,7 +11,7 @@ function AddRecipeForm({onSuccess, onBusyChange}: AddRecipeFormProps) {
         onSuccess();
     };
 
-    return <RecipeForm submitLabel="Создать рецепт" onSubmit={createRecipe} onCancel={onSuccess} onBusyChange={onBusyChange} />;
+    return <RecipeForm submitLabel="Создать рецепт" onSubmit={createRecipe} onCancel={onSuccess} onBusyChange={onBusyChange} enableRecipeImport />;
 }
 
 export default AddRecipeForm;
