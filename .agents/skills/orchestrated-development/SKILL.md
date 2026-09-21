@@ -19,7 +19,8 @@ Use this skill for implementation, bug-fix, refactoring, test, migration, and ot
 ## Delivery
 
 - Run checks proportionate to the change and report environmental blockers precisely.
-- Commit only the files belonging to the requested change; do not include unrelated staged or working-tree changes.
+- Commit each completed logical development stage once it is coherent, reviewed, and safe to preserve. Do not delay all commits until the end, and do not create noisy micro-commits for incomplete steps.
+- Commit only the files belonging to the requested logical stage; do not include unrelated staged or working-tree changes.
 - In the final response, report the commit, changed files, verification, and any remaining limitation.
 
 ## Boundaries
