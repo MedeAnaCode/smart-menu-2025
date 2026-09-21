@@ -16,12 +16,14 @@ import {
 import {requireAuth} from "../middleware/auth";
 import {asyncHandler} from "../middleware/asyncHandler";
 import {uploadRecipeImage} from "../middleware/upload";
+import {importRecipe} from "../controllers/recipeImportController";
 
 const router = express.Router();
 
 router.get("/", asyncHandler(getAllRecipes));
 router.get("/mine", asyncHandler(requireAuth), asyncHandler(getMyRecipes));
 router.post("/image", asyncHandler(requireAuth), uploadRecipeImage.single("image"), asyncHandler(uploadImage));
+router.post("/import", asyncHandler(requireAuth), asyncHandler(importRecipe));
 router.post("/", asyncHandler(requireAuth), asyncHandler(createRecipe));
 router.get("/:id", asyncHandler(getRecipe));
 router.patch("/:id", asyncHandler(requireAuth), asyncHandler(updateRecipe));

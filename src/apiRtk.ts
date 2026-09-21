@@ -11,6 +11,8 @@ import type {
 } from "./types";
 import {getAccessToken} from "./auth/keycloak";
 
+export type RecipeImportDraft = {title:string;description:string;preparing:string;servings:number;servingsSource:"explicit"|"estimated";ingredients:Array<{name:string;amount:string;um:"г"|"кг"|"мл"|"л"|"шт"|"ч.л."|"ст.л."|"по вкусу";needsReview:boolean;warning?:string}>;warnings:string[]};
+
 export const apiRtk = createApi({
     reducerPath: "apiRtk",
     baseQuery: fetchBaseQuery({
@@ -41,6 +43,9 @@ export const apiRtk = createApi({
         sendRecipe: builder.mutation<Recipe, RecipeCreation>({
             query: (body) => ({url: "/recipes", method: "POST", body}),
             invalidatesTags: ["Recipe"],
+        }),
+        importRecipe: builder.mutation<RecipeImportDraft, {text: string}>({
+            query: (body) => ({url: "/recipes/import", method: "POST", body}),
         }),
         deleteRecipe: builder.mutation<void, number>({
             query: (id) => ({url: `/recipes/${id}`, method: "DELETE"}),
@@ -125,6 +130,7 @@ export const {
     useSaveRecipeMutation,
     useSendRecipeMutation,
     useUnpublishRecipeMutation,
+    useImportRecipeMutation,
     useUnsaveRecipeMutation,
     useUploadRecipeImageMutation,
     useUpdateMenuMutation,
