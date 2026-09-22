@@ -217,9 +217,55 @@ test("основной сценарий рецепта, меню и списка
     const uploadedImage = ownCard.getByRole("img", {name: "E2E овощной суп"});
     await expect(uploadedImage).toHaveAttribute("src", /\/uploads\//);
     await expect.poll(() => uploadedImage.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
+
+    // Keep the card's stale summary visible in the collection, then delay the
+    // authoritative recipe response. The sidebar must not render that summary
+    // while the request is pending and must render the response once it arrives.
+    let releaseRecipeDetails!: () => void;
+    const recipeDetailsGate = new Promise<void>(resolve => { releaseRecipeDetails = resolve; });
+    let recipeDetailsRequests = 0;
+    await page.route(/\/api\/recipes\/\d+$/, async route => {
+        recipeDetailsRequests += 1;
+        if (recipeDetailsRequests === 2) {
+            await route.fulfill({status: 500, contentType: "application/json", body: JSON.stringify({error: "temporary"})});
+            return;
+        }
+        await recipeDetailsGate;
+        const id = Number(new URL(route.request().url()).pathname.split("/").pop());
+        await route.fulfill({json: {
+            id,
+            title: "E2E овощной суп",
+            description: "Рецепт для проверки SmartMenu",
+            category: "Супы",
+            ingredients: [
+                {name: "Яйца", amount: "100", um: "г", commonIngredientId: 1, custom: false},
+                {name: "Домашний соус", amount: "1", um: "ст.л.", commonIngredientId: null, custom: true},
+            ],
+            preparing: "Смешать и приготовить.",
+            image: "/img/recipes/pumpkin.jpg",
+            servings: 2,
+            ownerId: 1,
+            isPublished: false,
+            publishedAt: null,
+            author: null,
+        }});
+    });
     await ownCard.getByRole("button", {name: "Состав →"}).click();
+    await expect(page.getByRole("status")).toContainText("Загружаем состав рецепта");
+    await expect(page.getByText("Тестовый овощ", {exact: true})).toHaveCount(0);
+    releaseRecipeDetails();
+    await expect(page.getByText("Яйца", {exact: true})).toBeVisible();
+    await expect(page.getByText("Домашний соус", {exact: true})).toBeVisible();
+    await expect(page.getByText("Свой ингредиент", {exact: true})).toHaveCount(1);
     await page.getByLabel("Порций").fill("4");
     await expect(page.getByText(/200 г/)).toBeVisible();
+    await ownCard.getByRole("button", {name: "Состав →"}).click();
+    await expect.poll(() => recipeDetailsRequests).toBe(2);
+    await expect(page.getByRole("alert")).toHaveText("Не удалось загрузить состав рецепта.");
+    await page.getByRole("button", {name: "Повторить"}).click();
+    await expect.poll(() => recipeDetailsRequests).toBe(3);
+    await expect(page.getByText("Яйца", {exact: true})).toBeVisible();
+    await page.unroute(/\/api\/recipes\/\d+$/);
     await ownCard.getByLabel(/^Действия:/).click();
     await page.getByRole("menuitem", {name: "Редактировать"}).click();
     await page.getByLabel("Описание").fill("Обновлённое описание");

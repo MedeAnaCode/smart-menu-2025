@@ -2,6 +2,14 @@ import type {Transaction} from "sequelize";
 import {CommonIngredient, Recipe, RecipeIngredient, User} from "../models";
 import type {Ingredient, Recipe as RecipeType} from "../../src/types";
 
+type RecipeIngredientPosition = Pick<RecipeIngredient, "id" | "commonIngredientId" | "customName" | "amount" | "unit" | "position"> & {
+    commonIngredient?: Pick<CommonIngredient, "name">;
+};
+type RecipeSerializationSource = Pick<Recipe, "id" | "title" | "description" | "category" | "ingredients" | "preparing" | "image" | "servings" | "ownerId" | "isPublished" | "publishedAt"> & {
+    ingredientPositions?: RecipeIngredientPosition[];
+    owner?: Pick<User, "id" | "name">;
+};
+
 export const normalizeIngredientName = (name: string) => name.trim().toLocaleLowerCase("ru-RU");
 
 export async function replaceRecipeIngredients(
@@ -60,7 +68,7 @@ export const recipeIncludes = [
     },
 ];
 
-export function serializeRecipe(recipe: Recipe): RecipeType {
+export function serializeRecipe(recipe: RecipeSerializationSource): RecipeType {
     const positions = [...(recipe.ingredientPositions ?? [])].sort((a, b) => a.position - b.position);
     const ingredients: Ingredient[] = positions.length > 0
         ? positions.map((position) => ({

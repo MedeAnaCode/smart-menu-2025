@@ -36,6 +36,10 @@ export const apiRtk = createApi({
             query: (query) => `/recipes${query ? `?q=${encodeURIComponent(query)}` : ""}`,
             providesTags: ["Recipe"],
         }),
+        getRecipe: builder.query<Recipe, number>({
+            query: (id) => `/recipes/${id}`,
+            providesTags: ["Recipe"],
+        }),
         getMyRecipes: builder.query<MyRecipesResponse, void>({
             query: () => "/recipes/mine",
             providesTags: ["Recipe"],
@@ -123,6 +127,7 @@ export const {
     useGetMenusQuery,
     useGetIngredientsQuery,
     useGetMyRecipesQuery,
+    useLazyGetRecipeQuery,
     useGetRecipesQuery,
     useGetShoppingListQuery,
     useLazyMeQuery,
