@@ -1,16 +1,16 @@
 import type {RecipeAiProvider} from "./recipeImport";
 
-const systemPrompt = `Ты разбираешь русский рецепт в JSON. Ничего не сочиняй. Поле preparing сохрани максимально дословно: не убирай числа, порядок шагов и переводы строк. description заполняй только отдельным описанием, не пересказывай приготовление.
-Разрешены только единицы: г, кг, мл, л, шт, ч.л., ст.л., по вкусу. Если мера неоднозначна (стакан, пучок, зубчик, упаковка, диапазон), не преобразуй её: верни исходную unit и needsReview=true. amount возвращай null, если числа нет. Если порции не указаны, разумно оцени целое число и укажи servingsSource="estimated". Возвращай только данные по схеме.`;
+const systemPrompt = `Ты разбираешь русский рецепт в JSON. Ничего не сочиняй. Поле title — обязательное непустое название блюда из текста; если отдельного названия нет, составь короткое фактическое название по составу. Название блюда не переноси в description. Поле preparing сохрани максимально дословно: не убирай числа, порядок шагов и переводы строк. description заполняй только отдельным описанием, не пересказывай приготовление.
+Разрешены только единицы: г, кг, мл, л, шт, ч.л., ст.л., по вкусу. Если мера неоднозначна (стакан, пучок, зубчик, упаковка, диапазон), не преобразуй её: верни исходную unit и needsReview=true. amount возвращай null, если числа нет. Поле warning возвращай для каждого ингредиента: текст предупреждения или пустую строку, если предупреждения нет. Если порции не указаны, разумно оцени целое число и укажи servingsSource="estimated". Возвращай только данные по схеме.`;
 
 const responseSchema = {
     type: "object", additionalProperties: false,
     required: ["title", "description", "preparing", "servings", "servingsSource", "ingredients"],
     properties: {
-        title: {type: "string"}, description: {type: "string"}, preparing: {type: "string"},
+        title: {type: "string", minLength: 2, maxLength: 255}, description: {type: "string"}, preparing: {type: "string"},
         servings: {type: "integer", minimum: 1, maximum: 100},
         servingsSource: {type: "string", enum: ["explicit", "estimated"]},
-        ingredients: {type: "array", minItems: 1, items: {type: "object", additionalProperties: false, required: ["name", "amount", "unit", "needsReview"], properties: {name: {type: "string"}, amount: {anyOf: [{type: "number"}, {type: "string"}, {type: "null"}]}, unit: {type: "string"}, needsReview: {type: "boolean"}, warning: {type: "string"}}}},
+        ingredients: {type: "array", minItems: 1, items: {type: "object", additionalProperties: false, required: ["name", "amount", "unit", "needsReview", "warning"], properties: {name: {type: "string"}, amount: {anyOf: [{type: "number"}, {type: "string"}, {type: "null"}]}, unit: {type: "string"}, needsReview: {type: "boolean"}, warning: {type: "string"}}}},
     },
 } as const;
 

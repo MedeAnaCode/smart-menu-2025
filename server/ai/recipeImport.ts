@@ -44,11 +44,11 @@ export type RecipeImportDraft = {
 };
 
 const unitAliases: Record<string, RecipeImportUnit> = {
-    "г": "г", "гр": "г", "грамм": "г", "грамма": "г", "граммов": "г",
+    "г": "г", "гр": "г", "гр.": "г", "грамм": "г", "грамма": "г", "граммов": "г",
     "кг": "кг", "килограмм": "кг", "килограмма": "кг", "килограммов": "кг",
     "мл": "мл", "миллилитр": "мл", "миллилитра": "мл", "миллилитров": "мл",
     "л": "л", "литр": "л", "литра": "л", "литров": "л",
-    "шт": "шт", "штука": "шт", "штуки": "шт", "штук": "шт",
+    "шт": "шт", "шт.": "шт", "штука": "шт", "штуки": "шт", "штук": "шт",
     "ч.л.": "ч.л.", "ч. л.": "ч.л.", "чайная ложка": "ч.л.", "чайные ложки": "ч.л.",
     "ст.л.": "ст.л.", "ст. л.": "ст.л.", "столовая ложка": "ст.л.", "столовые ложки": "ст.л.",
     "по вкусу": "по вкусу",
@@ -76,7 +76,7 @@ export function normalizeImportedRecipe(recipe: ProviderRecipe): RecipeImportDra
         let um: RecipeImportUnit = knownUnit ?? "по вкусу";
         let amount = numericAmount === null ? "" : displayAmount(numericAmount);
         let needsReview = Boolean(ingredient.needsReview);
-        let warning = ingredient.warning;
+        let warning = ingredient.warning?.trim() || undefined;
 
         if (knownUnit === "кг" && numericAmount !== null) {
             um = "г";

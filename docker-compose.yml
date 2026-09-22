@@ -58,6 +58,8 @@ services:
       POSTGRES_HOST: db
       # порт БД
       POSTGRES_PORT: 5432
+      # Allow 2s per dual-stack TCP connection attempt; the AI request still has a 30s deadline.
+      NODE_OPTIONS: --network-family-autoselection-attempt-timeout=2000
       AI_RECIPE_PROVIDER: ${AI_RECIPE_PROVIDER:-yandex}
       YANDEX_AI_API_KEY: ${YANDEX_AI_API_KEY:-}
       YANDEX_FOLDER_ID: ${YANDEX_FOLDER_ID:-}
