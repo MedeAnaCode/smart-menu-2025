@@ -1,0 +1,20 @@
+{
+  "title": "Шакшука",
+  "description": "Нарезать овощи. Обжарить лук, добавить перец, чеснок и помидоры. Добавить специи и яйца, готовить под крышкой.",
+  "preparing": "Нарезать овощи. Обжарить лук, добавить перец, чеснок и помидоры. Добавить специи и яйца, готовить под крышкой.",
+  "servings": 2,
+  "servingsSource": "estimated",
+  "ingredients": [
+    {"name": "Яйца", "amount": 4, "unit": "шт.", "needsReview": false, "warning": ""},
+    {"name": "Помидоры", "amount": 400, "unit": "г", "needsReview": false, "warning": ""},
+    {"name": "Лук", "amount": 1, "unit": "шт.", "needsReview": false, "warning": ""},
+    {"name": "Перец сладкий красный", "amount": 1, "unit": "шт.", "needsReview": false, "warning": ""},
+    {"name": "Чеснок", "amount": "2–3", "unit": "зубчик", "needsReview": false, "warning": ""},
+    {"name": "Соль, чёрный перец", "amount": "по вкусу", "unit": "", "needsReview": false, "warning": ""},
+    {"name": "Паприка", "amount": 1, "unit": "ч. л.", "needsReview": false, "warning": ""},
+    {"name": "Кумин (зира)", "amount": 1, "unit": "ч. л.", "needsReview": false, "warning": ""},
+    {"name": "Острый перец", "amount": "0,5", "unit": "ч. л.", "needsReview": false, "warning": "по желанию"},
+    {"name": "Оливковое масло", "amount": null, "unit": "", "needsReview": false, "warning": ""},
+    {"name": "Зелень", "amount": null, "unit": "", "needsReview": false, "warning": ""}
+  ]
+}

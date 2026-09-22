@@ -62,6 +62,8 @@ describe("Yandex recipe provider", () => {
         expect(body.completionOptions).not.toHaveProperty("json_schema");
         expectStrictObjectSchemas(body.json_schema.schema);
         expect(body.messages[1]).toEqual({role: "user", text: source});
+        expect(body.messages[0].role).toBe("system");
+        expect(body.messages[0].text).toContain('"2–3 зубчика чеснока" → name="Зубчик чеснока", amount=2, unit="шт", needsReview=false');
         expect(draft.preparing).toBe(preparing);
         expect(draft.description).toBe(description);
         expect(draft.ingredients[0].warning).toBeUndefined();
