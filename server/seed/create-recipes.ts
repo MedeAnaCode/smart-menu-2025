@@ -18,10 +18,10 @@ async function seedRecipes() {
         {
             title: 'Салат Греческий',
             ingredients: [
-                { name: 'Огурцы', amount: '2', um: 'шт' },
-                { name: 'Помидоры', amount: '3', um: 'шт' },
+                { name: 'Огурец', amount: '2', um: 'шт' },
+                { name: 'Помидор', amount: '3', um: 'шт' },
                 { name: 'Сыр Фета', amount: '100', um: 'г' },
-                { name: 'Маслины', amount: '', um: 'по вкусу' },
+                { name: 'Маслина', amount: '', um: 'по вкусу' },
                 { name: 'Лимонный сок', amount: '1', um: 'ст.л.' },
                 { name: 'Оливковое масло', amount: '2', um: 'ст.л.' }
             ],
@@ -34,7 +34,7 @@ async function seedRecipes() {
             ingredients: [
                 { name: 'Спагетти', amount: '200', um: 'г' },
                 { name: 'Бекон', amount: '150', um: 'г' },
-                { name: 'Яйца', amount: '2', um: 'шт' },
+                { name: 'Яйцо', amount: '2', um: 'шт' },
                 { name: 'Пармезан', amount: '50', um: 'г' },
                 { name: 'Чеснок', amount: '1', um: 'зубчик' }
             ],
@@ -48,7 +48,7 @@ async function seedRecipes() {
                 { name: 'Куриное филе', amount: '300', um: 'г' },
                 { name: 'Соус Терияки', amount: '3', um: 'ст.л.' },
                 { name: 'Соевый соус', amount: '2', um: 'ст.л.' },
-                { name: 'Мед', amount: '1', um: 'ч.л.' },
+                { name: 'Мёд', amount: '1', um: 'ч.л.' },
                 { name: 'Чеснок', amount: '1', um: 'зубчик' },
                 { name: 'Имбирь', amount: '', um: 'щепотка' }
             ],
@@ -60,7 +60,7 @@ async function seedRecipes() {
             title: 'Суп Минестроне',
             ingredients: [
                 { name: 'Бульон', amount: '500', um: 'мл' },
-                { name: 'Томаты', amount: '2', um: 'шт' },
+                { name: 'Томат', amount: '2', um: 'шт' },
                 { name: 'Морковь', amount: '1', um: 'шт' },
                 { name: 'Лук', amount: '1', um: 'шт' },
                 { name: 'Сельдерей', amount: '1', um: 'стебель' },
@@ -75,9 +75,9 @@ async function seedRecipes() {
             ingredients: [
                 { name: 'Кокосовое молоко', amount: '200', um: 'мл' },
                 { name: 'Лимонграсс', amount: '1', um: 'стебель' },
-                { name: 'Листья лайма', amount: '3', um: 'листа' },
-                { name: 'Креветки', amount: '100', um: 'г' },
-                { name: 'Грибы', amount: '50', um: 'г' }
+                { name: 'Лист лайма', amount: '3', um: 'листа' },
+                { name: 'Креветка', amount: '100', um: 'г' },
+                { name: 'Гриб', amount: '50', um: 'г' }
             ],
             preparing: 'Острый тайский суп на основе кокосового молока с креветками, лимонграссом, листьями лайма и грибами.',
             image: '/img/recipes/photo_5_2026-09-03_13-25-14.jpg',
@@ -111,7 +111,7 @@ async function seedRecipes() {
             title: 'Тыква с розмарином',
             ingredients: [
                 { name: 'Тыква', amount: '1', um: 'шт' },
-                { name: 'Розмарин сушёный', amount: '0.5', um: 'ст.л.' },
+                { name: 'Сушёный розмарин', amount: '0.5', um: 'ст.л.' },
                 { name: 'Оливковое масло', amount: '', um: 'по вкусу' },
                 { name: 'Соль', amount: '', um: 'по вкусу' },
             ],

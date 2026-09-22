@@ -63,6 +63,14 @@ describe("Yandex recipe provider", () => {
         expectStrictObjectSchemas(body.json_schema.schema);
         expect(body.messages[1]).toEqual({role: "user", text: source});
         expect(body.messages[0].role).toBe("system");
+        expect(body.messages[0].text).toContain("именительный падеж, единственное число независимо от количества");
+        expect(body.messages[0].text).toContain('"яйцо", "яйца", "яиц" → "Яйцо"');
+        expect(body.messages[0].text).toContain('"Спагетти", "Макароны", "Сливки", "Овсяные хлопья долгой варки"');
+        expect(body.messages[0].text).toContain("Не заменяй слова синонимами");
+        expect(body.messages[0].text).toContain('"масло оливковое" → "Оливковое масло"');
+        expect(body.messages[0].text).toContain('"розмарин сушёный" → "Сушёный розмарин"');
+        expect(body.messages[0].text).toContain('Пиши букву ё там, где она нужна по орфографии: "Мёд"');
+        expect(body.messages[0].text).toContain("description и preparing не изменяй ради нормализации названий");
         expect(body.messages[0].text).toContain('"2–3 зубчика чеснока" → name="Зубчик чеснока", amount=2, unit="шт", needsReview=false');
         expect(draft.preparing).toBe(preparing);
         expect(draft.description).toBe(description);
