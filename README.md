@@ -1,6 +1,6 @@
-# Smart Menu
+# PlanDish
 
-SmartMenu - fullstack-приложение для хранения и публикации рецептов, планирования недельных меню и формирования списков покупок.
+PlanDish — fullstack-приложение для хранения и публикации рецептов, планирования недельных меню и формирования списков покупок.
 
 ## Стек
 
@@ -49,7 +49,9 @@ Keycloak запускается командой `start-dev` и предназн
 Для существующего окружения выполните `docker compose up -d --no-deps keycloak`,
 затем в консоли Keycloak выберите realm `smartmenu` → Realm settings → Themes →
 Login theme → `smartmenu` → Save. Импорт при запуске не обновляет существующий
-realm. Для нового окружения тема уже указана в `smartmenu-realm.json`.
+realm. Там же в Realm settings → General укажите Display name: `PlanDish`, а в
+Clients → `smartmenu-web` укажите Name: `PlanDish Web`. Для нового окружения эти
+значения уже указаны в `smartmenu-realm.json`.
 
 После изменения CSS при необходимости перезапустите Keycloak и обновите страницу
 без кеша. При установке вне Compose скопируйте каталог темы в
@@ -105,7 +107,7 @@ npm run test:e2e:isolated
 2. migration runner последовательно применяет новые SQL-файлы из `docs/migrations`;
 3. применённые файлы фиксируются в таблице `schema_migrations`.
 
-Миграции SmartMenu v2:
+Миграции PlanDish v2:
 
 ```text
 docs/migrations/2026-07-28-smartmenu-v2.sql

@@ -59,7 +59,7 @@ body#keycloak-bg {
   height: 36px;
   margin: 0 auto;
   padding: 0;
-  background: url("../img/text-logo-mobile.svg") center / contain no-repeat;
+  background: url("../img/plandish-logo.svg") center / contain no-repeat;
   color: transparent;
   font-size: 0;
 }

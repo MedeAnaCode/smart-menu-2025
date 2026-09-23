@@ -10,9 +10,10 @@ async function seedRecipes() {
         defaults: {
             keycloakId: "smartmenu-catalog",
             email: "catalog@smartmenu.local",
-            name: "SmartMenu",
+            name: "PlanDish",
         },
     });
+    if (catalogOwner.name !== "PlanDish") await catalogOwner.update({name: "PlanDish"});
 
     const recipes = await Recipe.bulkCreate([
         {

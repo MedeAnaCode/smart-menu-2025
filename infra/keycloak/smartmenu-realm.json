@@ -1,7 +1,7 @@
 {
   "realm": "smartmenu",
   "enabled": true,
-  "displayName": "SmartMenu",
+  "displayName": "PlanDish",
   "loginTheme": "smartmenu",
   "registrationAllowed": true,
   "registrationEmailAsUsername": true,
@@ -12,7 +12,7 @@
   "clients": [
     {
       "clientId": "smartmenu-web",
-      "name": "SmartMenu Web",
+      "name": "PlanDish Web",
       "enabled": true,
       "publicClient": true,
       "standardFlowEnabled": true,

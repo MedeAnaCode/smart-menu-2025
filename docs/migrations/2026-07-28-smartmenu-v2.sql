@@ -1,4 +1,4 @@
--- SmartMenu v2 additive schema migration.
+-- PlanDish v2 additive schema migration.
 -- Existing applied migrations are intentionally not edited.
 
 ALTER TABLE recipes ADD COLUMN IF NOT EXISTS description TEXT NOT NULL DEFAULT '';

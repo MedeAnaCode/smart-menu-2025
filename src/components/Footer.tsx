@@ -21,11 +21,11 @@ function Footer () {
     return (
         <footer className={getFooterClassName()}>
             <div className={getFooterContainerClassName()}>
-                <Link className="page-footer__logo-link" to="/" aria-label="Smart Menu — главная">
+                <Link className="page-footer__logo-link" to="/" aria-label="PlanDish — главная">
     <span className="visually-hidden">
-        Логотип Smart menu.
+        Логотип PlanDish.
     </span>
-                    <img className="page-footer__logo-image" width="167" height="19" src='/img/icons/text-logo-mobile.svg' alt=""/>
+                    <img className="page-footer__logo-image" width="124" height="25" src='/img/plandish-logo.svg' alt=""/>
                 </Link>
                 <ul className="page-footer__social-list social-list" aria-label="Социальные сети">
                     <li className="social-list__item">

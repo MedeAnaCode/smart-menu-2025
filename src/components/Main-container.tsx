@@ -18,7 +18,7 @@ export default function MainContainer() {
         <div className="home-collection-layout"><section><div className="home-section-heading"><h2>{auth.authenticated ? 'Мои рецепты' : 'Рецепты'}</h2><Link to="/profile/recipes">Коллекция для вдохновения</Link></div>
             {isLoading && <p role="status">Загружаем рецепты...</p>}{isError && <p className="smartmenu-error" role="alert">Не удалось загрузить рецепты. <Link to="/profile/recipes">Открыть коллекцию</Link></p>}
             <div className="home-recipe-grid">{cards.map(recipe => <Link className="home-recipe" to="/profile/recipes" key={recipe.id}><RecipeImage src={recipe.image} alt={recipe.title} /><p className="eyebrow">{recipe.category}</p><h3>{recipe.title}</h3></Link>)}</div>
-            {!isLoading && !isError && cards.length === 0 && <div className="recipe-invitation"><span className="chef-mark"><img src="/img/logo-image-mobile.svg" alt="" /></span><h3>Место для нового любимого блюда</h3><Link to="/profile/recipes">Добавить свой рецепт →</Link></div>}
+            {!isLoading && !isError && cards.length === 0 && <div className="recipe-invitation"><span className="chef-mark"><img src="/img/plandish-logo.svg" alt="" /></span><h3>Место для нового любимого блюда</h3><Link to="/profile/recipes">Добавить свой рецепт →</Link></div>}
         </section><aside className="home-menu-note"><p><img src="/img/cart.svg" alt="" /> Моё меню</p><h2>Маленький план.<br />Больше свободного времени.</h2><p>Выбери блюда из коллекции — здесь появится твоё меню.</p><Link to="/profile/menu">Всё начинается с одного рецепта →</Link></aside></div>
     </div>;
 }

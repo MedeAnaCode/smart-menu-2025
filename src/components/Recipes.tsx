@@ -75,7 +75,7 @@ export default function Recipes() {
             {auth.authenticated&&<section aria-label="Моя коллекция">
                 {mineLoading&&<p role="status">Загружаем вашу коллекцию...</p>}{mineError&&<p className="smartmenu-error" role="alert">Не удалось загрузить коллекцию.</p>}
                 {!mineLoading&&!mineError&&collection.filter(matches).length===0&&<p className="smartmenu-empty">{search||category?'По вашему запросу ничего не найдено.':'Коллекция пока пуста.'}</p>}
-                <div className="recipes-container">{owned.filter(matches).map(r=>tile(r,'owned'))}{saved.filter(matches).map(r=>tile(r,'saved'))}<div className="recipe-invitation"><span className="chef-mark"><img src="/img/logo-image-mobile.svg" alt=""/></span><h2>Место для нового любимого блюда</h2><button className="ui-link" onClick={add}>Добавить свой рецепт →</button></div></div>
+                <div className="recipes-container">{owned.filter(matches).map(r=>tile(r,'owned'))}{saved.filter(matches).map(r=>tile(r,'saved'))}<div className="recipe-invitation"><span className="chef-mark"><img src="/img/plandish-logo.svg" alt=""/></span><h2>Место для нового любимого блюда</h2><button className="ui-link" onClick={add}>Добавить свой рецепт →</button></div></div>
             </section>}
             <section className="recipe-catalog" aria-labelledby="catalog-title"><h2 id="catalog-title">Общий каталог</h2>
                 {catalogLoading&&<p role="status">Загружаем каталог...</p>}{catalogError&&<p className="smartmenu-error" role="alert">Каталог временно недоступен.</p>}

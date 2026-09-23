@@ -1,4 +1,4 @@
--- SmartMenu v2: Keycloak identity linkage and normalized recipe ingredients.
+-- PlanDish v2: Keycloak identity linkage and normalized recipe ingredients.
 -- This migration is additive; previously applied migrations are not edited.
 
 ALTER TABLE users ADD COLUMN IF NOT EXISTS "keycloakId" VARCHAR(255);
