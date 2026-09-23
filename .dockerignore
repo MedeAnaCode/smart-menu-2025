@@ -3,3 +3,5 @@ dist
 .git
 Dockerfile*
 docker-compose.yml
+.idea
+server.zip

@@ -7,3 +7,5 @@ uploads/
 backups/
 .env
 .local/
+.idea/
+server.zip
