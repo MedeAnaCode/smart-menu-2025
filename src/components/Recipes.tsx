@@ -1,10 +1,10 @@
-import {useState} from 'react';
+import {useRef,useState} from 'react';
 import AddRecipeForm from './Add-recipe-form';
 import EditRecipeForm from './Edit-recipe-form';
 import {Modal} from './Modal';
 import Sidebar from './Sidebar';
 import ActionMenu, {type MenuAction} from './ActionMenu';
-import {useCloneRecipeMutation,useDeleteRecipeMutation,useGetMyRecipesQuery,useGetRecipesQuery,usePublishRecipeMutation,useSaveRecipeMutation,useUnsaveRecipeMutation,useUnpublishRecipeMutation,useUpdateRecipeMutation} from '../apiRtk';
+import {useCloneRecipeMutation,useDeleteRecipeMutation,useGetMyRecipesQuery,useGetRecipesQuery,useLazyGetRecipeQuery,usePublishRecipeMutation,useSaveRecipeMutation,useUnsaveRecipeMutation,useUnpublishRecipeMutation,useUpdateRecipeMutation} from '../apiRtk';
 import type {Recipe} from '../types';
 import RecipeImage from './RecipeImage';
 import {useAuth} from '../auth/AuthContext';
@@ -37,21 +37,33 @@ function RecipeTile({recipe,mode,alreadySaved,authenticated,onEdit,onDetails}: R
 }
 
 export default function Recipes() {
-    const [open,setOpen]=useState(false),[editingId,setEditingId]=useState<number|null>(null),[search,setSearch]=useState(''),[category,setCategory]=useState(''),[sideOpen,setSideOpen]=useState(false),[detailsId,setDetailsId]=useState<number|null>(null),[servings,setServings]=useState(1),[busy,setBusy]=useState(false);
+    const [open,setOpen]=useState(false),[editingId,setEditingId]=useState<number|null>(null),[search,setSearch]=useState(''),[category,setCategory]=useState(''),[sideOpen,setSideOpen]=useState(false),[selectedRecipe,setSelectedRecipe]=useState<Pick<Recipe,'id'|'title'|'servings'>|null>(null),[details,setDetails]=useState<Recipe|null>(null),[detailsStatus,setDetailsStatus]=useState<'idle'|'loading'|'error'>('idle'),[servings,setServings]=useState(1),[busy,setBusy]=useState(false);
     const auth=useAuth();
     const {data:catalog=[],isLoading:catalogLoading,isError:catalogError}=useGetRecipesQuery(search);
     const {data:mine,isLoading:mineLoading,isError:mineError}=useGetMyRecipesQuery(undefined,{skip:!auth.authenticated});
     const [updateRecipe]=useUpdateRecipeMutation();
+    const [getRecipe]=useLazyGetRecipeQuery();
+    const detailsRequestVersion=useRef(0);
     const owned=mine?.owned??[],saved=mine?.saved.map(item=>item.recipe).filter(Boolean)??[];
     const ownedIds=new Set(owned.map(r=>r.id)),savedIds=new Set(saved.map(r=>r.id));
     const visibleCatalog=catalog.filter(r=>!ownedIds.has(r.id)&&!savedIds.has(r.id));
     const collection=auth.authenticated?[...owned,...saved]:catalog;
     const categories=[...new Set(collection.map(r=>r.category))].sort();
     const matches=(r:Recipe)=>(!category||r.category===category)&&r.title.toLocaleLowerCase().includes(search.toLocaleLowerCase());
-    const details=[...owned,...saved,...catalog].find(r=>r.id===detailsId);
     const closeModal=()=>{setEditingId(null);setOpen(false);};
     const edit=(id:number)=>{setSideOpen(false);setEditingId(id);setOpen(true);};
-    const showDetails=(recipe:Recipe)=>{setDetailsId(recipe.id);setServings(recipe.servings);setSideOpen(true);};
+    const loadRecipeDetails=(recipe:Pick<Recipe,'id'|'title'|'servings'>)=>{
+        const requestVersion=++detailsRequestVersion.current;
+        setSelectedRecipe(recipe);setDetails(null);setDetailsStatus('loading');
+        void getRecipe(recipe.id,false).unwrap().then((loadedRecipe)=>{
+            if(requestVersion!==detailsRequestVersion.current)return;
+            setDetails(loadedRecipe);setDetailsStatus('idle');
+        }).catch(()=>{
+            if(requestVersion!==detailsRequestVersion.current)return;
+            setDetailsStatus('error');
+        });
+    };
+    const showDetails=(recipe:Recipe)=>{setServings(recipe.servings);setSideOpen(true);loadRecipeDetails({id:recipe.id,title:recipe.title,servings:recipe.servings});};
     const add=()=>{setEditingId(null);setOpen(true);};
     const tile=(recipe:Recipe,mode:'owned'|'saved'|'catalog')=><RecipeTile key={`${mode}-${recipe.id}`} recipe={recipe} mode={mode} authenticated={auth.authenticated} alreadySaved={savedIds.has(recipe.id)} onEdit={edit} onDetails={showDetails}/>;
     return <div className="workspace recipes-workspace">
@@ -72,7 +84,7 @@ export default function Recipes() {
             </section>
         </div>
         <Sidebar open={sideOpen} onOpenChange={setSideOpen}><section className="sidebar-section"><h3>Моя коллекция</h3><div className="recipe-categories"><button type="button" aria-pressed={!category} onClick={()=>{setCategory('');setSideOpen(false);}}>Все рецепты <span>{collection.length}</span></button>{categories.map(c=><button type="button" key={c} aria-pressed={category===c} onClick={()=>{setCategory(c);setSideOpen(false);}}>{c}<span>{collection.filter(r=>r.category===c).length}</span></button>)}</div></section>
-            <section className="sidebar-section recipe-details"><h3>Состав рецепта</h3>{!details?<p>Нажми «Состав» на карточке рецепта.</p>:<><h4>{details.title}</h4><p>{details.description}</p><label className="recipe-details__servings">Порций<input type="number" min="1" max="100" value={servings} onChange={e=>setServings(Math.min(100,Math.max(1,Number(e.target.value)||1)))}/></label><ul>{details.ingredients.map((item,i)=><li key={i}><span>{item.name}{item.custom&&<small>Свой ингредиент</small>}</span><span>{scaledAmount(item.amount,servings,details.servings)} {item.um}</span></li>)}</ul><h3>Приготовление</h3><p className="recipe-details__preparing">{details.preparing}</p>{details.author&&<p className="recipe-details__author">Автор: {details.author.name}</p>}</>}</section>
+            <section className="sidebar-section recipe-details"><h3>Состав рецепта</h3>{!selectedRecipe?<p>Нажми «Состав» на карточке рецепта.</p>:detailsStatus==='loading'?<p role="status">Загружаем состав рецепта «{selectedRecipe.title}»...</p>:detailsStatus==='error'?<><p role="alert" className="smartmenu-error">Не удалось загрузить состав рецепта.</p><button type="button" className="ui-link" onClick={()=>loadRecipeDetails(selectedRecipe)}>Повторить</button></>:details&&<><h4>{details.title}</h4><p>{details.description}</p><label className="recipe-details__servings">Порций<input type="number" min="1" max="100" value={servings} onChange={e=>setServings(Math.min(100,Math.max(1,Number(e.target.value)||1)))}/></label><ul>{details.ingredients.map((item,i)=><li key={i}><span>{item.name}{item.custom&&<small>Свой ингредиент</small>}</span><span>{scaledAmount(item.amount,servings,details.servings)} {item.um}</span></li>)}</ul><h3>Приготовление</h3><p className="recipe-details__preparing">{details.preparing}</p>{details.author&&<p className="recipe-details__author">Автор: {details.author.name}</p>}</>}</section>
         </Sidebar>
         <Modal open={open} onOpenChange={next=>{if(!next)closeModal();else setOpen(true);}} title={editingId?'Редактирование рецепта':'Новый рецепт'} busy={busy}>
             {editingId?<EditRecipeForm initialValues={owned.find(r=>r.id===editingId)??null} onSaved={async patch=>{await updateRecipe({id:editingId,patch}).unwrap();closeModal();}} onCancel={closeModal} onBusyChange={setBusy}/>:<AddRecipeForm onSuccess={closeModal} onBusyChange={setBusy}/>}
