@@ -92,7 +92,20 @@ export const apiRtk = createApi({
         }),
         updateMenu: builder.mutation<WeeklyMenu, {id: number; patch: Partial<WeeklyMenu>}>({
             query: ({id, patch}) => ({url: `/menus/${id}`, method: "PATCH", body: patch}),
-            invalidatesTags: ["Menu", "ShoppingList"],
+            // Keep the query cache in sync without invalidating it. Invalidating the
+            // active board remounted every card after a servings adjustment.
+            invalidatesTags: ["ShoppingList"],
+            async onQueryStarted(_arg, {dispatch, queryFulfilled}) {
+                try {
+                    const {data: updatedMenu} = await queryFulfilled;
+                    dispatch(apiRtk.util.updateQueryData("getMenus", undefined, (menus) => {
+                        const index = menus.findIndex((menu) => menu.id === updatedMenu.id);
+                        if (index >= 0) menus[index] = updatedMenu;
+                    }));
+                } catch {
+                    // Menu.tsx restores its optimistic draft if the request fails.
+                }
+            },
         }),
         deleteMenu: builder.mutation<void, number>({
             query: (id) => ({url: `/menus/${id}`, method: "DELETE"}),
@@ -100,7 +113,18 @@ export const apiRtk = createApi({
         }),
         addRecipeToMenu: builder.mutation<WeeklyMenu, {menuId: number; mealId: string; recipeId: number; servings: number}>({
             query: ({menuId, ...body}) => ({url: `/menus/${menuId}/recipes`, method: "POST", body}),
-            invalidatesTags: ["Menu", "ShoppingList"],
+            invalidatesTags: ["ShoppingList"],
+            async onQueryStarted(_arg, {dispatch, queryFulfilled}) {
+                try {
+                    const {data: updatedMenu} = await queryFulfilled;
+                    dispatch(apiRtk.util.updateQueryData("getMenus", undefined, (menus) => {
+                        const index = menus.findIndex((menu) => menu.id === updatedMenu.id);
+                        if (index >= 0) menus[index] = updatedMenu;
+                    }));
+                } catch {
+                    // The calling UI exposes a recoverable error state.
+                }
+            },
         }),
         getShoppingList: builder.query<ShoppingList, number>({
             query: (menuId) => `/menus/${menuId}/shopping-list`,

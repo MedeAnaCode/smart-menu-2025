@@ -319,9 +319,11 @@ test("основной сценарий рецепта, меню и списка
     if (await mobileSidebarClose.isVisible()) await mobileSidebarClose.click();
     await expectReadableMobilePlanner(page);
     await page.locator(".workspace__main").getByRole("button", {name: /Рассчитать список/}).click();
-    await expect(firstMeal.getByRole("checkbox", {name: /^Учитывать в покупках:/})).toBeChecked();
+    const shoppingSelectionDialog = page.getByRole("dialog", {name: "Рассчитать список покупок"});
+    await expect(shoppingSelectionDialog.getByRole("checkbox", {name: "Понедельник"})).toBeChecked();
+    await expect(shoppingSelectionDialog.getByRole("checkbox", {name: "E2E овощной суп"})).toBeChecked();
+    await shoppingSelectionDialog.getByRole("button", {name: "Закрыть"}).click();
     await expectReadableMobilePlanner(page);
-    await page.locator(".menu-week-toolbar").getByRole("button", {name: "Отмена", exact: true}).click();
     await page.screenshot({path: ".local/menu-mobile-verified.png", fullPage: true});
     await page.setViewportSize({width: 1000, height: 720});
     await firstMeal.getByRole("button", {name: "E2E овощной суп", exact: true}).click();
@@ -332,7 +334,6 @@ test("основной сценарий рецепта, меню и списка
 
     await monday.getByLabel("Комментарий к дню").fill("Подготовить овощи вечером");
     await monday.getByRole("button", {name: "Сохранить комментарий"}).click();
-    await expect(firstMeal.getByRole("checkbox", {name: /^Учитывать в покупках:/})).toHaveCount(0);
     await firstMeal.getByRole("button", {name: "+ продукт", exact: true}).click();
     await expect(firstMeal.locator(".smartmenu-extra-disclosure > summary")).toHaveCount(0);
     const commonProductSelect = firstMeal.getByLabel("Дополнительный продукт для Завтрак");
@@ -350,16 +351,14 @@ test("основной сценарий рецепта, меню и списка
     await firstMeal.getByRole("button", {name: "Добавить продукт"}).click();
     await expect(firstMeal.getByText(/Хлеб/)).toBeVisible();
     const breadRow = firstMeal.locator(".smartmenu-menu-item--extra").filter({hasText: "Хлеб"});
-    await expect(breadRow.getByRole("checkbox")).toHaveCount(0);
     await page.locator(".workspace__main").getByRole("button", {name: /Рассчитать список/}).click();
-    const breadCheckbox = breadRow.getByRole("checkbox");
+    const selectionWithBread = page.getByRole("dialog", {name: "Рассчитать список покупок"});
+    const breadCheckbox = selectionWithBread.getByRole("checkbox", {name: "Хлеб"});
     await expect(breadCheckbox).toBeChecked();
-    await expect(firstMeal.getByRole("checkbox", {name: "Учитывать в покупках: E2E овощной суп"})).toBeChecked();
     await breadCheckbox.click();
     await expect(breadCheckbox).not.toBeChecked();
-    await page.locator(".workspace__main").getByRole("button", {name: /Рассчитать список/}).click();
+    await selectionWithBread.getByRole("button", {name: "OK"}).click();
     await expect(page.locator('input[value="Тестовый овощ"]')).toBeVisible();
-    await expect(firstMeal.getByRole("checkbox", {name: /^Учитывать в покупках:/})).toHaveCount(0);
     const commonShoppingInput = page.locator(`input[value="${commonProductName}"]`);
     await expect(commonShoppingInput).toBeVisible();
     await expect.poll(() => commonShoppingInput.evaluate((input) => getComputedStyle(input).borderTopWidth)).toBe("1px");
@@ -370,10 +369,12 @@ test("основной сценарий рецепта, меню и списка
     await page.getByRole("button", {name: "Сохранить изменения"}).click();
     await expect(page.locator('input[value="Салфетки"]')).toBeVisible();
 
-    await page.getByRole("button", {name: "Рассчитать заново", exact: true}).click();
+    await page.getByRole("button", {name: "Закрыть"}).click();
+    await page.locator(".workspace__main").getByRole("button", {name: /Рассчитать список/}).click();
+    const selectionAfterManualChanges = page.getByRole("dialog", {name: "Рассчитать список покупок"});
     await expect(breadCheckbox).toBeChecked();
     page.once("dialog", (dialog) => void dialog.accept());
-    await page.locator(".workspace__main").getByRole("button", {name: /Рассчитать список/}).click();
+    await selectionAfterManualChanges.getByRole("button", {name: "OK"}).click();
     await expect(page.locator('input[value="Салфетки"]')).toHaveCount(0);
     await expect(page.locator('input[value="Хлеб"]')).toBeVisible();
 
@@ -386,11 +387,17 @@ test("основной сценарий рецепта, меню и списка
     await expect(page.locator(".desktop-menu")).toBeVisible();
     await expect(page.locator(".desktop-menu__grid .desktop-day")).toHaveCount(7);
     await expect(page.locator(".desktop-recipe-library")).toBeVisible();
+    await expect(page.getByLabel("Добавить день слева")).toBeVisible();
+    await expect(page.getByLabel("Добавить день справа")).toBeVisible();
+    await expect(page.getByLabel("Удалить последний день")).toBeVisible();
     await expectResponsiveLayout(page);
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({path: ".local/menu-desktop-verified.png", fullPage: true});
     const desktopMonday = page.locator(".desktop-day").first();
     const desktopDish = desktopMonday.locator(".desktop-dish").first();
+    const mealType = desktopMonday.getByLabel("Тип приёма пищи: Завтрак");
+    await expect(mealType).toHaveCount(1);
+    await expect(mealType.locator("option")).toHaveCount(4);
     await expect(desktopDish.getByRole("checkbox")).toHaveCount(0);
     await desktopDish.getByRole("button", {name: "Увеличить порции"}).click();
     await expect(desktopDish.locator(".desktop-stepper > span")).toHaveText("4");
@@ -407,8 +414,8 @@ test("основной сценарий рецепта, меню и списка
     expect(removePosition.right).toBeLessThanOrEqual(8);
     const addMeal = desktopMonday.getByRole("button", {name: /^Добавить приём пищи в день/});
     const mealCount = await desktopMonday.locator(".desktop-meal").count();
-    await addMeal.click();
-    await expect(desktopMonday.locator(".desktop-meal")).toHaveCount(mealCount + 1);
+    expect(mealCount).toBeLessThanOrEqual(4);
+    if (mealCount === 4) await expect(addMeal).toBeDisabled();
     const mealLayout = await desktopMonday.evaluate((day) => ({
         addTop: day.querySelector(".desktop-day__add-meal")!.getBoundingClientRect().top,
         mealsBottom: day.querySelector(".desktop-day__meals")!.getBoundingClientRect().bottom,
@@ -428,15 +435,16 @@ test("основной сценарий рецепта, меню и списка
     await tuesdayMeal.getByRole("button", {name: "Добавить продукт в Завтрак", exact: true}).click();
     await expect(tuesdayMeal.getByText("Продукт вторника 2 шт", {exact: true})).toBeVisible();
     await page.locator(".workspace__main").getByRole("button", {name: /Рассчитать список/}).click();
-    const weekCheckboxes = page.locator(".desktop-menu").getByRole("checkbox", {name: /^Учитывать в покупках:/});
-    await expect(weekCheckboxes).toHaveCount(4);
-    for (const checkbox of await weekCheckboxes.all()) await expect(checkbox).toBeChecked();
-    await tuesdayMeal.getByRole("checkbox", {name: "Учитывать в покупках: Продукт вторника"}).uncheck();
-    await page.locator(".workspace__main").getByRole("button", {name: /Рассчитать список/}).click();
-    await expect(weekCheckboxes).toHaveCount(0);
+    const desktopSelection = page.getByRole("dialog", {name: "Рассчитать список покупок"});
+    await expect(desktopSelection.getByRole("checkbox", {name: "Вторник"})).toBeChecked();
+    await expect(desktopSelection.getByRole("checkbox", {name: "Продукт вторника"})).toBeChecked();
+    await desktopSelection.getByRole("checkbox", {name: "Продукт вторника"}).uncheck();
+    await desktopSelection.getByRole("button", {name: "OK"}).click();
     await expect(page.locator('input[value="Продукт вторника"]')).toHaveCount(0);
+    await page.getByRole("button", {name: "Закрыть"}).click();
     await page.locator(".workspace__main").getByRole("button", {name: /Рассчитать список/}).click();
-    await expect(tuesdayMeal.getByRole("checkbox", {name: "Учитывать в покупках: Продукт вторника"})).toBeChecked();
+    await expect(page.getByRole("dialog", {name: "Рассчитать список покупок"}).getByRole("checkbox", {name: "Продукт вторника"})).toBeChecked();
+    await page.getByRole("dialog", {name: "Рассчитать список покупок"}).getByRole("button", {name: "Закрыть"}).click();
     let releasePatch!: () => void;
     let markPatchStarted!: () => void;
     const patchGate = new Promise<void>(resolve => { releasePatch = resolve; });
@@ -451,6 +459,7 @@ test("основной сценарий рецепта, меню и списка
     });
     try {
         await page.locator(".workspace__main").getByRole("button", {name: /Рассчитать список/}).click();
+        await page.getByRole("dialog", {name: "Рассчитать список покупок"}).getByRole("button", {name: "OK"}).click();
         await patchStarted;
         await expect(desktopDish.getByRole("button", {name: "Увеличить порции"})).toBeDisabled();
         await expect(page.getByLabel("Выбранное меню")).toBeDisabled();
@@ -460,10 +469,10 @@ test("основной сценарий рецепта, меню и списка
     }
     await expect(page.locator('input[value="Продукт вторника"]')).toBeVisible();
     await page.unroute(menuPatchUrl);
+    await page.getByRole("button", {name: "Закрыть"}).click();
     await page.locator(".workspace__main").getByRole("button", {name: /Рассчитать список/}).click();
-    await tuesdayMeal.getByRole("checkbox", {name: "Учитывать в покупках: Продукт вторника"}).uncheck();
-    await page.locator(".desktop-menu__actions").getByRole("button", {name: "Отмена", exact: true}).click();
-    await expect(weekCheckboxes).toHaveCount(0);
+    await page.getByRole("dialog", {name: "Рассчитать список покупок"}).getByRole("checkbox", {name: "Продукт вторника"}).uncheck();
+    await page.getByRole("dialog", {name: "Рассчитать список покупок"}).getByRole("button", {name: "Закрыть"}).click();
     await expect(page.locator('input[value="Продукт вторника"]')).toBeVisible();
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({path: ".local/menu-desktop-verified.png", fullPage: true});
