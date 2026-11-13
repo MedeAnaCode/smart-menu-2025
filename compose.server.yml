@@ -1,0 +1,113 @@
+# Initial server deployment by public IP. This intentionally keeps the existing
+# docker-compose.yml unchanged for local development.
+#
+# It is an HTTP-only trial setup. Move to a domain + HTTPS reverse proxy before
+# treating accounts or user content as production data.
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in .env.server}
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env.server}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.server}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.0
+    # start-dev permits the temporary HTTP-only IP deployment. Switch to
+    # Keycloak production mode when the domain and HTTPS proxy are added.
+    command: start-dev --import-realm
+    restart: unless-stopped
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:?Set POSTGRES_DB in .env.server}
+      KC_DB_USERNAME: ${POSTGRES_USER:?Set POSTGRES_USER in .env.server}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.server}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:?Set KEYCLOAK_ADMIN_USERNAME in .env.server}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Set KEYCLOAK_ADMIN_PASSWORD in .env.server}
+      # Used by the Keycloak realm-import placeholders below.
+      APP_ORIGIN: ${APP_ORIGIN:?Set APP_ORIGIN in .env.server}
+      KC_HOSTNAME: ${KEYCLOAK_PUBLIC_URL:?Set KEYCLOAK_PUBLIC_URL in .env.server}
+    volumes:
+      - ./infra/keycloak/server/smartmenu-realm.json:/opt/keycloak/data/import/smartmenu-realm.json:ro
+      - ./infra/keycloak/themes/smartmenu:/opt/keycloak/themes/smartmenu:ro
+      - ./public/fonts:/opt/keycloak/themes/smartmenu/login/resources/fonts:ro
+      - ./public/img/icons:/opt/keycloak/themes/smartmenu/login/resources/img:ro
+    ports:
+      - "${KEYCLOAK_PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "bash -ec 'exec 3<>/dev/tcp/127.0.0.1/8080'"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 20s
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    command: sh -lc "npm run seed:ifempty && npm run dev:api"
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in .env.server}
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env.server}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.server}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      NODE_OPTIONS: --network-family-autoselection-attempt-timeout=2000
+      AI_RECIPE_PROVIDER: ${AI_RECIPE_PROVIDER:-yandex}
+      YANDEX_AI_API_KEY: ${YANDEX_AI_API_KEY:-}
+      YANDEX_FOLDER_ID: ${YANDEX_FOLDER_ID:-}
+      YANDEX_AI_RECIPE_MODEL: ${YANDEX_AI_RECIPE_MODEL:-yandexgpt-lite}
+      KEYCLOAK_INTERNAL_URL: http://keycloak:8080
+      KEYCLOAK_PUBLIC_URL: ${KEYCLOAK_PUBLIC_URL:?Set KEYCLOAK_PUBLIC_URL in .env.server}
+      KEYCLOAK_REALM: smartmenu
+      KEYCLOAK_CLIENT_ID: smartmenu-web
+      MIGRATIONS_DIR: /app/docs/migrations
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/recipes').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend.server
+      args:
+        SMARTMENU_KEYCLOAK_PORT: ${KEYCLOAK_PORT:-8080}
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-80}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/ >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+
+volumes:
+  db_data:
+  uploads_data:

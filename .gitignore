@@ -6,6 +6,7 @@ playwright-report/
 uploads/
 backups/
 .env
+.env.server
 .local/
 .idea/
 server.zip
