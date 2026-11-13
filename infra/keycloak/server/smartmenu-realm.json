@@ -1,6 +1,7 @@
 {
   "realm": "smartmenu",
   "enabled": true,
+  "sslRequired": "NONE",
   "displayName": "PlanDish",
   "loginTheme": "smartmenu",
   "registrationAllowed": true,

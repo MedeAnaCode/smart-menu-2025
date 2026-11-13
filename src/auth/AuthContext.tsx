@@ -30,11 +30,22 @@ export function AuthProvider({children}: {children: ReactNode}) {
         authenticated,
         name: String(keycloak.tokenParsed?.name ?? keycloak.tokenParsed?.preferred_username ?? ""),
         login: async () => {
-            await initializeKeycloak();
+            // A failed background `check-sso` must not turn the visible login
+            // control into a no-op. The explicit login request can still
+            // navigate to Keycloak and surface its own error page if needed.
+            try {
+                await initializeKeycloak();
+            } catch {
+                // Continue with the interactive authentication redirect.
+            }
             await keycloak.login({redirectUri: window.location.href});
         },
         register: async () => {
-            await initializeKeycloak();
+            try {
+                await initializeKeycloak();
+            } catch {
+                // See the matching login fallback above.
+            }
             await keycloak.register({redirectUri: `${window.location.origin}/profile/recipes`});
         },
         logout: async () => {
